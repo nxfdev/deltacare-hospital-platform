@@ -475,4 +475,66 @@ export interface FacebookPostBatch {
   isStale?: boolean;
 }
 
+// ============================================================================
+// DeltaCare Master Dashboard, Role Architecture & Operational Insights Types
+// ============================================================================
+
+export type InsightSeverity = "CRITICAL" | "WARNING" | "INFO";
+
+export interface OperationalInsight {
+  id: string;
+  title: string;
+  description: string;
+  severity: InsightSeverity;
+  category: "APPOINTMENTS" | "CAPACITY" | "SCHEDULE" | "CONTENT" | "COMPLIANCE" | "SYSTEM";
+  metric: string;
+  evidence: string;
+  recommendedAction: string;
+  actionLink?: string;
+  actionTab?: string;
+  freshness: string;
+}
+
+export interface PlatformSubscription {
+  id: string;
+  hospitalId: string;
+  hospitalName: string;
+  planName: "COMMUNITY" | "REGIONAL" | "ENTERPRISE";
+  status: "ACTIVE" | "TRIAL" | "SUSPENDED";
+  billingCycle: "MONTHLY" | "ANNUAL";
+  monthlyFeeBdt: number;
+  maxBranches: number;
+  maxDoctors: number;
+  maxAppointmentsPerMonth: number;
+  startDate: string;
+  renewalDate: string;
+  autoRenew: boolean;
+}
+
+export interface SystemServiceHealth {
+  name: string;
+  category: "CORE" | "DATABASE" | "MESSAGING" | "AI" | "STORAGE";
+  status: "HEALTHY" | "DEGRADED" | "DOWN";
+  latencyMs: number;
+  uptimePercent: number;
+  lastCheckedAt: string;
+  details?: string;
+}
+
+export interface PlatformHospitalSummary {
+  id: string;
+  code: string;
+  nameEn: string;
+  nameBn: string;
+  status: "ACTIVE" | "MAINTENANCE" | "PENDING_APPROVAL" | "SUSPENDED";
+  branchesCount: number;
+  doctorsCount: number;
+  appointmentsCount: number;
+  subscriptionPlan: "COMMUNITY" | "REGIONAL" | "ENTERPRISE";
+  subscriptionStatus: "ACTIVE" | "TRIAL" | "SUSPENDED";
+  onboardedAt: string;
+  adminContactEmail: string;
+  primaryPhone: string;
+}
+
 

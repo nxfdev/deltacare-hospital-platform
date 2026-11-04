@@ -25,6 +25,24 @@ import {
   Share2,
   History,
   Sparkles,
+  CreditCard,
+  Radio,
+  Server,
+  Zap,
+  Lock,
+  HelpCircle,
+  Plus,
+  CalendarDays,
+  DollarSign,
+  Bell,
+  User,
+  UserX,
+  Layers,
+  MapPin,
+  ShieldCheck,
+  Clock,
+  UserCheck,
+  RefreshCw,
 } from "lucide-react";
 import {
   AIUpdateDraft,
@@ -44,6 +62,7 @@ import {
   Specialty,
   UserAccount,
   FacebookPostBatch,
+  OperationalInsight,
 } from "@/types/domain";
 import { OperationalAnalyticsReport } from "@/server/services/communicationAndAnalyticsService";
 import { SuperAdminView } from "./SuperAdminView";
@@ -75,6 +94,7 @@ interface AdminConsoleClientProps {
   initialUsers: Array<Pick<UserAccount, "id" | "email" | "fullName" | "phone" | "role" | "scopedBranchId" | "isActive" | "updatedAt">>;
   initialAuditEvents: AuditEvent[];
   initialFacebookBatches?: FacebookPostBatch[];
+  initialInsights?: OperationalInsight[];
 }
 
 export function AdminConsoleClient({
@@ -89,10 +109,12 @@ export function AdminConsoleClient({
   initialApprovals,
   initialAIUpdates,
   initialFeedbacks,
+  initialNotifications = [],
   initialAnalytics,
   initialUsers,
   initialAuditEvents,
   initialFacebookBatches = [],
+  initialInsights = [],
 }: AdminConsoleClientProps) {
   const router = useRouter();
 
@@ -561,7 +583,7 @@ export function AdminConsoleClient({
               {roleInfo.sub}
             </div>
 
-            {/* SUPER ADMIN NAVIGATION */}
+            {/* SUPER ADMIN NAVIGATION (Section 4 Specification) */}
             {currentUser.role === "SUPER_ADMIN" && (
               <>
                 <button
@@ -590,10 +612,55 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "hospitals" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Hospital &amp; Branches</span>
+                    <span>Hospitals</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("onboarding")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "onboarding"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Plus className={`w-4 h-4 shrink-0 ${activeTab === "onboarding" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Hospital Onboarding</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("subscriptions")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "subscriptions"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <CreditCard className={`w-4 h-4 shrink-0 ${activeTab === "subscriptions" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Subscriptions &amp; Plans</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("users")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "users"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "users" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Platform Users</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {initialBranches.length}
+                    {users.length}
                   </span>
                 </button>
 
@@ -608,10 +675,52 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Users className={`w-4 h-4 shrink-0 ${activeTab === "staff" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Staff &amp; RBAC Accounts</span>
+                    <span>Platform Staff</span>
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {users.length}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("integrations")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "integrations"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Radio className={`w-4 h-4 shrink-0 ${activeTab === "integrations" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Integrations</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("health")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "health"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Server className={`w-4 h-4 shrink-0 ${activeTab === "health" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>System Health</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("analytics")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "analytics"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Zap className={`w-4 h-4 shrink-0 ${activeTab === "analytics" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Platform Analytics</span>
                   </span>
                 </button>
 
@@ -626,10 +735,40 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Shield className={`w-4 h-4 shrink-0 ${activeTab === "audit" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Audit Logs &amp; Security</span>
+                    <span>Audit Logs</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
                     {auditEvents.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("security")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "security"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Lock className={`w-4 h-4 shrink-0 ${activeTab === "security" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Security &amp; Isolation</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("support")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "support"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <HelpCircle className={`w-4 h-4 shrink-0 ${activeTab === "support" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Support &amp; Assistance</span>
                   </span>
                 </button>
 
@@ -644,13 +783,13 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Sliders className={`w-4 h-4 shrink-0 ${activeTab === "config" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Platform Configuration</span>
+                    <span>Platform Settings</span>
                   </span>
                 </button>
               </>
             )}
 
-            {/* HOSPITAL ADMIN NAVIGATION */}
+            {/* HOSPITAL ADMIN NAVIGATION (Section 5 Specification) */}
             {(currentUser.role === "HOSPITAL_ADMIN" || currentUser.role === "DEPT_MANAGER") && (
               <>
                 <button
@@ -664,7 +803,57 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Hospital Operations</span>
+                    <span>Hospital Overview</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("appointments")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "appointments"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "appointments" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Appointments</span>
+                  </span>
+                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
+                      {appointments.filter((a) => a.status === "REQUESTED").length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("calendar")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "calendar"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <CalendarDays className={`w-4 h-4 shrink-0 ${activeTab === "calendar" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Appointment Calendar</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("patients")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "patients"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <User className={`w-4 h-4 shrink-0 ${activeTab === "patients" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Patients Directory</span>
                   </span>
                 </button>
 
@@ -697,7 +886,7 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "departments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Departments &amp; Services</span>
+                    <span>Departments</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
                     {departments.length}
@@ -706,22 +895,140 @@ export function AdminConsoleClient({
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("appointments")}
+                  onClick={() => handleTabChange("specialties")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "appointments"
+                    activeTab === "specialties"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "appointments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Appointments</span>
+                    <Layers className={`w-4 h-4 shrink-0 ${activeTab === "specialties" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Specialties</span>
                   </span>
-                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
-                      {appointments.filter((a) => a.status === "REQUESTED").length}
-                    </span>
-                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("branches")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "branches"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <MapPin className={`w-4 h-4 shrink-0 ${activeTab === "branches" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Hospital Branches</span>
+                  </span>
+                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
+                    {initialBranches.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("schedules")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "schedules"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Clock className={`w-4 h-4 shrink-0 ${activeTab === "schedules" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Doctor Schedules</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("leave")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "leave"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <UserX className={`w-4 h-4 shrink-0 ${activeTab === "leave" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Leave &amp; Availability</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("staff")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "staff"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "staff" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Staff &amp; Users</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("roles")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "roles"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <ShieldCheck className={`w-4 h-4 shrink-0 ${activeTab === "roles" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Roles &amp; Permissions</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("fees")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "fees"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <DollarSign className={`w-4 h-4 shrink-0 ${activeTab === "fees" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Consultation Fees</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("reports")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "reports"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "reports" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Reports &amp; Analytics</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("notifications")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "notifications"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Bell className={`w-4 h-4 shrink-0 ${activeTab === "notifications" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Notifications</span>
+                  </span>
                 </button>
 
                 <button
@@ -746,19 +1053,179 @@ export function AdminConsoleClient({
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("feedback")}
+                  onClick={() => handleTabChange("audit")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "feedback"
+                    activeTab === "audit"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "feedback" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Feedback &amp; Complaints</span>
+                    <History className={`w-4 h-4 shrink-0 ${activeTab === "audit" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Audit History</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("settings")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "settings"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Sliders className={`w-4 h-4 shrink-0 ${activeTab === "settings" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Hospital Settings</span>
+                  </span>
+                </button>
+              </>
+            )}
+
+            {/* RECEPTIONIST NAVIGATION (Section 6 Specification) */}
+            {currentUser.role === "RECEPTIONIST" && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("overview")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "overview"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
+                    <span>Front Desk Overview</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("requests")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "requests"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Clock className={`w-4 h-4 shrink-0 ${activeTab === "requests" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Appointment Requests</span>
+                  </span>
+                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
+                      {appointments.filter((a) => a.status === "REQUESTED").length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("today")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "today"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "today" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Today&apos;s Queue</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {feedbacks.length}
+                    {appointments.filter((a) => a.preferredDate === new Date().toISOString().split("T")[0]).length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("calendar")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "calendar"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <CalendarDays className={`w-4 h-4 shrink-0 ${activeTab === "calendar" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Chamber Calendar</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("new-booking")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "new-booking"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <Plus className={`w-4 h-4 shrink-0 ${activeTab === "new-booking" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>New Appointment</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("walk-ins")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "walk-ins"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <UserCheck className={`w-4 h-4 shrink-0 ${activeTab === "walk-ins" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Walk-In Patients</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("patients")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "patients"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <User className={`w-4 h-4 shrink-0 ${activeTab === "patients" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Patient Directory</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("rescheduling")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "rescheduling"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <RefreshCw className={`w-4 h-4 shrink-0 ${activeTab === "rescheduling" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Rescheduling</span>
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTabChange("cancellations")}
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "cancellations"
+                      ? "bg-[#0057b8] text-white shadow font-bold"
+                      : "text-[#e8f0f9] hover:bg-white/10"
+                  }`}
+                >
+                  <span className="flex items-center gap-2.5 truncate">
+                    <UserX className={`w-4 h-4 shrink-0 ${activeTab === "cancellations" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Cancellations</span>
                   </span>
                 </button>
 
@@ -773,80 +1240,22 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "reports" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Operational Reports</span>
-                  </span>
-                </button>
-              </>
-            )}
-
-            {/* RECEPTIONIST NAVIGATION */}
-            {currentUser.role === "RECEPTIONIST" && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("today")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "today"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "today" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Today&apos;s Queue</span>
-                  </span>
-                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
-                      {appointments.filter((a) => a.status === "REQUESTED").length}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("appointments")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "appointments"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "appointments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Appointment Lookup</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {appointments.length}
+                    <span>Daily Reports</span>
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("schedules")}
+                  onClick={() => handleTabChange("my-profile")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "schedules"
+                    activeTab === "my-profile"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "schedules" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Doctor Schedules (View)</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("register-feedback")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "register-feedback"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "register-feedback" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Register Walk-in Feedback</span>
+                    <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "my-profile" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Desk Profile</span>
                   </span>
                 </button>
               </>
@@ -1019,13 +1428,8 @@ export function AdminConsoleClient({
               branches={initialBranches}
               users={users}
               auditEvents={auditEvents}
-              analytics={{
-                totalAppointments: initialAnalytics.appointments.total,
-                appointmentsByStatus: initialAnalytics.appointments.byStatus,
-                totalDoctors: doctors.length,
-                totalDepartments: departments.length,
-                assistantQueriesTotal: initialAnalytics.aiAssistant.totalInteractions,
-              }}
+              analytics={initialAnalytics}
+              insights={initialInsights}
               onUpdateUserStatus={handleUpdateUserStatus}
               statusBanner={statusBanner}
               activeTab={activeTab as any}
@@ -1035,6 +1439,7 @@ export function AdminConsoleClient({
 
           {(currentUser.role === "HOSPITAL_ADMIN" || currentUser.role === "DEPT_MANAGER") && (
             <HospitalAdminView
+              hospital={initialHospital}
               doctors={doctors}
               departments={departments}
               branches={initialBranches}
@@ -1042,6 +1447,10 @@ export function AdminConsoleClient({
               appointments={appointments}
               approvals={approvals}
               feedbacks={feedbacks}
+              users={users}
+              notifications={initialNotifications}
+              auditEvents={auditEvents}
+              insights={initialInsights}
               analytics={{
                 totalAppointments: initialAnalytics.appointments.total,
                 appointmentsByStatus: initialAnalytics.appointments.byStatus,
@@ -1066,8 +1475,11 @@ export function AdminConsoleClient({
               doctors={doctors}
               departments={departments}
               branches={initialBranches}
+              notifications={initialNotifications}
+              insights={initialInsights}
               onTransitionAppointment={handleTransitionAppointment}
               onSubmitFeedback={handleRegisterFeedback}
+              onAppointmentCreated={(newApt) => setAppointments((prev) => [newApt, ...prev])}
               activeTab={activeTab as any}
               onTabChange={handleTabChange as any}
             />

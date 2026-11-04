@@ -7,6 +7,7 @@ import {
 } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
 import { getOperationalAnalytics } from "@/server/services/communicationAndAnalyticsService";
+import { getOperationalInsights } from "@/server/services/insightsService";
 import { AdminConsoleClient } from "@/components/admin/AdminConsoleClient";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,7 @@ export default async function AdminPage() {
 
   const db = getDbState();
   const analytics = getOperationalAnalytics();
+  const insights = getOperationalInsights(session.role, session.scopedBranchId);
 
   // Enforce branch-level appointment isolation for receptionist
   const scopedAppointments =
@@ -63,6 +65,7 @@ export default async function AdminPage() {
       }))}
       initialAuditEvents={db.auditEvents}
       initialFacebookBatches={db.facebookBatches || []}
+      initialInsights={insights}
     />
   );
 }

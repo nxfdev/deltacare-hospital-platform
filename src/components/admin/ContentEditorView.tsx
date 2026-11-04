@@ -29,6 +29,8 @@ import {
   RefreshCw,
   History,
   Image as ImageIcon,
+  Globe,
+  Activity,
 } from "lucide-react";
 import {
   AIUpdateDraft,
@@ -47,11 +49,13 @@ import { DoctorPublicProfilePreviewModal } from "./facebook/DoctorPublicProfileP
 import { drawDoctorCardToCanvas } from "./facebook/cardCanvasRenderer";
 
 export type ContentEditorTab =
+  | "overview"
   | "content"
   | "profiles"
+  | "media"
   | "generator"
+  | "seo"
   | "publishing"
-  | "overview"
   | "departments"
   | "ai-updates";
 
@@ -89,8 +93,7 @@ export function ContentEditorView({
   const [internalTab, setInternalTab] = useState<ContentEditorTab>("content");
   const rawTab = controlledTab || internalTab;
   // Normalize backwards-compatible aliases
-  const activeTab: ContentEditorTab =
-    rawTab === "overview" ? "content" : rawTab;
+  const activeTab: ContentEditorTab = rawTab;
 
   const setTab = (tab: ContentEditorTab) => {
     setInternalTab(tab);
@@ -470,14 +473,27 @@ export function ContentEditorView({
   return (
     <div className="space-y-6">
       {/* ====================================================================
-          CMS TOP NAVIGATION TABS (Simplified 4-Section Workflow)
+          CMS TOP NAVIGATION TABS (Section 7 Specification)
          ==================================================================== */}
       <div className="bg-white rounded-2xl border border-[#d6d6d6] p-2 flex flex-wrap items-center justify-between gap-2 shadow-sm">
         <div className="flex flex-wrap items-center gap-1.5">
           <button
             type="button"
+            onClick={() => setTab("overview")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === "overview"
+                ? "bg-[#0057b8] text-white shadow"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>CMS Overview</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setTab("content")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "content"
                 ? "bg-[#0057b8] text-white shadow"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -490,7 +506,7 @@ export function ContentEditorView({
           <button
             type="button"
             onClick={() => setTab("profiles")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "profiles"
                 ? "bg-[#0057b8] text-white shadow"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -505,8 +521,21 @@ export function ContentEditorView({
 
           <button
             type="button"
+            onClick={() => setTab("media")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === "media"
+                ? "bg-[#0057b8] text-white shadow"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
+          >
+            <ImageIcon className="w-4 h-4" />
+            <span>Media Library</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setTab("generator")}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "generator"
                 ? "bg-[#0057b8] text-white shadow"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -521,11 +550,24 @@ export function ContentEditorView({
 
           <button
             type="button"
+            onClick={() => setTab("seo")}
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+              activeTab === "seo"
+                ? "bg-[#0057b8] text-white shadow"
+                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
+          >
+            <Globe className="w-4 h-4" />
+            <span>SEO Management</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => {
               setTab("publishing");
               refreshPublishingHistory();
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "publishing"
                 ? "bg-[#0057b8] text-white shadow"
                 : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -540,6 +582,211 @@ export function ContentEditorView({
           CMS Editorial Workspace • Strict RBAC Boundary
         </div>
       </div>
+
+      {/* ====================================================================
+          TAB 0: CMS OVERVIEW (Section 7 Specification)
+         ==================================================================== */}
+      {activeTab === "overview" && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">Published Articles</span>
+              <p className="text-2xl font-bold text-[#080808]">{conditions.length}</p>
+              <span className="text-[10px] text-[#059669] font-bold">Health Directory</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">Departments</span>
+              <p className="text-2xl font-bold text-[#0057b8]">{departments.length}</p>
+              <span className="text-[10px] text-[#0057b8] font-bold">Public Overviews</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">Doctor Profiles</span>
+              <p className="text-2xl font-bold text-[#080808]">{doctors.length}</p>
+              <span className="text-[10px] text-[#059669] font-bold">Live Presentation</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">Missing Photos</span>
+              <p className="text-2xl font-bold text-[#d97706]">
+                {doctors.filter((d) => !d.imageUrl || d.imageUrl.includes("placeholder")).length}
+              </p>
+              <span className="text-[10px] text-[#d97706] font-bold">Needs Image</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">Pending Sign-Off</span>
+              <p className="text-2xl font-bold text-[#dc2626]">
+                {approvals.filter((a) => a.status === "PENDING_APPROVAL").length}
+              </p>
+              <span className="text-[10px] text-[#dc2626] font-bold">In Approval Queue</span>
+            </div>
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 space-y-1">
+              <span className="text-[11px] font-semibold text-[#686868] uppercase">FB Batches</span>
+              <p className="text-2xl font-bold text-[#4f46e5]">{facebookBatches.length}</p>
+              <span className="text-[10px] text-[#4f46e5] font-bold">Card Promos</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
+              <h3 className="font-bold text-base text-[#080808]">Content Health &amp; Editorial Action Items</h3>
+              <div className="space-y-3 text-xs">
+                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-[#080808]">Doctor Profile Visual Readiness</p>
+                    <p className="text-[11px] text-[#686868]">
+                      {Math.round(((doctors.length - doctors.filter((d) => !d.imageUrl || d.imageUrl.includes("placeholder")).length) / Math.max(1, doctors.length)) * 100)}% of specialists have approved photos with zoom/crop alignment.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTab("profiles")}
+                    className="font-bold text-[#0057b8] hover:underline"
+                  >
+                    Edit →
+                  </button>
+                </div>
+
+                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-[#080808]">Daily Social Media Promotional Cards</p>
+                    <p className="text-[11px] text-[#686868]">
+                      Generate branded 1080x1080 Facebook availability cards with Asia/Dhaka schedule verification.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setTab("generator")}
+                    className="font-bold text-[#0057b8] hover:underline"
+                  >
+                    Generate →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
+              <h3 className="font-bold text-base text-[#080808]">Quick Navigation</h3>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setTab("content")}
+                  className="p-3 rounded-xl border border-[#ededed] hover:border-[#0057b8] text-left space-y-1 transition-colors"
+                >
+                  <p className="font-bold text-[#080808]">Disease Articles</p>
+                  <p className="text-[11px] text-[#686868]">Edit A-Z clinical copy</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab("profiles")}
+                  className="p-3 rounded-xl border border-[#ededed] hover:border-[#0057b8] text-left space-y-1 transition-colors"
+                >
+                  <p className="font-bold text-[#080808]">Doctor Biographies</p>
+                  <p className="text-[11px] text-[#686868]">Photos &amp; Taglines</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab("media")}
+                  className="p-3 rounded-xl border border-[#ededed] hover:border-[#0057b8] text-left space-y-1 transition-colors"
+                >
+                  <p className="font-bold text-[#080808]">Media Assets</p>
+                  <p className="text-[11px] text-[#686868]">Hospital photographs</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab("seo")}
+                  className="p-3 rounded-xl border border-[#ededed] hover:border-[#0057b8] text-left space-y-1 transition-colors"
+                >
+                  <p className="font-bold text-[#080808]">SEO Metadata</p>
+                  <p className="text-[11px] text-[#686868]">Search previews</p>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================================
+          TAB: MEDIA LIBRARY (Section 7 Specification)
+         ==================================================================== */}
+      {activeTab === "media" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h3 className="mc-serif text-xl text-[#080808]">Digital Media Asset Library</h3>
+                <p className="text-xs text-[#686868]">
+                  Verified imagery, high-resolution doctor headshots, and facility photography.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => alert("Upload media: Select image file to store in DeltaCare CDN assets.")}
+                className="mc-btn-primary text-xs"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Upload Media Asset</span>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 text-xs">
+              {[
+                { name: "Arizona Campus", path: "/images/inspo/Arizona.png", dims: "600x400", type: "Location" },
+                { name: "Florida Campus", path: "/images/inspo/Florida.png", dims: "600x400", type: "Location" },
+                { name: "Minnesota Campus", path: "/images/inspo/Minnesota.png", dims: "600x400", type: "Location" },
+                { name: "World Class Care", path: "/images/inspo/world-class care-MC1XASH-600x800.jpg", dims: "600x800", type: "Editorial" },
+                { name: "Healing Starts Here", path: "/images/inspo/healing-starts-here-MC11REJU-600x800.jpg", dims: "600x800", type: "Editorial" },
+                { name: "Doctor Synthetic 1", path: "/images/inspo/1710753_3980687_0060.png", dims: "800x800", type: "Doctor Headshot" },
+              ].map((asset) => (
+                <div key={asset.name} className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] space-y-2">
+                  <div className="aspect-video w-full rounded-lg bg-[#e2e8f0] overflow-hidden">
+                    <img
+                      src={asset.path}
+                      alt={asset.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as any).src = "/images/inspo/1710753_3980687_0060.png";
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <p className="font-bold text-[#080808] truncate">{asset.name}</p>
+                    <p className="text-[11px] text-[#686868]">{asset.dims} • {asset.type}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====================================================================
+          TAB: SEO MANAGEMENT (Section 7 Specification)
+         ==================================================================== */}
+      {activeTab === "seo" && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-5">
+            <div>
+              <h3 className="mc-serif text-xl text-[#080808]">Search Engine Optimization &amp; Social Meta</h3>
+              <p className="text-xs text-[#686868]">
+                Configure public meta titles, search descriptions, and OpenGraph social share previews.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl border border-[#ededed] bg-[#f8fafc] space-y-2 text-xs">
+              <span className="font-bold text-[#0057b8]">Google Search Preview</span>
+              <div className="p-3 bg-white rounded-lg border border-[#d6d6d6] space-y-1 max-w-lg">
+                <p className="text-xs text-[#1a0dab] font-bold hover:underline cursor-pointer">
+                  DeltaCare Hospital Platform — Care at DeltaCare (Dhaka, Bangladesh)
+                </p>
+                <p className="text-[11px] text-[#006621]">https://deltacare.bd</p>
+                <p className="text-xs text-[#545454]">
+                  DeltaCare is a premier digital healthcare institution providing world-class cardiology, neurology, pediatrics, and surgical care in Dhaka, Bangladesh.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {/* ====================================================================
           TAB 1: WEBSITE CONTENT

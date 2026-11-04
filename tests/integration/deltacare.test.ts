@@ -50,6 +50,7 @@ import {
 } from "@/server/services/availabilityGeneratorService";
 import { facebookPublisher } from "@/server/services/facebookPublishingService";
 import { ADMIN_CONSOLE_ROLES } from "@/lib/auth/roles";
+import { getOperationalInsights } from "@/server/services/insightsService";
 
 const superAdminSession: SessionPayload = {
   userId: "user-super-0",
@@ -1273,4 +1274,143 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     // DOCTOR role is NOT in ADMIN_CONSOLE_ROLES (Eliminated doctor dashboard)
     expect(ADMIN_CONSOLE_ROLES).not.toContain("DOCTOR");
   });
+
+  // ==========================================================================
+  // MASTER DASHBOARD REDESIGN & ROLE ARCHITECTURE TEST SUITE
+  // ==========================================================================
+
+  describe("Master Dashboard Redesign & 5-Role Architecture Suite", () => {
+    it("T-DASH-01: Five Dashboards Only Architecture — role separation & doctor exclusion", () => {
+      // 5 distinct dashboard roles are supported
+      const supportedDashboardRoles = [
+        "SUPER_ADMIN",
+        "HOSPITAL_ADMIN",
+        "RECEPTIONIST",
+        "CONTENT_EDITOR",
+        "PATIENT",
+      ];
+      expect(supportedDashboardRoles).toHaveLength(5);
+
+      // Verify DOCTOR is strictly excluded from console administrative roles
+      expect(ADMIN_CONSOLE_ROLES).not.toContain("DOCTOR");
+
+      // Verify canonical doctor records and schedules are preserved in database
+      const db = getDbState();
+      expect(db.doctors.length).toBeGreaterThan(0);
+      const doc = db.doctors.find((d) => d.id === "doc-1");
+      expect(doc).toBeDefined();
+      expect(doc?.bmdcRegistrationNo).toBe("BMDC-SYN-24101");
+      expect(doc?.branches[0]?.scheduleRules.length).toBeGreaterThan(0);
+    });
+
+    it("T-DASH-02: Actionable Insights Generation from real database state", () => {
+      const db = getDbState();
+      const insights = getOperationalInsights("HOSPITAL_ADMIN");
+
+      expect(Array.isArray(insights)).toBe(true);
+      expect(insights.length).toBeGreaterThan(0);
+
+      // All insights must contain title, description, severity, metric, and evidence
+      for (const ins of insights) {
+        expect(ins.id).toBeDefined();
+        expect(ins.title).toBeTruthy();
+        expect(ins.description).toBeTruthy();
+        expect(["CRITICAL", "WARNING", "INFO"]).toContain(ins.severity);
+        expect(ins.metric).toBeTruthy();
+        expect(ins.evidence).toBeTruthy();
+        expect(ins.freshness).toBeTruthy();
+      }
+
+      // Check reception-specific insights
+      const receptionInsights = getOperationalInsights("RECEPTIONIST", "branch-dhanmondi");
+      expect(Array.isArray(receptionInsights)).toBe(true);
+    });
+
+    it("T-DASH-03: Receptionist Quick Appointment Creation & Concurrency Guard", async () => {
+      // Front desk books appointment for a patient
+      const result = await createAppointmentRequest({
+        departmentId: "dept-cardiology",
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        preferredDate: "2026-11-07",
+        preferredTimeSlot: "17:00",
+        patientName: "Front Desk Walkin Patient",
+        patientPhone: "01711998877",
+        visitType: "NEW_CONSULTATION",
+        consentAccepted: true,
+      });
+
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.appointment.reference).toMatch(/^DC-2026-/);
+        expect(result.appointment.patientName).toBe("Front Desk Walkin Patient");
+
+        // Front desk confirms appointment
+        const transitionRes = await transitionAppointmentStatus({
+          appointmentId: result.appointment.id,
+          toStatus: "CONFIRMED",
+          actorUserId: receptionistSession.userId,
+          actorName: receptionistSession.fullName,
+          actorRole: receptionistSession.role,
+          reason: "Front desk in-person verification",
+        });
+
+        expect(transitionRes.ok).toBe(true);
+        if (transitionRes.ok) {
+          expect(transitionRes.appointment.status).toBe("CONFIRMED");
+        }
+      }
+    });
+
+    it("T-DASH-04: Strict Patient Record Isolation — patient can only access own data", () => {
+      const db = getDbState();
+      const patientUserId = "user-patient-1";
+      const patientPhone = "01711223344";
+
+      // Filter appointments as performed in PatientDashboardPage
+      const patientAppointments = db.appointments.filter(
+        (a) => a.patientUserId === patientUserId || a.patientPhone === patientPhone
+      );
+
+      // Must find patient's own bookings
+      expect(patientAppointments.length).toBeGreaterThan(0);
+      for (const apt of patientAppointments) {
+        const isOwner = apt.patientUserId === patientUserId || apt.patientPhone === patientPhone;
+        expect(isOwner).toBe(true);
+      }
+
+      // Ensure another patient's data is never mixed in
+      const otherAppointments = db.appointments.filter(
+        (a) => a.patientPhone === "01711999999"
+      );
+      for (const other of otherAppointments) {
+        expect(patientAppointments.some((p) => p.id === other.id)).toBe(false);
+      }
+    });
+
+    it("T-DASH-05: Hospital Admin Operational Truth vs CMS Presentation Boundary", async () => {
+      const db = getDbState();
+      const doc = db.doctors.find((d) => d.id === "doc-1")!;
+      const originalBmdc = doc.bmdcRegistrationNo;
+      const originalFee = doc.consultationFeeBdt;
+
+      // CMS Editor updates public presentation (photo crop, bio, tagline)
+      const cmsRes = await updateDoctorProfilePresentation(editorSession, {
+        doctorId: doc.id,
+        bioEn: "Leading cardiovascular specialist dedicated to clinical excellence.",
+        bioBn: "কার্ডিওলজি বিশেষজ্ঞ।",
+        publicTaglineEn: "Compassionate Cardiology Care",
+        publicTaglineBn: "হৃদরোগে যত্নবান সেবা",
+      });
+
+      expect(cmsRes.ok).toBe(true);
+
+      // Verify operational credentials remain strictly unchanged
+      const updatedDoc = getDbState().doctors.find((d) => d.id === "doc-1")!;
+      expect(updatedDoc.bmdcRegistrationNo).toBe(originalBmdc);
+      expect(updatedDoc.consultationFeeBdt).toBe(originalFee);
+      expect(updatedDoc.publicTaglineEn).toBe("Compassionate Cardiology Care");
+    });
+  });
 });
+

@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentSession, hasRolePermission, STAFF_ROLES } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
-import { appointmentStatusUpdateSchema } from "@/lib/validation/schemas";
-import { transitionAppointmentStatus } from "@/server/services/appointmentService";
+import {
+  appointmentRequestSchema,
+  appointmentStatusUpdateSchema,
+} from "@/lib/validation/schemas";
+import {
+  createAppointmentRequest,
+  transitionAppointmentStatus,
+} from "@/server/services/appointmentService";
 
 export async function GET(request: NextRequest) {
   const session = await getCurrentSession();
@@ -138,6 +144,72 @@ export async function PATCH(request: NextRequest) {
   } catch {
     return NextResponse.json(
       { ok: false, error: "Failed to update appointment." },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  const session = await getCurrentSession();
+  if (
+    !session ||
+    !hasRolePermission(session, [
+      "SUPER_ADMIN",
+      "HOSPITAL_ADMIN",
+      "DEPT_MANAGER",
+      "RECEPTIONIST",
+    ])
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Forbidden: Staff scheduling role required to book appointments." },
+      { status: 403 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { autoConfirm, source = "FRONT_DESK", ...aptData } = body;
+
+    const parsed = appointmentRequestSchema.safeParse(aptData);
+    if (!parsed.success) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: parsed.error.issues[0]?.message ?? "Invalid appointment booking payload.",
+        },
+        { status: 400 }
+      );
+    }
+
+    const result = await createAppointmentRequest(parsed.data, undefined);
+    if (!result.ok) {
+      return NextResponse.json({ ok: false, error: result.error }, { status: 409 });
+    }
+
+    let createdApt = result.appointment;
+
+    // If front-desk or admin requested auto-confirm
+    if (autoConfirm) {
+      const confirmedResult = await transitionAppointmentStatus({
+        appointmentId: createdApt.id,
+        toStatus: "CONFIRMED",
+        actorUserId: session.userId,
+        actorName: session.fullName,
+        actorRole: session.role,
+        reason: "Front-desk verified in-person / walk-in booking.",
+      });
+      if (confirmedResult.ok) {
+        createdApt = confirmedResult.appointment;
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      appointment: createdApt,
+    });
+  } catch {
+    return NextResponse.json(
+      { ok: false, error: "Failed to create appointment." },
       { status: 500 }
     );
   }
