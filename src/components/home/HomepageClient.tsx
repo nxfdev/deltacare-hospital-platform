@@ -91,78 +91,93 @@ export function HomepageClient({
       <AlphabetConditionDirectory conditions={conditions} />
 
       {/* ====================================================================
-          SECTION 6: LOCATIONS & HOSPITAL BRANCHES
-          - Exact 3-column grid where Col 1 is header/CTA and remaining 5 cards
-            flow across the 3-column grid with dark bottom gradient overlays
+          SECTION 4: HEALTH STORIES & CLINICAL APPROACH
+          - Story Split Cards ("Healing starts here" & "World-class care")
          ==================================================================== */}
-      <section
-        aria-labelledby="locations-section-heading"
-        className="bg-white py-16 md:py-20 border-b border-[#d6d6d6]"
-      >
-        <div className="mc-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Grid Item 1: Header & CTA Block (Mirrors inspo.html .cmp-locations-intro) */}
-            <div className="flex flex-col justify-center pr-4 py-4 space-y-5">
-              <h2
-                id="locations-section-heading"
-                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
-              >
-                {t.locationsSection.title}
+      <section className="bg-white py-16 md:py-20 border-b border-[#d6d6d6] space-y-20">
+        <div className="mc-container space-y-20">
+          {/* Story Split Block 1: "Healing starts here" (Text Left, Image Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-6 space-y-5">
+              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
+                {t.storySections.story1Title}
               </h2>
-              <p className="text-base text-[#686868] leading-relaxed">
-                {t.locationsSection.description}
-              </p>
-              <div>
-                <Link href="/locations" className="mc-btn-secondary">
-                  <span>{t.locationsSection.cta}</span>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-[#080808]">
+                  {t.storySections.story1Sub1Title}
+                </h3>
+                <p className="text-base text-[#424242] leading-relaxed">
+                  {t.storySections.story1Sub1Body}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-lg font-bold text-[#080808]">
+                  {t.storySections.story1Sub2Title}
+                </h3>
+                <p className="text-base text-[#424242] leading-relaxed">
+                  {t.storySections.story1Sub2Body}{" "}
+                  <Link
+                    href="/departments"
+                    className="text-[#004181] font-semibold underline hover:text-[#0057b8]"
+                  >
+                    {t.storySections.story1Link}
+                  </Link>
+                </p>
+              </div>
+
+              <div className="pt-2">
+                <Link href="/about" className="mc-btn-secondary">
+                  <span>{t.storySections.story1Cta}</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
 
-            {/* Grid Items 2..6: 5 Campus Image Cards with Bottom Gradient Scrim */}
-            {branches.slice(0, 5).map((branch) => (
-              <Link
-                key={branch.id}
-                href={`/locations/${branch.slug}`}
-                className="group relative rounded-2xl overflow-hidden min-h-[280px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
-              >
+            <div className="lg:col-span-6">
+              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
                 <img
-                  src={branch.imageUrl}
-                  alt={locale === "bn" ? branch.nameBn : branch.nameEn}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  src="/images/healing-starts-here.jpg"
+                  alt={t.storySections.story1Title}
+                  className="w-full max-h-[480px] object-cover"
                 />
-                <div className="absolute inset-0 mc-location-scrim" />
+              </div>
+            </div>
+          </div>
 
-                <div className="relative z-10 p-6 text-white">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-xl font-semibold text-white group-hover:underline">
-                      {locale === "bn" ? branch.nameBn : branch.nameEn}
-                    </h3>
-                    <ChevronRight className="w-5 h-5 text-white shrink-0 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                  <p className="mt-1 text-sm text-[#e8f0f9]">
-                    {locale === "bn" ? branch.subtitleBn : branch.subtitleEn}
-                  </p>
-                  <div className="mt-3 pt-2.5 border-t border-white/25 flex flex-wrap items-center gap-3 text-xs text-[#c5e2f9]">
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {locale === "bn" ? branch.cityBn : branch.cityEn}
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5" />
-                      {branch.phone}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+          {/* Story Split Block 2: "World-class care" (Image Left, Text Right on Desktop) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-6 order-2 lg:order-1">
+              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
+                <img
+                  src="/images/world-class-care.jpg"
+                  alt={t.storySections.story2Title}
+                  className="w-full max-h-[480px] object-cover"
+                />
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 order-1 lg:order-2 space-y-5">
+              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
+                {t.storySections.story2Title}
+              </h2>
+              <p className="text-base text-[#424242] leading-relaxed">
+                {t.storySections.story2Body}
+              </p>
+              <div className="pt-2">
+                <Link href="/international" className="mc-btn-secondary">
+                  <span>{t.storySections.story2Cta}</span>
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ====================================================================
-          SECTION 7: FEATURED CARE AREAS
+          SECTION 5: FEATURED CARE AREAS
           - 12-column layout (4-col intro + 8-col 2-column list of chevron links)
           - Mirrors inspo.html .cmp-link-list--featured-care
          ==================================================================== */}
@@ -224,89 +239,73 @@ export function HomepageClient({
       </section>
 
       {/* ====================================================================
-          SECTION 8: ADDITIONAL HOMEPAGE CONTENT
-          - Story Split Cards ("Healing starts here" & "World-class care")
-          - Featured Specialists Strip with direct booking links
-          - Institutional Governance Banner (#0d0d33 matching inspo.html)
+          SECTION 6: LOCATIONS & HOSPITAL BRANCHES
+          - Exact 3-column grid where Col 1 is header/CTA and remaining 5 cards
+            flow across the 3-column grid with dark bottom gradient overlays
+          - Positioned as the final section of the homepage right before the endbar
          ==================================================================== */}
-      <section className="bg-white py-16 md:py-20 space-y-20">
-        <div className="mc-container space-y-20">
-          {/* Story Split Block 1: "Healing starts here" (Text Left, Image Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-6 space-y-5">
-              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
-                {t.storySections.story1Title}
+      <section
+        aria-labelledby="locations-section-heading"
+        className="bg-white py-16 md:py-20"
+      >
+        <div className="mc-container">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Grid Item 1: Header & CTA Block (Mirrors inspo.html .cmp-locations-intro) */}
+            <div className="flex flex-col justify-center pr-4 py-4 space-y-5">
+              <h2
+                id="locations-section-heading"
+                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
+              >
+                {t.locationsSection.title}
               </h2>
-
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-[#080808]">
-                  {t.storySections.story1Sub1Title}
-                </h3>
-                <p className="text-base text-[#424242] leading-relaxed">
-                  {t.storySections.story1Sub1Body}
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-[#080808]">
-                  {t.storySections.story1Sub2Title}
-                </h3>
-                <p className="text-base text-[#424242] leading-relaxed">
-                  {t.storySections.story1Sub2Body}{" "}
-                  <Link
-                    href="/departments"
-                    className="text-[#004181] font-semibold underline hover:text-[#0057b8]"
-                  >
-                    {t.storySections.story1Link}
-                  </Link>
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <Link href="/about" className="mc-btn-secondary">
-                  <span>{t.storySections.story1Cta}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            <div className="lg:col-span-6">
-              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
-                <img
-                  src="/images/inspo/healing-starts-here-MC11RE8-600x800.jpg"
-                  alt={t.storySections.story1Title}
-                  className="w-full max-h-[480px] object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Story Split Block 2: "World-class care" (Image Left, Text Right on Desktop) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-6 order-2 lg:order-1">
-              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
-                <img
-                  src="/images/inspo/world-class-care-MC1X264-600x800.jpg"
-                  alt={t.storySections.story2Title}
-                  className="w-full max-h-[480px] object-cover"
-                />
-              </div>
-            </div>
-
-            <div className="lg:col-span-6 order-1 lg:order-2 space-y-5">
-              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
-                {t.storySections.story2Title}
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                {t.storySections.story2Body}
+              <p className="text-base text-[#686868] leading-relaxed">
+                {t.locationsSection.description}
               </p>
-              <div className="pt-2">
-                <Link href="/international" className="mc-btn-secondary">
-                  <span>{t.storySections.story2Cta}</span>
+              <div>
+                <Link href="/locations" className="mc-btn-secondary">
+                  <span>{t.locationsSection.cta}</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
             </div>
+
+            {/* Grid Items 2..6: 5 Campus Image Cards with Bottom Gradient Scrim */}
+            {branches.slice(0, 5).map((branch) => (
+              <Link
+                key={branch.id}
+                href={`/locations/${branch.slug}`}
+                className="group relative rounded-2xl overflow-hidden min-h-[280px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
+              >
+                <img
+                  src={branch.imageUrl}
+                  alt={locale === "bn" ? branch.nameBn : branch.nameEn}
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 mc-location-scrim" />
+
+                <div className="relative z-10 p-6 text-white">
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="text-xl font-semibold text-white group-hover:underline">
+                      {locale === "bn" ? branch.nameBn : branch.nameEn}
+                    </h3>
+                    <ChevronRight className="w-5 h-5 text-white shrink-0 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                  <p className="mt-1 text-sm text-[#e8f0f9]">
+                    {locale === "bn" ? branch.subtitleBn : branch.subtitleEn}
+                  </p>
+                  <div className="mt-3 pt-2.5 border-t border-white/25 flex flex-wrap items-center gap-3 text-xs text-[#c5e2f9]">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {locale === "bn" ? branch.cityBn : branch.cityEn}
+                    </span>
+                    <span className="inline-flex items-center gap-1">
+                      <Phone className="w-3.5 h-3.5" />
+                      {branch.phone}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
