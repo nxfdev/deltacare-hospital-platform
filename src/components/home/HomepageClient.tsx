@@ -46,16 +46,18 @@ export function HomepageClient({
          ==================================================================== */}
       <section
         aria-label="Hero Banner"
-        className="relative overflow-hidden bg-[#012d61] text-white min-h-[540px] md:min-h-[620px] flex items-end"
+        className="relative overflow-hidden bg-[#012d61] text-white min-h-[540px] md:min-h-[640px] flex items-end"
       >
-        {/* Background Visual Layer */}
+        {/* Background Visual Layer - Hospital Surgical Team */}
         <div className="absolute inset-0 overflow-hidden">
           <img
-            src="/images/inspo/healing-starts-here-MC11RE8-600x800.jpg"
-            alt="Clinical specialist care at DeltaCare"
-            className="w-full h-full object-cover object-center opacity-45 scale-105"
+            src="/images/hero-surgery.jpg"
+            alt="Advanced surgical and specialist medical team performing operation at DeltaCare"
+            className="w-full h-full object-cover object-[center_35%] opacity-60 scale-105 transition-transform duration-1000 ease-out"
           />
-          <div className="absolute inset-0 mc-hero-overlay" />
+          {/* Multi-layered cinematic gradient: deep navy on the left/bottom to guarantee WCAG AAA text contrast, translucent on the right to showcase the surgical team & theater lighting */}
+          <div className="absolute inset-0 bg-gradient-to-r from-[#012d61] via-[#012d61]/85 to-[#012d61]/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#012d61] via-transparent to-[#012d61]/40" />
         </div>
 
         {/* Hero Content Container */}
