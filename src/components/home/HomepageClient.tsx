@@ -10,7 +10,6 @@ import {
   Calendar,
   Award,
   ArrowRight,
-  Clock,
 } from "lucide-react";
 import {
   Branch,
@@ -97,94 +96,9 @@ export function HomepageClient({
       </section>
 
       {/* ====================================================================
-          SECTION 3: APPOINTMENT & SCHEDULING HUB
-          - Relocated appointment functionality with Request & Track buttons
-          - Routes to /request-appointment and /track-appointment
-         ==================================================================== */}
-      <section
-        id="appointments-hub"
-        aria-label="Appointments & Scheduling Hub"
-        className="bg-[#f2f2f2] py-14 md:py-18 border-b border-[#d6d6d6]"
-      >
-        <div className="mc-container">
-          <div className="max-w-3xl mb-8">
-            <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8] mb-1">
-              {locale === "bn" ? "অ্যাপয়েন্টমেন্ট ও শিডিউলিং" : "Appointments & Scheduling"}
-            </p>
-            <h2 className="text-2xl md:text-3xl font-serif text-[#080808] font-semibold">
-              {locale === "bn"
-                ? "বিশেষজ্ঞ চিকিৎসকের অ্যাপয়েন্টমেন্ট নিন অথবা বিদ্যমান অনুরোধ ট্র্যাক করুন"
-                : "Schedule Care with DeltaCare Specialists or Track Your Request"}
-            </h2>
-            <p className="text-sm md:text-base text-[#484848] mt-2">
-              {locale === "bn"
-                ? "আমাদের ১২+ বিশেষায়িত ক্লিনিক্যাল বিভাগে অ্যাপয়েন্টমেন্ট বুক করুন অথবা রেফারেন্স কোড দিয়ে তাৎক্ষণিক স্ট্যাটাস জানুন।"
-                : "Connect with expert physicians across 12+ departments or check real-time status and confirmed timings with your reference code."}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Card 1: Request Appointment */}
-            <div className="bg-white rounded-lg border border-[#d6d6d6] p-6 md:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-full bg-[#e8f0f9] flex items-center justify-center text-[#0057b8]">
-                  <Calendar className="w-6 h-6" aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#080808]">
-                  {locale === "bn" ? "নতুন অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request an Appointment"}
-                </h3>
-                <p className="text-sm text-[#484848] leading-relaxed">
-                  {locale === "bn"
-                    ? "বিভাগ, চিকিৎসক ও তারিখ নির্বাচন করে সহজেই অ্যাপয়েন্টমেন্ট জমা দিন। রিয়েল-টাইম স্লট ক্যাপাসিটি ও তাৎক্ষণিক রেফারেন্স কোড পান।"
-                    : "Choose your specialty, preferred physician, campus location, and date. Receive real-time slot availability and instant reference code generation."}
-                </p>
-              </div>
-
-              <div className="pt-6">
-                <Link
-                  href="/request-appointment"
-                  className="mc-btn-primary w-full justify-center text-center"
-                >
-                  <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request Appointment"}</span>
-                  <ChevronRight className="w-4 h-4 ml-1.5" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 2: Track Appointment */}
-            <div className="bg-white rounded-lg border border-[#d6d6d6] p-6 md:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="w-12 h-12 rounded-full bg-[#e8f0f9] flex items-center justify-center text-[#0057b8]">
-                  <Clock className="w-6 h-6" aria-hidden="true" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#080808]">
-                  {locale === "bn" ? "অ্যাপয়েন্টমেন্ট স্ট্যাটাস ট্র্যাক করুন" : "Track Your Appointment"}
-                </h3>
-                <p className="text-sm text-[#484848] leading-relaxed">
-                  {locale === "bn"
-                    ? "আপনার রেফারেন্স কোড (যেমন DC-XXXX-XXXX) অথবা ফোন নম্বর ব্যবহার করে তাৎক্ষণিক অনুমোদন স্ট্যাটাস, চেম্বার ও সময়সূচি যাচাই করুন।"
-                    : "Check live request status, clinical triage stage, confirmed consulting chamber, and physician preparation notes using your reference code or phone."}
-                </p>
-              </div>
-
-              <div className="pt-6">
-                <Link
-                  href="/track-appointment"
-                  className="mc-btn-secondary w-full justify-center text-center"
-                >
-                  <span>{locale === "bn" ? "স্ট্যাটাস ট্র্যাক করুন" : "Track Appointment"}</span>
-                  <ChevronRight className="w-4 h-4 ml-1.5" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ====================================================================
-          SECTION 4 & 5: GLOBAL SEARCH & ALPHABETICAL DISEASES DIRECTORY (A–Z, #)
-          - Brand-blue (#0057b8) 2-column section matching inspo.html
-          - 27 circular 48px A–Z & # buttons + live autocomplete Global Search
+          SECTION 3: GLOBAL SEARCH & ALPHABETICAL DISEASES DIRECTORY (A–Z, #)
+          - Minimal white background, enlarged, crisp typography
+          - 27 circular A–Z & # buttons + live autocomplete Global Search
          ==================================================================== */}
       <AlphabetConditionDirectory conditions={conditions} />
 
