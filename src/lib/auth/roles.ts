@@ -16,3 +16,12 @@ export const APPROVER_ROLES: RoleCode[] = [
   "DEPT_MANAGER",
 ];
 
+export const ADMIN_CONSOLE_ROLES: RoleCode[] = [
+  "SUPER_ADMIN",
+  "HOSPITAL_ADMIN",
+  "DEPT_MANAGER",
+  "RECEPTIONIST",
+  "CONTENT_EDITOR",
+];
+
+

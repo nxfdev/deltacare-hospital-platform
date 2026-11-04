@@ -22,6 +22,9 @@ import {
   CheckCircle2,
   AlertCircle,
   Sliders,
+  Share2,
+  History,
+  Sparkles,
 } from "lucide-react";
 import {
   AIUpdateDraft,
@@ -40,6 +43,7 @@ import {
   RoleCode,
   Specialty,
   UserAccount,
+  FacebookPostBatch,
 } from "@/types/domain";
 import { OperationalAnalyticsReport } from "@/server/services/communicationAndAnalyticsService";
 import { SuperAdminView } from "./SuperAdminView";
@@ -70,6 +74,7 @@ interface AdminConsoleClientProps {
   initialAnalytics: OperationalAnalyticsReport;
   initialUsers: Array<Pick<UserAccount, "id" | "email" | "fullName" | "phone" | "role" | "scopedBranchId" | "isActive" | "updatedAt">>;
   initialAuditEvents: AuditEvent[];
+  initialFacebookBatches?: FacebookPostBatch[];
 }
 
 export function AdminConsoleClient({
@@ -87,6 +92,7 @@ export function AdminConsoleClient({
   initialAnalytics,
   initialUsers,
   initialAuditEvents,
+  initialFacebookBatches = [],
 }: AdminConsoleClientProps) {
   const router = useRouter();
 
@@ -106,7 +112,12 @@ export function AdminConsoleClient({
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Navigation & Active Tab State with History Support
-  const defaultTab = currentUser.role === "RECEPTIONIST" ? "today" : "overview";
+  const defaultTab =
+    currentUser.role === "RECEPTIONIST"
+      ? "today"
+      : currentUser.role === "CONTENT_EDITOR"
+      ? "content"
+      : "overview";
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -841,36 +852,21 @@ export function AdminConsoleClient({
               </>
             )}
 
-            {/* CONTENT EDITOR NAVIGATION */}
+            {/* CONTENT EDITOR NAVIGATION (4 Clean Core Sections) */}
             {currentUser.role === "CONTENT_EDITOR" && (
               <>
                 <button
                   type="button"
-                  onClick={() => handleTabChange("overview")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "overview"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>CMS Overview</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
                   onClick={() => handleTabChange("content")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "content"
+                    activeTab === "content" || activeTab === "overview"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === "content" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Diseases &amp; Conditions</span>
+                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === "content" || activeTab === "overview" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Website Content</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
                     {conditions.length}
@@ -888,7 +884,7 @@ export function AdminConsoleClient({
                 >
                   <span className="flex items-center gap-2.5 truncate">
                     <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "profiles" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Specialist Public Bios</span>
+                    <span>Doctor Profiles</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
                     {doctors.length}
@@ -897,40 +893,35 @@ export function AdminConsoleClient({
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("departments")}
+                  onClick={() => handleTabChange("generator")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "departments"
+                    activeTab === "generator"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "departments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Department Descriptions</span>
+                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "generator" ? "text-white" : "text-[#38bdf8]"}`} />
+                    <span>Daily Availability Generator</span>
                   </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {departments.length}
+                  <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
+                    Cards
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("ai-updates")}
+                  onClick={() => handleTabChange("publishing")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "ai-updates"
+                    activeTab === "publishing"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Bot className={`w-4 h-4 shrink-0 ${activeTab === "ai-updates" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Staff AI Assistant</span>
+                    <History className={`w-4 h-4 shrink-0 ${activeTab === "publishing" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>Publishing History</span>
                   </span>
-                  {aiUpdates.filter((u) => u.approvalStatus === "PENDING_APPROVAL").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#d97706] text-white text-[10px] font-bold">
-                      {aiUpdates.filter((u) => u.approvalStatus === "PENDING_APPROVAL").length}
-                    </span>
-                  )}
                 </button>
               </>
             )}
@@ -1087,11 +1078,16 @@ export function AdminConsoleClient({
               conditions={conditions}
               departments={departments}
               doctors={doctors}
+              branches={initialBranches}
               approvals={approvals}
               aiUpdates={aiUpdates}
+              facebookBatches={initialFacebookBatches}
               onSaveCondition={handleSaveCondition}
               onSaveDoctorProfileCopy={handleSaveDoctorProfileCopy}
               onSubmitAIUpdate={handleSubmitAIUpdate}
+              onDoctorUpdated={(updated) =>
+                setDoctors((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))
+              }
               activeTab={activeTab as any}
               onTabChange={handleTabChange as any}
             />

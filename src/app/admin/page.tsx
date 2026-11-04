@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import {
   getCurrentSession,
   hasRolePermission,
-  STAFF_ROLES,
+  ADMIN_CONSOLE_ROLES,
 } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
 import { getOperationalAnalytics } from "@/server/services/communicationAndAnalyticsService";
@@ -16,7 +16,7 @@ export default async function AdminPage() {
   if (!session) {
     redirect("/login");
   }
-  if (!hasRolePermission(session, STAFF_ROLES)) {
+  if (!hasRolePermission(session, ADMIN_CONSOLE_ROLES)) {
     redirect("/dashboard");
   }
 
@@ -62,6 +62,7 @@ export default async function AdminPage() {
         updatedAt: u.updatedAt,
       }))}
       initialAuditEvents={db.auditEvents}
+      initialFacebookBatches={db.facebookBatches || []}
     />
   );
 }

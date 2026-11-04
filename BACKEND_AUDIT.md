@@ -459,12 +459,63 @@ Based on the audit findings, the following phased roadmap is recommended:
 
 ---
 
-### 10.2 Architectural Notes & Limitations
+## 11. CMS DOCTOR MANAGEMENT & FACEBOOK AVAILABILITY GENERATOR AUDIT
+
+**Release Version:** DeltaCare 1.2 (CMS Doctor Management, Facebook Availability Generator & Role Refinement)  
+**Verification Date:** November 2026  
+**Test Suite Status:** 29 of 29 Vitest Integration Tests Passed (`tests/integration/deltacare.test.ts`)  
+**TypeScript Typecheck:** `tsc --noEmit` Passed (0 errors)  
+**Next.js Production Build:** `next build` Passed (41 static/dynamic routes optimized)  
+
+### 11.1 Key Implementations & Enhancements
+
+#### 1. Doctor Dashboard Elimination & Role Simplification
+- Removed Doctor Dashboard and role-specific console UI.
+- `ADMIN_CONSOLE_ROLES` in `src/lib/auth/roles.ts` now strictly contains: `SUPER_ADMIN`, `HOSPITAL_ADMIN`, `DEPT_MANAGER`, `RECEPTIONIST`, `CONTENT_EDITOR`.
+- Any doctor accounts navigating to `/admin` are safely redirected to `/dashboard` (patient/general portal).
+- Existing doctor records, chamber schedule rules, qualifications, and appointment queue connections remain 100% intact.
+
+#### 2. CMS Doctor Profile Management & Photo Presentation
+- **Permission Boundaries Enforced:**
+  - **CMS Editor:** Manages profile photographs (upload, crop zoom, horizontal/vertical pan repositioning, reset to avatar), public biographies (`bioEn`, `bioBn`), and public-facing profile copywriting (`publicTaglineEn`, `publicTaglineBn`).
+  - **Hospital Admin:** Exclusively manages operational doctor records (employment/active status, BMDC registration number, qualifications, departments, consultation fees, and chamber shift schedules).
+- **Presentation Service & Endpoint (`src/server/services/cmsService.ts` & `POST /api/v1/admin/doctors/profile`):**
+  - Allows CMS Editors to directly update presentation parameters and photographs without altering verified operational records.
+  - Automatically logs `DOCTOR_PROFILE_PRESENTATION_UPDATED` audit events.
+- **Interactive Live Preview Modal (`DoctorPublicProfilePreviewModal.tsx`):**
+  - Allows CMS Editors to view exactly how a specialist's profile appears on the public website (`/doctors/[slug]`).
+
+#### 3. Daily Doctor Availability Generator (Facebook Promotional Cards Engine)
+- **Operational Data Engine (`src/server/services/availabilityGeneratorService.ts`):**
+  - Calculates genuine doctor availability for any selected date in `Asia/Dhaka` timezone.
+  - Enforces weekday chamber schedule rules (`sr.weekday === targetWeekday`).
+  - Excludes inactive/archived doctors, off-duty doctors, doctors on approved leave (`ScheduleException`), and chambers with zero remaining slot capacity.
+  - Flags incomplete or conflicting schedules in the interface.
+- **Hospital-Grade Branded Card Canvas Renderer (`src/components/admin/facebook/cardCanvasRenderer.ts`):**
+  - Renders 1080×1080 high-resolution Facebook promotional post cards using HTML5 Canvas.
+  - Features DeltaCare brand geometry, medical cross shield logo, doctor photo with zoom/offset, verified BMDC badge, department/specialty badges, chamber location, consultation shift hours, and 24/7 hotline.
+- **Preview & Batch Download Workflow:**
+  - Individual 1080p PNG download.
+  - Batch ZIP generation via `jszip` bundling all generated doctor card PNGs plus a formatted `facebook-post-caption.txt`.
+  - Staleness revalidation pre-check before download: alerts staff if operational schedules have changed since cards were generated.
+
+#### 4. Future Meta Graph API Publishing Architecture
+- **Dedicated Publisher Adapter (`src/server/services/facebookPublishingService.ts`):**
+  - Decoupled card generation from publishing.
+  - Supports post lifecycle: `DRAFT`, `READY`, `PUBLISHED`, `FAILED`, `RETRY`.
+  - Feature flag protection: `FB_AUTO_PUBLISH_ENABLED=false` by default keeps automated network posting disabled and enforces safe manual publishing (`READY` status).
+  - Secure credential handling via environment variables (`FB_PAGE_ID`, `FB_PAGE_ACCESS_TOKEN`, `FB_API_VERSION`). No tokens are exposed to client code.
+  - Future Meta Graph API multipart upload endpoints are structured and ready for instant activation once administrators provide credentials.
+
+---
+
+### 11.2 Architectural Notes & Limitations
 
 > [!WARNING]
 > **Distributed Deployment Notice:**
 > 1. **In-Memory Rate Limiter:** The current rate limiter operates on an in-memory Map. In a multi-replica or serverless container environment, rate limits will not be shared across instances. For distributed production clusters, migrate the storage layer to Redis or Upstash.
 > 2. **Transaction Serialization:** Data writes rely on the single-process `txQueue` in `src/server/db/store.ts`. Before running multiple horizontal replicas, migrate persistence to PostgreSQL via Prisma with row-level transaction locks (`SELECT ... FOR UPDATE`).
+> 3. **Meta Graph API Credentials:** Automatic publishing remains in manual-only mode until valid Meta Page credentials (`FB_PAGE_ID` and `FB_PAGE_ACCESS_TOKEN`) are configured in `.env.local` and `FB_AUTO_PUBLISH_ENABLED=true` is enabled.
 
 ---
 

@@ -266,6 +266,77 @@ export async function toggleDoctorStatus(
   });
 }
 
+export interface DoctorProfilePresentationInput {
+  doctorId: string;
+  imageUrl?: string;
+  imagePosition?: string;
+  imageCrop?: {
+    zoom: number;
+    x: number;
+    y: number;
+  };
+  bioEn?: string;
+  bioBn?: string;
+  publicTaglineEn?: string;
+  publicTaglineBn?: string;
+  clinicalInterestsEn?: string[];
+  clinicalInterestsBn?: string[];
+}
+
+export async function updateDoctorProfilePresentation(
+  session: SessionPayload,
+  input: DoctorProfilePresentationInput
+): Promise<{ ok: true; doctor: Doctor } | { ok: false; error: string }> {
+  return runInTransaction((state) => {
+    if (!["SUPER_ADMIN", "HOSPITAL_ADMIN", "DEPT_MANAGER", "CONTENT_EDITOR"].includes(session.role)) {
+      return { ok: false, error: "Forbidden: CMS Editor or Administrator role required." };
+    }
+
+    const idx = state.doctors.findIndex((d) => d.id === input.doctorId);
+    if (idx === -1) {
+      return { ok: false, error: "Doctor record not found." };
+    }
+
+    const existing = state.doctors[idx];
+    const nowIso = new Date().toISOString();
+
+    const updated: Doctor = {
+      ...existing,
+      imageUrl: input.imageUrl !== undefined ? input.imageUrl : existing.imageUrl,
+      imagePosition: input.imagePosition !== undefined ? input.imagePosition : existing.imagePosition,
+      imageCrop: input.imageCrop !== undefined ? input.imageCrop : existing.imageCrop,
+      bioEn: input.bioEn !== undefined ? input.bioEn : existing.bioEn,
+      bioBn: input.bioBn !== undefined ? input.bioBn : existing.bioBn,
+      publicTaglineEn: input.publicTaglineEn !== undefined ? input.publicTaglineEn : existing.publicTaglineEn,
+      publicTaglineBn: input.publicTaglineBn !== undefined ? input.publicTaglineBn : existing.publicTaglineBn,
+      clinicalInterestsEn:
+        input.clinicalInterestsEn !== undefined ? input.clinicalInterestsEn : existing.clinicalInterestsEn,
+      clinicalInterestsBn:
+        input.clinicalInterestsBn !== undefined ? input.clinicalInterestsBn : existing.clinicalInterestsBn,
+      updatedAt: nowIso,
+    };
+
+    state.doctors[idx] = updated;
+
+    recordAuditEvent(state, {
+      actorUserId: session.userId,
+      actorName: session.fullName,
+      actorRole: session.role,
+      action: "DOCTOR_PROFILE_PRESENTATION_UPDATED",
+      entityType: "Doctor",
+      entityId: updated.id,
+      summary: `Updated public profile presentation & copywriting for ${updated.nameEn}`,
+      diffJson: JSON.stringify({
+        hasNewPhoto: input.imageUrl !== undefined && input.imageUrl !== existing.imageUrl,
+        photoPosition: updated.imagePosition,
+        hasBioUpdate: input.bioEn !== undefined,
+      }),
+    });
+
+    return { ok: true, doctor: updated };
+  });
+}
+
 export async function reviewApprovalRequest(
   session: SessionPayload,
   params: {

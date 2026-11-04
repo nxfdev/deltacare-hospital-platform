@@ -17,6 +17,7 @@ import {
   reviewApprovalRequest,
   toggleDoctorStatus,
   upsertDoctorRecord,
+  updateDoctorProfilePresentation,
 } from "@/server/services/cmsService";
 import {
   createStaffAIUpdateDraft,
@@ -43,6 +44,12 @@ import {
   checkRateLimit,
   resetRateLimitsForTests,
 } from "@/server/security/rateLimiter";
+import {
+  calculateDailyDoctorAvailability,
+  checkStaleness,
+} from "@/server/services/availabilityGeneratorService";
+import { facebookPublisher } from "@/server/services/facebookPublishingService";
+import { ADMIN_CONSOLE_ROLES } from "@/lib/auth/roles";
 
 const superAdminSession: SessionPayload = {
   userId: "user-super-0",
@@ -1110,5 +1117,160 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
         expect(ev.diffJson).not.toContain("$2b$");
       }
     }
+  });
+
+  // ==========================================================================
+  // T-FB-GEN-01 to T-FB-GEN-05: CMS Doctor Management & Facebook Availability Generator
+  // ==========================================================================
+
+  it("T-FB-GEN-01: CMS Editor doctor profile management, photograph cropping/repositioning, and public presentation", async () => {
+    // 1. Content Editor updates doctor photograph, crop zoom, positioning, and copywriting
+    const res = await updateDoctorProfilePresentation(editorSession, {
+      doctorId: "doc-1",
+      imageUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      imagePosition: "50% 25%",
+      imageCrop: {
+        zoom: 1.4,
+        x: 0,
+        y: -15,
+      },
+      publicTaglineEn: "Chief Specialist in Advanced Interventional Cardiology",
+      publicTaglineBn: "উন্নত ইন্টারভেনশনাল কার্ডিওলজি প্রধান বিশেষজ্ঞ",
+      bioEn: "Prof. Dr. Anisur Rahman is a renowned interventional cardiologist leading cardiovascular innovations.",
+      bioBn: "অধ্যাপক ডাঃ আনিসুর রহমান একজন প্রখ্যাত ইন্টারভেনশনাল কার্ডিওলজিস্ট।",
+    });
+
+    expect(res.ok).toBe(true);
+    if (!res.ok) return;
+
+    expect(res.doctor.imageUrl).toContain("data:image/png;base64");
+    expect(res.doctor.imagePosition).toBe("50% 25%");
+    expect(res.doctor.imageCrop?.zoom).toBe(1.4);
+    expect(res.doctor.publicTaglineEn).toBe("Chief Specialist in Advanced Interventional Cardiology");
+    expect(res.doctor.bioEn).toContain("renowned interventional cardiologist");
+
+    // 2. Verified operational records remain untouched
+    expect(res.doctor.bmdcRegistrationNo).toBe("BMDC-SYN-24101"); // Immutable
+    expect(res.doctor.consultationFeeBdt).toBe(1500); // Immutable
+
+    // 3. Audit trail records presentation update
+    const db = getDbState();
+    const auditEv = db.auditEvents.find(
+      (ev) => ev.entityId === "doc-1" && ev.action === "DOCTOR_PROFILE_PRESENTATION_UPDATED"
+    );
+    expect(auditEv).toBeDefined();
+    expect(auditEv?.actorRole).toBe("CONTENT_EDITOR");
+  });
+
+  it("T-FB-GEN-02: Daily Doctor Availability Generator calculations, schedule exclusion, and conflict detection", () => {
+    // Wednesday: 2026-11-18 (doc-1 works at Dhanmondi on Wednesday 16:00-20:00)
+    const wednesdayResult = calculateDailyDoctorAvailability("2026-11-18");
+    expect(wednesdayResult.date).toBe("2026-11-18");
+    expect(wednesdayResult.weekdayName).toBe("Wednesday");
+    expect(wednesdayResult.eligibleDoctors.length).toBeGreaterThan(0);
+
+    // Verify doc-1 is included with correct chamber details
+    const doc1Card = wednesdayResult.eligibleDoctors.find((d) => d.doctorId === "doc-1");
+    expect(doc1Card).toBeDefined();
+    if (doc1Card) {
+      expect(doc1Card.nameEn).toBe("Prof. Dr. Anisur Rahman (Synthetic)");
+      expect(doc1Card.branchNameEn).toBe("DeltaCare in Dhanmondi");
+      expect(doc1Card.consultationHours).toBe("04:00 PM – 08:00 PM");
+      expect(doc1Card.totalAvailableSlots).toBeGreaterThan(0);
+    }
+
+    // Thursday: 2026-11-19 (doc-1 has NO chamber at Dhanmondi, but practices at Gulshan)
+    const thursdayResult = calculateDailyDoctorAvailability("2026-11-19");
+    const doc1ThuCard = thursdayResult.eligibleDoctors.find((d) => d.doctorId === "doc-1");
+    expect(doc1ThuCard).toBeDefined();
+    if (doc1ThuCard) {
+      expect(doc1ThuCard.branchNameEn).toBe("DeltaCare in Gulshan");
+      expect(doc1ThuCard.consultationHours).toBe("05:00 PM – 08:30 PM");
+    }
+  });
+
+  it("T-FB-GEN-03: Doctor availability staleness detection and revalidation before publishing", async () => {
+    const targetDate = "2026-11-18";
+    const initial = calculateDailyDoctorAvailability(targetDate);
+    const baselineIds = initial.eligibleDoctors.map((d) => d.doctorId);
+
+    // Initial check: Not stale
+    const freshCheck = checkStaleness(targetDate, baselineIds);
+    expect(freshCheck.isStale).toBe(false);
+
+    // Block doc-1's Dhanmondi chamber on this date
+    await blockDoctorChamberDate({
+      doctorBranchId: "db-doc1-dhanmondi",
+      dateStr: targetDate,
+      reasonEn: "Emergency hospital committee conference",
+      reasonBn: "জরুরি কনফারেন্স",
+      exceptionType: "BLOCKED",
+      actorUserId: adminSession.userId,
+      actorName: adminSession.fullName,
+      actorRole: adminSession.role,
+    });
+
+    // Check staleness after change: Must detect that availability changed!
+    const staleCheck = checkStaleness(targetDate, baselineIds);
+    expect(staleCheck.isStale).toBe(true);
+    expect(staleCheck.reason).toBeDefined();
+  });
+
+  it("T-FB-GEN-04: Future Facebook publishing service architecture, feature flag protection, and batch queue lifecycle", async () => {
+    // 1. Config check: Auto publish is disabled by default
+    const config = facebookPublisher.getConfig();
+    expect(config.autoPublishEnabled).toBe(false);
+    expect(config.mode).toBe("MANUAL_ONLY");
+
+    // 2. Save a generated batch
+    const batchId = `fb-batch-test-${Date.now()}`;
+    const batch = await facebookPublisher.saveBatch({
+      id: batchId,
+      targetDate: "2026-11-18",
+      caption: "Available doctors today at DeltaCare",
+      status: "DRAFT",
+      items: [
+        {
+          id: "item-1",
+          doctorId: "doc-1",
+          doctorName: "Prof. Dr. Anisur Rahman",
+          specialtyName: "Cardiology",
+          branchName: "Dhanmondi",
+          consultationDate: "2026-11-18",
+          consultationHours: "04:00 PM – 08:00 PM",
+          photoUrl: "/images/doctors/doc-1.svg",
+          status: "DRAFT",
+        },
+      ],
+      generatedAt: new Date().toISOString(),
+      revalidatedAt: new Date().toISOString(),
+      generatedByUserId: editorSession.userId,
+      generatedByUserName: editorSession.fullName,
+    });
+
+    expect(batch.id).toBe(batchId);
+    expect(batch.status).toBe("DRAFT");
+
+    // 3. Mark batch as READY
+    const updated = await facebookPublisher.updateBatchStatus(batchId, "READY");
+    expect(updated?.status).toBe("READY");
+
+    // 4. Attempt to publish via Meta Graph API: Safe fallback when auto-publish flag is disabled
+    const publishRes = await facebookPublisher.publishBatch(batchId);
+    expect(publishRes.ok).toBe(false);
+    expect(publishRes.status).toBe("READY"); // Remains ready for manual download & post
+    expect(publishRes.error).toBe("FACEBOOK_AUTO_PUBLISH_DISABLED");
+  });
+
+  it("T-FB-GEN-05: Doctor Dashboard elimination verification — doctor role excluded from admin console access", () => {
+    // ADMIN_CONSOLE_ROLES contains Super Admin, Hospital Admin, Dept Manager, Receptionist, Content Editor
+    expect(ADMIN_CONSOLE_ROLES).toContain("SUPER_ADMIN");
+    expect(ADMIN_CONSOLE_ROLES).toContain("HOSPITAL_ADMIN");
+    expect(ADMIN_CONSOLE_ROLES).toContain("DEPT_MANAGER");
+    expect(ADMIN_CONSOLE_ROLES).toContain("RECEPTIONIST");
+    expect(ADMIN_CONSOLE_ROLES).toContain("CONTENT_EDITOR");
+
+    // DOCTOR role is NOT in ADMIN_CONSOLE_ROLES (Eliminated doctor dashboard)
+    expect(ADMIN_CONSOLE_ROLES).not.toContain("DOCTOR");
   });
 });

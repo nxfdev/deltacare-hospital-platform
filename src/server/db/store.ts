@@ -35,6 +35,10 @@ function sanitizeLoadedState(state: DeltaCareDatabaseState): boolean {
       }
     }
   }
+  if (!Array.isArray(state.facebookBatches)) {
+    state.facebookBatches = [];
+    modified = true;
+  }
   return modified;
 }
 

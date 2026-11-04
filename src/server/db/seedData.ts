@@ -16,6 +16,7 @@ import {
   NotificationRecord,
   ConversationSessionRecord,
   AuditEvent,
+  FacebookPostBatch,
 } from "@/types/domain";
 import { hashPasswordSync } from "@/server/auth/passwordService";
 
@@ -42,6 +43,7 @@ export interface DeltaCareDatabaseState {
   notifications: NotificationRecord[];
   conversationSessions: ConversationSessionRecord[];
   auditEvents: AuditEvent[];
+  facebookBatches: FacebookPostBatch[];
 }
 
 export function createInitialSeedState(): DeltaCareDatabaseState {
@@ -2372,6 +2374,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     notifications,
     conversationSessions,
     auditEvents,
+    facebookBatches: [],
   };
 }
 

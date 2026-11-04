@@ -169,6 +169,14 @@ export interface Doctor {
   languagesEn: string[];
   languagesBn: string[];
   imageUrl: string;
+  imagePosition?: string; // e.g. "50% 25%" or "center"
+  imageCrop?: {
+    zoom: number; // 1.0 to 3.0
+    x: number; // horizontal pan offset percentage (-50 to 50)
+    y: number; // vertical pan offset percentage (-50 to 50)
+  };
+  publicTaglineEn?: string;
+  publicTaglineBn?: string;
   consultationFeeBdt: number;
   followupFeeBdt: number;
   feeEffectiveFrom: string;
@@ -423,4 +431,48 @@ export interface AuditEvent {
   requestId?: string;
   occurredAt: string;
 }
+
+// ============================================================================
+// DeltaCare Facebook Daily Doctor Availability & Promotional Publishing Types
+// ============================================================================
+
+export type FacebookPublishStatus =
+  | "DRAFT"
+  | "READY"
+  | "PUBLISHED"
+  | "FAILED"
+  | "RETRY";
+
+export interface FacebookPostItem {
+  id: string;
+  doctorId: string;
+  doctorName: string;
+  specialtyName: string;
+  branchName: string;
+  consultationDate: string; // YYYY-MM-DD
+  consultationHours: string;
+  photoUrl: string;
+  cardImagePreviewUrl?: string;
+  fbMediaId?: string;
+  fbPostId?: string;
+  publishedAt?: string;
+  status: FacebookPublishStatus;
+  errorMessage?: string;
+}
+
+export interface FacebookPostBatch {
+  id: string;
+  targetDate: string; // YYYY-MM-DD
+  caption: string;
+  status: FacebookPublishStatus;
+  items: FacebookPostItem[];
+  generatedAt: string;
+  revalidatedAt: string;
+  publishedAt?: string;
+  fbPostId?: string;
+  generatedByUserId: string;
+  generatedByUserName: string;
+  isStale?: boolean;
+}
+
 

@@ -2,9 +2,9 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { RoleCode, UserAccount } from "@/types/domain";
 import { getDbState } from "@/server/db/store";
-import { APPROVER_ROLES, STAFF_ROLES } from "@/lib/auth/roles";
+import { APPROVER_ROLES, STAFF_ROLES, ADMIN_CONSOLE_ROLES } from "@/lib/auth/roles";
 
-export { APPROVER_ROLES, STAFF_ROLES };
+export { APPROVER_ROLES, STAFF_ROLES, ADMIN_CONSOLE_ROLES };
 
 // ============================================================================
 // DeltaCare Authentication & Server-Side RBAC Guard (Single Auth System)
