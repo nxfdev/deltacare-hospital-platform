@@ -129,9 +129,9 @@
   --mc-spacing-12x: 96px;
   --mc-spacing-16x: 128px;
 
-  /* Typography Tokens (English + Bangla Unicode Support) — Unified Clean Modern Sans Typography */
-  --mc-typography-font-family-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Bengali", sans-serif;
-  --mc-typography-font-family-serif: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Bengali", sans-serif;
+  /* Typography Tokens (English + Bangla Unicode Support) */
+  --mc-typography-font-family-display: Georgia, "Times New Roman", "Noto Serif Bengali", serif;
+  --mc-typography-font-family-serif: Georgia, "Times New Roman", "Noto Serif Bengali", serif;
   --mc-typography-font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Bengali", sans-serif;
 
   --mc-typography-font-size-root: 16px;
@@ -180,52 +180,53 @@ body {
   line-height: var(--mc-typography-line-height-4x);
 }
 
-/* Reference Typography Helper Classes — Unified Sans System */
-.font-mc-display,
-.font-mc-serif,
-.font-mc-sans,
-.font-serif,
-.mc-serif {
-  font-family: var(--mc-typography-font-family-sans) !important;
+/* Reference Typography Helper Classes */
+.font-mc-display {
+  font-family: var(--mc-typography-font-family-display);
+}
+
+.font-mc-serif {
+  font-family: var(--mc-typography-font-family-serif);
+}
+
+.font-mc-sans {
+  font-family: var(--mc-typography-font-family-sans);
 }
 
 .mc-hero-headline {
-  font-family: var(--mc-typography-font-family-sans);
+  font-family: var(--mc-typography-font-family-display);
   font-size: var(--mc-typography-font-size-12x);
   line-height: var(--mc-typography-line-height-12x);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-weight: 300;
+  letter-spacing: -0.015em;
 }
 
 @media (min-width: 905px) {
   .mc-hero-headline {
     font-size: var(--mc-typography-font-size-19x);
     line-height: var(--mc-typography-line-height-19x);
-    font-weight: 800;
   }
 }
 
-.mc-heading-h1,
-.mc-heading-h2,
-.mc-heading-h3 {
-  font-family: var(--mc-typography-font-family-sans);
-  font-weight: 700;
-  letter-spacing: -0.015em;
-}
-
 .mc-heading-h1 {
+  font-family: var(--mc-typography-font-family-display);
   font-size: var(--mc-typography-font-size-10x);
   line-height: var(--mc-typography-line-height-10x);
+  font-weight: 700;
 }
 
 .mc-heading-h2 {
+  font-family: var(--mc-typography-font-family-display);
   font-size: var(--mc-typography-font-size-8x);
   line-height: var(--mc-typography-line-height-8x);
+  font-weight: 700;
 }
 
 .mc-heading-h3 {
+  font-family: var(--mc-typography-font-family-serif);
   font-size: var(--mc-typography-font-size-6x);
   line-height: var(--mc-typography-line-height-6x);
+  font-weight: 700;
 }
 
 /* Reference Container Geometry */

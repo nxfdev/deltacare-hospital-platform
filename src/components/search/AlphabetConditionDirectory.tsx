@@ -127,7 +127,7 @@ export function AlphabetConditionDirectory({
             <div className="space-y-3">
               <h2
                 id="alphabet-search-heading"
-                className="text-2xl sm:text-3xl lg:text-[34px] font-bold text-[#080808] leading-tight tracking-tight"
+                className="text-2xl sm:text-3xl lg:text-[34px] font-semibold text-[#080808] font-serif leading-tight tracking-tight"
               >
                 {t.alphabetSearchSection.searchHeading}
               </h2>
@@ -244,7 +244,7 @@ export function AlphabetConditionDirectory({
         <div className="lg:col-span-7 bg-[#f8f9fc] py-16 md:py-24 px-6 sm:px-10 lg:pl-10 xl:pl-14 2xl:pl-16 lg:pr-12 xl:pr-20 2xl:pr-28 flex flex-col justify-center">
           <div className="max-w-3xl w-full mx-auto lg:ml-0 space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#080808] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#080808]">
                 {t.alphabetSearchSection.alphabetHeading}
               </h2>
               <Link

@@ -109,7 +109,7 @@ export function HomepageClient({
             <div className="flex flex-col justify-center pr-4 py-4 space-y-5">
               <h2
                 id="locations-section-heading"
-                className="font-bold text-3xl md:text-[40px] leading-tight text-[#080808] tracking-tight"
+                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
               >
                 {t.locationsSection.title}
               </h2>
@@ -180,7 +180,7 @@ export function HomepageClient({
             <div className="lg:col-span-4 space-y-4">
               <h2
                 id="featured-care-heading"
-                className="font-bold text-3xl md:text-[40px] leading-tight text-[#080808] tracking-tight"
+                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
               >
                 {t.featuredCareSection.title}
               </h2>
@@ -238,7 +238,7 @@ export function HomepageClient({
           {/* Story Split Block 1: "Healing starts here" (Text Left, Image Right) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-6 space-y-5">
-              <h2 className="font-bold text-3xl md:text-[40px] leading-tight text-[#080808] tracking-tight">
+              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
                 {t.storySections.story1Title}
               </h2>
 
@@ -298,7 +298,7 @@ export function HomepageClient({
             </div>
 
             <div className="lg:col-span-6 order-1 lg:order-2 space-y-5">
-              <h2 className="font-bold text-3xl md:text-[40px] leading-tight text-[#080808] tracking-tight">
+              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
                 {t.storySections.story2Title}
               </h2>
               <p className="text-base text-[#424242] leading-relaxed">
@@ -322,7 +322,7 @@ export function HomepageClient({
                     ? "বিএমডিসি নিবন্ধিত বিশেষজ্ঞ"
                     : "BMDC-Verified Senior Consultants"}
                 </p>
-                <h2 className="mt-1 font-bold text-3xl md:text-4xl text-[#080808] tracking-tight">
+                <h2 className="mt-1 mc-serif text-3xl md:text-4xl text-[#080808]">
                   {locale === "bn"
                     ? "আমাদের বিশেষজ্ঞ চিকিৎসকবৃন্দ"
                     : "Meet Our Verified Specialists"}
@@ -413,7 +413,7 @@ export function HomepageClient({
                 />
               </div>
               <div className="lg:col-span-5 space-y-2">
-                <h2 className="font-bold text-2xl md:text-3xl text-white tracking-tight">
+                <h2 className="mc-serif text-2xl md:text-3xl text-white">
                   {t.institutionalBanner.title}
                 </h2>
                 <p className="text-sm text-[#e8f0f9] leading-relaxed">
