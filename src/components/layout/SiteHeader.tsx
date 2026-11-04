@@ -313,6 +313,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
       <div className="w-full px-3 sm:px-6 lg:px-8">
         {/* ====================================================================
             DESKTOP NAVBAR: All options middle-justified in one centered row
+            (Enlarged by 30% for high visual impact, clarity & legibility)
             1. Logo
             2. Care at DeltaCare
             3. Health Library
@@ -321,8 +322,8 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             6. Bangla / English
             7. Search Bar
            ==================================================================== */}
-        <div className="hidden lg:flex items-center justify-center h-[80px] gap-2 lg:gap-3 xl:gap-4 2xl:gap-5 mx-auto">
-          {/* OPTION 1: Logo */}
+        <div className="hidden lg:flex items-center justify-center h-[104px] gap-3 lg:gap-3.5 xl:gap-5 2xl:gap-7 mx-auto">
+          {/* OPTION 1: Logo (+30% larger: h-11 xl:h-[52px]) */}
           <Link
             href="/"
             className="flex items-center shrink-0 pr-1 xl:pr-2 focus:outline-none transition-transform hover:opacity-95"
@@ -331,14 +332,14 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             <img
               src="/images/deltacare-logo.svg"
               alt="DeltaCare"
-              className="h-9 xl:h-10 w-auto"
+              className="h-11 xl:h-[52px] w-auto"
             />
           </Link>
 
-          {/* OPTIONS 2, 3, 4: Care at DeltaCare, Health Library, Departments and Specialists */}
+          {/* OPTIONS 2, 3, 4: Care at DeltaCare, Health Library, Departments and Specialists (+30% text & padding) */}
           <nav
             aria-label="Primary Navigation"
-            className="flex items-center gap-1 xl:gap-2"
+            className="flex items-center gap-1.5 xl:gap-2.5"
           >
             {primaryMenus.map((menu) => {
               const isOpen = activeMenuId === menu.id;
@@ -349,7 +350,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                     type="button"
                     aria-expanded={isOpen}
                     onClick={() => setActiveMenuId(isOpen ? null : menu.id)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-2 text-[14px] xl:text-[15px] font-medium tracking-tight rounded-lg transition-all duration-150 select-none whitespace-nowrap ${
+                    className={`inline-flex items-center gap-2 px-3.5 xl:px-4.5 py-3 text-[17px] xl:text-[19px] font-medium tracking-tight rounded-xl transition-all duration-150 select-none whitespace-nowrap ${
                       isOpen
                         ? "bg-[#e8f0f9] text-[#0057b8] font-semibold"
                         : "text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb]"
@@ -357,7 +358,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                   >
                     <span>{menuLabel}</span>
                     <ChevronDown
-                      className={`w-4 h-4 transition-transform duration-200 ${
+                      className={`w-5 h-5 transition-transform duration-200 ${
                         isOpen ? "rotate-180 text-[#0057b8]" : "text-[#6b7280]"
                       }`}
                       aria-hidden="true"
@@ -368,21 +369,21 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             })}
           </nav>
 
-          {/* OPTION 5: Register / Log in */}
+          {/* OPTION 5: Register / Log in (+30% larger) */}
           <div className="flex items-center shrink-0">
             {user ? (
-              <div className="flex items-center gap-2 text-sm">
+              <div className="flex items-center gap-2 text-base">
                 <Link
                   href={isStaff ? "/admin" : "/dashboard"}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#e8f0f9] text-[#004181] font-medium hover:bg-[#c5e2f9] transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-[#e8f0f9] text-[#004181] font-medium hover:bg-[#c5e2f9] transition-colors whitespace-nowrap text-base xl:text-[17px]"
                 >
-                  <User className="w-4 h-4 text-[#0057b8]" aria-hidden="true" />
+                  <User className="w-5 h-5 text-[#0057b8]" aria-hidden="true" />
                   <span>{isStaff ? t.nav.adminDashboard : t.nav.myDashboard}</span>
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-xs text-[#6b7280] hover:text-[#080808] underline px-1 transition-colors"
+                  className="text-sm text-[#6b7280] hover:text-[#080808] underline px-1 transition-colors"
                 >
                   {t.nav.logout}
                 </button>
@@ -390,30 +391,30 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 text-[14px] xl:text-[15px] font-medium text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb] rounded-lg transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-2 px-3.5 xl:px-4 py-2.5 text-[17px] xl:text-[19px] font-medium text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb] rounded-xl transition-colors whitespace-nowrap"
               >
-                <User className="w-4 h-4 text-[#4b5563]" aria-hidden="true" />
+                <User className="w-5 h-5 text-[#4b5563]" aria-hidden="true" />
                 <span>{t.nav.registerLogin}</span>
               </Link>
             )}
           </div>
 
-          {/* OPTION 6: Bangla / English */}
+          {/* OPTION 6: Bangla / English (+30% larger) */}
           <button
             type="button"
             onClick={toggleLocale}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full border border-[#0057b8] text-[#0057b8] hover:bg-[#e8f0f9] transition-colors select-none shrink-0 whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-4 py-2.5 text-sm xl:text-[15px] font-bold rounded-full border-2 border-[#0057b8] text-[#0057b8] hover:bg-[#e8f0f9] transition-colors select-none shrink-0 whitespace-nowrap"
             aria-label="Toggle language between English and Bangla"
           >
-            <Globe className="w-3.5 h-3.5" aria-hidden="true" />
+            <Globe className="w-[18px] h-[18px]" aria-hidden="true" />
             <span>{locale === "en" ? "বাংলা" : "English"}</span>
           </button>
 
-          {/* OPTION 7: Search Bar */}
+          {/* OPTION 7: Search Bar (+30% larger: h-12, wider, larger font & icons) */}
           <div className="relative shrink-0">
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <Search
-                className="w-4 h-4 text-[#6b7280] absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-5 h-5 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -425,7 +426,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                 placeholder={
                   locale === "bn" ? "অনুসন্ধান করুন..." : "Search DeltaCare..."
                 }
-                className="w-32 lg:w-36 xl:w-48 2xl:w-56 h-9 pl-9 pr-8 text-xs xl:text-sm rounded-full border border-[#d1d5db] bg-[#f9fafb] text-[#111827] placeholder-[#6b7280] focus:border-[#0057b8] focus:bg-white focus:outline-none transition-all shadow-sm"
+                className="w-40 lg:w-48 xl:w-60 2xl:w-72 h-12 pl-11 pr-10 text-sm xl:text-base rounded-full border-2 border-[#d1d5db] bg-[#f9fafb] text-[#111827] placeholder-[#6b7280] focus:border-[#0057b8] focus:bg-white focus:outline-none transition-all shadow-sm"
                 aria-label={t.alphabetSearchSection.searchHeading}
               />
               {searchQuery ? (
@@ -435,36 +436,36 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                     setSearchQuery("");
                     setSearchResults([]);
                   }}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 text-[#9ca3af] hover:text-[#111827] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#111827] transition-colors"
                   aria-label={t.alphabetSearchSection.clearSearch}
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-4.5 h-4.5" />
                 </button>
               ) : (
                 <button
                   type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#0057b8] transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 text-[#9ca3af] hover:text-[#0057b8] transition-colors"
                   aria-label="Submit search"
                 >
-                  <ArrowRight className="w-3.5 h-3.5" />
+                  <ArrowRight className="w-4.5 h-4.5" />
                 </button>
               )}
             </form>
 
             {/* Instant Search Suggestions Dropdown */}
             {searchResults.length > 0 && (
-              <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 border border-[#e5e7eb] rounded-xl divide-y divide-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="px-4 py-2 bg-[#f9fafb] text-[11px] font-bold text-[#6b7280] uppercase tracking-wider flex items-center justify-between">
+              <div className="absolute right-0 top-full mt-2 w-88 sm:w-96 border border-[#e5e7eb] rounded-xl divide-y divide-[#e5e7eb] bg-white shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="px-4 py-2.5 bg-[#f9fafb] text-xs font-bold text-[#6b7280] uppercase tracking-wider flex items-center justify-between">
                   <span>{locale === "bn" ? "ফলাফলসমূহ" : "Suggestions"}</span>
                   <button
                     type="button"
                     onClick={() => setSearchResults([])}
                     className="text-[#9ca3af] hover:text-[#111827]"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="max-h-72 overflow-y-auto divide-y divide-[#e5e7eb]">
+                <div className="max-h-80 overflow-y-auto divide-y divide-[#e5e7eb]">
                   {searchResults.map((hit) => (
                     <Link
                       key={`${hit.type}-${hit.id}`}
@@ -473,20 +474,20 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                         setSearchResults([]);
                         setSearchQuery("");
                       }}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-[#f0f7ff] transition-colors text-left"
+                      className="flex items-center justify-between px-4 py-3.5 hover:bg-[#f0f7ff] transition-colors text-left"
                     >
                       <div className="min-w-0 pr-2">
-                        <span className="inline-block text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-[#e8f0f9] text-[#004181] mr-2">
+                        <span className="inline-block text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-[#e8f0f9] text-[#004181] mr-2">
                           {hit.type}
                         </span>
-                        <span className="font-semibold text-[#111827] text-xs">
+                        <span className="font-semibold text-[#111827] text-sm">
                           {locale === "bn" ? hit.titleBn : hit.titleEn}
                         </span>
-                        <p className="text-[11px] text-[#6b7280] mt-0.5 truncate">
+                        <p className="text-xs text-[#6b7280] mt-0.5 truncate">
                           {locale === "bn" ? hit.subtitleBn : hit.subtitleEn}
                         </p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#0057b8] shrink-0" />
+                      <ChevronRight className="w-4.5 h-4.5 text-[#0057b8] shrink-0" />
                     </Link>
                   ))}
                 </div>
@@ -496,9 +497,9 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
         </div>
 
         {/* ====================================================================
-            MOBILE / TABLET TOP ROW (< 1024px)
+            MOBILE / TABLET TOP ROW (< 1024px) (+30% larger)
            ==================================================================== */}
-        <div className="flex lg:hidden items-center justify-between h-[72px] w-full">
+        <div className="flex lg:hidden items-center justify-between h-[94px] w-full">
           {/* Mobile Logo */}
           <Link
             href="/"
@@ -508,12 +509,12 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             <img
               src="/images/deltacare-logo.svg"
               alt="DeltaCare"
-              className="h-9 w-auto"
+              className="h-12 w-auto"
             />
           </Link>
 
           {/* Mobile Controls */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
+          <div className="flex items-center gap-2 sm:gap-3">
             {/* Quick Search Toggle */}
             <button
               type="button"
@@ -522,19 +523,19 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                 setSearchOpen(!searchOpen);
                 setMobileDrawerOpen(false);
               }}
-              className="inline-flex items-center justify-center w-9 h-9 rounded-full text-[#1f2937] hover:bg-[#f3f4f6]"
+              className="inline-flex items-center justify-center w-11 h-11 rounded-full text-[#1f2937] hover:bg-[#f3f4f6]"
             >
-              {searchOpen ? <X className="w-5 h-5 text-[#dc2626]" /> : <Search className="w-5 h-5" />}
+              {searchOpen ? <X className="w-6 h-6 text-[#dc2626]" /> : <Search className="w-6 h-6" />}
             </button>
 
             {/* Language Toggle */}
             <button
               type="button"
               onClick={toggleLocale}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-full border border-[#0057b8] text-[#0057b8]"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold rounded-full border-2 border-[#0057b8] text-[#0057b8]"
               aria-label="Toggle language"
             >
-              <Globe className="w-3 h-3" />
+              <Globe className="w-4 h-4" />
               <span>{locale === "en" ? "বাং" : "EN"}</span>
             </button>
 
@@ -548,12 +549,12 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                 setSearchOpen(false);
                 setActiveMenuId(null);
               }}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-full text-[#1f2937] hover:bg-[#f3f4f6]"
+              className="inline-flex items-center justify-center w-12 h-12 rounded-full text-[#1f2937] hover:bg-[#f3f4f6]"
             >
               {mobileDrawerOpen ? (
-                <X className="w-6 h-6" aria-hidden="true" />
+                <X className="w-7 h-7" aria-hidden="true" />
               ) : (
-                <Menu className="w-6 h-6" aria-hidden="true" />
+                <Menu className="w-7 h-7" aria-hidden="true" />
               )}
             </button>
           </div>
