@@ -1,0 +1,545 @@
+// ============================================================================
+// DeltaCare Hospital Platform — Prisma Relational Schema
+// Source of Truth: 02-SRS.md & 04-SDD-architecture.md
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PublicationState {
+  DRAFT
+  PENDING_APPROVAL
+  APPROVED
+  PUBLISHED
+  ARCHIVED
+}
+
+enum AppointmentStatus {
+  REQUESTED
+  PENDING_CONFIRMATION
+  CONFIRMED
+  RESCHEDULE_REQUESTED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+enum RoleCode {
+  SUPER_ADMIN
+  HOSPITAL_ADMIN
+  DEPT_MANAGER
+  DOCTOR
+  RECEPTIONIST
+  CONTENT_EDITOR
+  SUPPORT_OPERATOR
+  PATIENT
+}
+
+enum FeedbackType {
+  FEEDBACK
+  COMPLAINT
+  SUGGESTION
+}
+
+enum FeedbackStatus {
+  NEW
+  TRIAGED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  WHATSAPP
+  WEBSITE
+}
+
+enum NotificationStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+model HospitalConfiguration {
+  id                  String   @id @default(uuid())
+  code                String   @unique
+  nameEn              String
+  nameBn              String
+  taglineEn           String   @default("Care at DeltaCare")
+  taglineBn           String   @default("ডেল্টাকেয়ারে সেবা")
+  timezone            String   @default("Asia/Dhaka")
+  defaultLocale       String   @default("en")
+  emergencyPhone      String
+  helplinePhone       String
+  generalEmail        String
+  cancellationPolicyEn String
+  cancellationPolicyBn String
+  privacyNoticeEn     String
+  privacyNoticeBn     String
+  status              String   @default("ACTIVE")
+  updatedAt           DateTime @updatedAt
+  createdAt           DateTime @default(now())
+
+  branches            Branch[]
+  doctors             Doctor[]
+}
+
+model Branch {
+  id                  String           @id @default(uuid())
+  hospitalId          String
+  slug                String           @unique
+  nameEn              String
+  nameBn              String
+  subtitleEn          String
+  subtitleBn          String
+  addressEn           String
+  addressBn           String
+  cityEn              String
+  cityBn              String
+  phone               String
+  emergencyPhone      String
+  email               String
+  operatingHoursEn    String
+  operatingHoursBn    String
+  directionsUrl       String
+  imageUrl            String
+  servicesSummaryEn   String[]
+  servicesSummaryBn   String[]
+  publicationState    PublicationState @default(PUBLISHED)
+  sortOrder           Int              @default(0)
+  updatedAt           DateTime         @updatedAt
+  createdAt           DateTime         @default(now())
+
+  hospital            HospitalConfiguration @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  departments         Department[]
+  doctorBranches      DoctorBranch[]
+
+  @@index([publicationState, sortOrder])
+}
+
+model Department {
+  id                  String           @id @default(uuid())
+  branchId            String
+  slug                String           @unique
+  nameEn              String
+  nameBn              String
+  shortDescriptionEn  String
+  shortDescriptionBn  String
+  overviewEn          String
+  overviewBn          String
+  iconName            String           @default("Stethoscope")
+  imageUrl            String?
+  isFeaturedCareArea  Boolean          @default(false)
+  publicationState    PublicationState @default(PUBLISHED)
+  lastVerifiedAt      DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  createdAt           DateTime         @default(now())
+
+  branch              Branch           @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  doctors             Doctor[]
+  services            Service[]
+  conditions          DiseaseCondition[]
+  procedures          MedicalProcedure[]
+
+  @@index([publicationState, isFeaturedCareArea])
+}
+
+model Specialty {
+  id                  String   @id @default(uuid())
+  slug                String   @unique
+  nameEn              String
+  nameBn              String
+  descriptionEn       String
+  descriptionBn       String
+  createdAt           DateTime @default(now())
+
+  doctorSpecialties   DoctorSpecialty[]
+}
+
+model Doctor {
+  id                  String           @id @default(uuid())
+  hospitalId          String
+  departmentId        String
+  slug                String           @unique
+  nameEn              String
+  nameBn              String
+  designationEn       String
+  designationBn       String
+  qualificationsEn    String
+  qualificationsBn    String
+  experienceYears     Int
+  bmdcRegistrationNo  String           @unique
+  bioEn               String
+  bioBn               String
+  clinicalInterestsEn String[]
+  clinicalInterestsBn String[]
+  languagesEn         String[]
+  languagesBn         String[]
+  imageUrl            String
+  consultationFeeBdt  Int
+  followupFeeBdt      Int
+  feeEffectiveFrom    DateTime         @default(now())
+  feeEffectiveTo      DateTime?
+  publicationState    PublicationState @default(PUBLISHED)
+  lastVerifiedAt      DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  createdAt           DateTime         @default(now())
+
+  hospital            HospitalConfiguration @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  department          Department            @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  specialties         DoctorSpecialty[]
+  doctorBranches      DoctorBranch[]
+
+  @@index([publicationState, departmentId])
+}
+
+model DoctorSpecialty {
+  doctorId            String
+  specialtyId         String
+
+  doctor              Doctor    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  specialty           Specialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+
+  @@id([doctorId, specialtyId])
+}
+
+model DoctorBranch {
+  id                  String   @id @default(uuid())
+  doctorId            String
+  branchId            String
+  roomNumber          String
+  status              String   @default("ACTIVE")
+
+  doctor              Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  branch              Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  scheduleRules       ScheduleRule[]
+  scheduleExceptions  ScheduleException[]
+  appointments        Appointment[]
+
+  @@unique([doctorId, branchId])
+}
+
+model ScheduleRule {
+  id                  String           @id @default(uuid())
+  doctorBranchId      String
+  weekday             Int              // 0 = Sunday .. 6 = Saturday
+  weekdayLabelEn      String
+  weekdayLabelBn      String
+  startTime           String           // "16:00"
+  endTime             String           // "20:00"
+  slotMinutes         Int              @default(20)
+  capacityPerSlot     Int              @default(2)
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+  publicationState    PublicationState @default(PUBLISHED)
+  updatedAt           DateTime         @updatedAt
+
+  doctorBranch        DoctorBranch     @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
+
+  @@index([doctorBranchId, publicationState])
+}
+
+model ScheduleException {
+  id                  String       @id @default(uuid())
+  doctorBranchId      String
+  dateStr             String       // "YYYY-MM-DD"
+  startsAt            DateTime
+  endsAt              DateTime
+  exceptionType       String       // "BLOCKED" | "LEAVE" | "RESCHEDULED"
+  reasonEn            String
+  reasonBn            String
+  createdByUserId     String?
+  createdAt           DateTime     @default(now())
+
+  doctorBranch        DoctorBranch @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
+
+  @@index([doctorBranchId, dateStr])
+}
+
+model Service {
+  id                  String           @id @default(uuid())
+  departmentId        String
+  slug                String           @unique
+  nameEn              String
+  nameBn              String
+  descriptionEn       String
+  descriptionBn       String
+  preparationEn       String?
+  preparationBn       String?
+  publicationState    PublicationState @default(PUBLISHED)
+  lastVerifiedAt      DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  department          Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  fees                Fee[]
+
+  @@index([departmentId, publicationState])
+}
+
+model Fee {
+  id                  String           @id @default(uuid())
+  serviceId           String
+  amountBdt           Int
+  currency            String           @default("BDT")
+  feeLabelEn          String
+  feeLabelBn          String
+  effectiveFrom       DateTime
+  effectiveTo         DateTime?
+  publicationState    PublicationState @default(PUBLISHED)
+  updatedAt           DateTime         @updatedAt
+
+  service             Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId, publicationState])
+}
+
+model DiseaseCondition {
+  id                  String           @id @default(uuid())
+  departmentId        String
+  slug                String           @unique
+  firstLetter         String           // "A".."Z" or "#"
+  nameEn              String
+  nameBn              String
+  summaryEn           String
+  summaryBn           String
+  symptomsEn          String[]
+  symptomsBn          String[]
+  causesEn            String
+  causesBn            String
+  diagnosisOverviewEn String
+  diagnosisOverviewBn String
+  careAtDeltaCareEn   String
+  careAtDeltaCareBn   String
+  isFeaturedCareArea  Boolean          @default(false)
+  reviewedByEn        String
+  reviewedByBn        String
+  lastReviewedAt      DateTime         @default(now())
+  publicationState    PublicationState @default(PUBLISHED)
+  updatedAt           DateTime         @updatedAt
+
+  department          Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+
+  @@index([firstLetter, publicationState])
+}
+
+model MedicalProcedure {
+  id                  String           @id @default(uuid())
+  departmentId        String
+  slug                String           @unique
+  nameEn              String
+  nameBn              String
+  categoryEn          String
+  categoryBn          String
+  summaryEn           String
+  summaryBn           String
+  preparationEn       String
+  preparationBn       String
+  whatToExpectEn      String
+  whatToExpectBn      String
+  feeBdt              Int?
+  feeEffectiveFrom    DateTime         @default(now())
+  reviewedByEn        String
+  reviewedByBn        String
+  lastReviewedAt      DateTime         @default(now())
+  publicationState    PublicationState @default(PUBLISHED)
+  updatedAt           DateTime         @updatedAt
+
+  department          Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+
+  @@index([publicationState, departmentId])
+}
+
+model Appointment {
+  id                  String            @id @default(uuid())
+  reference           String            @unique // e.g., DC-2026-1042
+  doctorBranchId      String
+  departmentId        String
+  doctorId            String
+  branchId            String
+  patientUserId       String?
+  patientName         String
+  patientPhone        String
+  patientEmail        String?
+  preferredDate       String            // "YYYY-MM-DD"
+  preferredTimeSlot   String            // "17:00"
+  visitType           String            @default("NEW_CONSULTATION") // "NEW_CONSULTATION" | "FOLLOW_UP"
+  reasonNote          String?
+  consentAccepted     Boolean           @default(true)
+  status              AppointmentStatus @default(REQUESTED)
+  source              String            @default("WEBSITE")
+  staffNotes          String?
+  confirmedByUserId   String?
+  confirmedAt         DateTime?
+  updatedAt           DateTime          @updatedAt
+  createdAt           DateTime          @default(now())
+
+  doctorBranch        DoctorBranch      @relation(fields: [doctorBranchId], references: [id], onDelete: Restrict)
+  events              AppointmentEvent[]
+
+  @@index([status, preferredDate])
+  @@index([doctorBranchId, preferredDate, preferredTimeSlot])
+  @@index([patientPhone])
+}
+
+model AppointmentEvent {
+  id                  String             @id @default(uuid())
+  appointmentId       String
+  fromStatus          AppointmentStatus?
+  toStatus            AppointmentStatus
+  actorUserId         String?
+  actorName           String
+  reason              String?
+  createdAt           DateTime           @default(now())
+
+  appointment         Appointment        @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([appointmentId, createdAt])
+}
+
+model User {
+  id                  String   @id @default(uuid())
+  email               String   @unique
+  fullName            String
+  phone               String?
+  passwordHash        String
+  role                RoleCode @default(PATIENT)
+  scopedBranchId      String?
+  scopedDepartmentId  String?
+  isActive            Boolean  @default(true)
+  mfaEnabled          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([role, isActive])
+}
+
+model ApprovalRequest {
+  id                  String           @id @default(uuid())
+  entityType          String           // "DOCTOR" | "SCHEDULE" | "FEE" | "DEPARTMENT" | "CONTENT"
+  entityId            String
+  entityTitle         String
+  changeSummary       String
+  previousPayloadJson String
+  proposedPayloadJson String
+  status              PublicationState @default(PENDING_APPROVAL)
+  requestedByUserId   String
+  requestedByName     String
+  reviewedByUserId    String?
+  reviewedByName      String?
+  reviewNote          String?
+  createdAt           DateTime         @default(now())
+  reviewedAt          DateTime?
+
+  @@index([status, createdAt])
+}
+
+model AIUpdateDraft {
+  id                  String           @id @default(uuid())
+  staffUserId         String
+  staffName           String
+  rawInputNote        String
+  category            String           // "DOCTOR_SCHEDULE" | "FEE_UPDATE" | "PUBLIC_NOTICE" | "SERVICE_INFO"
+  parsedSummary       String
+  proposedPayloadJson String
+  draftNoticeEn       String
+  draftNoticeBn       String
+  approvalStatus      PublicationState @default(PENDING_APPROVAL)
+  reviewedByName      String?
+  reviewNote          String?
+  publishedAt         DateTime?
+  createdAt           DateTime         @default(now())
+}
+
+model ContactRequest {
+  id                  String   @id @default(uuid())
+  reference           String   @unique
+  fullName            String
+  phone               String
+  email               String?
+  branchId            String?
+  departmentId        String?
+  preferredCallTime   String?
+  message             String
+  consentAccepted     Boolean  @default(true)
+  status              String   @default("OPEN") // "OPEN" | "CONTACTED" | "CLOSED"
+  assignedToName      String?
+  resolutionNote      String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Feedback {
+  id                  String         @id @default(uuid())
+  reference           String         @unique
+  type                FeedbackType   @default(FEEDBACK)
+  category            String         // "WAIT_TIME" | "BILLING_FEE" | "STAFF_CONDUCT" | "FACILITY" | "APPOINTMENT" | "GENERAL"
+  routedDepartmentId  String?
+  branchId            String?
+  patientName         String?
+  patientPhone        String?
+  patientEmail        String?
+  subject             String
+  message             String
+  isPrivate           Boolean        @default(true)
+  status              FeedbackStatus @default(NEW)
+  assignedStaffName   String?
+  internalNotes       String?
+  resolutionSummary   String?
+  aiSuggestedCategory String?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+
+  @@index([status, type])
+}
+
+model Notification {
+  id                  String              @id @default(uuid())
+  channel             NotificationChannel
+  recipient           String
+  templateCode        String
+  subject             String?
+  bodyPreview         String
+  status              NotificationStatus  @default(SENT)
+  relatedEntityType   String?
+  relatedEntityId     String?
+  providerMessageId   String?
+  sentAt              DateTime            @default(now())
+}
+
+model ConversationSession {
+  id                  String   @id @default(uuid())
+  channel             String   @default("WEBSITE")
+  locale              String   @default("en")
+  queryCategory       String   // "DOCTOR_LOOKUP" | "HOURS_LOCATION" | "FEES_SERVICES" | "APPOINTMENT_INFO" | "CLINICAL_REFUSAL" | "UNKNOWN_ABSTAIN"
+  wasAbstained        Boolean  @default(false)
+  wasClinicalRefusal  Boolean  @default(false)
+  sourceIdsUsed       String[]
+  createdAt           DateTime @default(now())
+}
+
+model AuditEvent {
+  id                  String   @id @default(uuid())
+  actorUserId         String
+  actorName           String
+  actorRole           String
+  action              String   // e.g., "APPOINTMENT_CONFIRMED", "DOCTOR_UPDATED", "SCHEDULE_BLOCKED", "CONTENT_PUBLISHED"
+  entityType          String
+  entityId            String
+  summary             String
+  diffJson            String?
+  requestId           String?
+  occurredAt          DateTime @default(now())
+
+  @@index([occurredAt])
+  @@index([entityType, entityId])
+}
+

@@ -1,0 +1,350 @@
+@import "tailwindcss";
+
+/* ============================================================================
+   DeltaCare Hospital Platform — Measured Reference Design Tokens (inspo.html)
+   Exact --mc-* CSS custom properties extracted from the Mayo Clinic reference
+   ============================================================================ */
+
+:root {
+  /* Layer & Surface Tokens */
+  --mc-color-layer-primary-default: #ffffff;
+  --mc-color-layer-primary-active: #f4f4f4;
+  --mc-color-layer-primary-hover: #e8e8e8;
+  --mc-color-layer-primary-pressed: #e4e3e3;
+  --mc-color-layer-primary-disabled: #ebebeb;
+
+  --mc-color-layer-secondary-default: #ebebeb;
+  --mc-color-layer-secondary-active: #e0e0e0;
+  --mc-color-layer-secondary-hover: #d8d8d8;
+  --mc-color-layer-secondary-pressed: #c5c5c5;
+
+  --mc-color-layer-tertiary-default: #080808;
+  --mc-color-layer-tertiary-hover: #595959;
+  --mc-color-layer-tertiary-pressed: #686868;
+  --mc-color-layer-tertiary-active: #3a3a3a;
+  --mc-color-layer-overlay: rgba(8, 8, 8, 0.55);
+
+  /* Brand Layer Tokens */
+  --mc-color-layer-brand-1-default: #0057b8;
+  --mc-color-layer-brand-1-active: #177bec;
+  --mc-color-layer-brand-1-hover: #1371d5;
+  --mc-color-layer-brand-1-pressed: #002443;
+  --mc-color-layer-brand-2-default: #080808;
+  --mc-color-layer-brand-3-default: #009998;
+  --mc-color-layer-brand-4-default: #f89e81;
+
+  /* Background Tokens */
+  --mc-color-background-primary: #ffffff;
+  --mc-color-background-secondary: #ebebeb;
+  --mc-color-background-brand: #0057b8;
+  --mc-color-background-donations: #0d0d33;
+  --mc-color-background-footer: #012d61;
+
+  /* Text Tokens */
+  --mc-color-text-primary: #080808;
+  --mc-color-text-primary-inverse: #ffffff;
+  --mc-color-text-secondary: #686868;
+  --mc-color-text-secondary-inverse: #ffffff;
+  --mc-color-text-caption: #595959;
+  --mc-color-text-caption-inverse: #ffffff;
+  --mc-color-text-brand: #0057b8;
+  --mc-color-text-placeholder: #686868;
+  --mc-color-text-action-default: #0057b8;
+  --mc-color-text-action-hover: #1371d5;
+  --mc-color-text-action-pressed: #002443;
+  --mc-color-text-action-visited: #670081;
+  --mc-color-text-action-inverse-default: #ffffff;
+  --mc-color-text-action-inverse-hover: #e1f0ff;
+  --mc-color-text-action-inverse-pressed: #8cc5ff;
+
+  /* Action Tokens */
+  --mc-color-action-primary-default: #0057b8;
+  --mc-color-action-primary-hover: #1371d5;
+  --mc-color-action-primary-pressed: #002443;
+  --mc-color-action-primary-disabled: #9d9d9d;
+  --mc-color-action-primary-inverse-default: #ffffff;
+  --mc-color-action-primary-inverse-hover: #e1f0ff;
+  --mc-color-action-primary-inverse-pressed: #8cc5ff;
+
+  --mc-color-action-secondary-default: #004181;
+  --mc-color-action-secondary-hover: #c5e2f9;
+  --mc-color-action-secondary-pressed: #8fcdf6;
+  --mc-color-action-secondary-inverse-default: #009cde;
+  --mc-color-action-secondary-inverse-hover: #008bcc;
+  --mc-color-action-secondary-inverse-pressed: #005d91;
+
+  /* Border Tokens */
+  --mc-color-border-primary-default: #080808;
+  --mc-color-border-primary-hover: #1371d5;
+  --mc-color-border-primary-pressed: #002443;
+  --mc-color-border-secondary-default: #949494;
+  --mc-color-border-secondary-hover: #008bcc;
+  --mc-color-border-secondary-selected: #0057b8;
+  --mc-color-border-tertiary-default: #d6d6d6;
+  --mc-color-border-primary-inverse-default: #ffffff;
+
+  /* Signal / Semantic Status Tokens */
+  --mc-color-signal-success-default: #008746;
+  --mc-color-signal-success-hover: #009f4d;
+  --mc-color-signal-success-pressed: #006433;
+  --mc-color-signal-warning-default: #c08800;
+  --mc-color-signal-warning-hover: #edba41;
+  --mc-color-signal-warning-pressed: #d79d13;
+  --mc-color-signal-error-default: #e4002b;
+  --mc-color-signal-error-hover: #ee3c49;
+  --mc-color-signal-error-pressed: #a0001f;
+  --mc-color-signal-neutral-default: #0057b8;
+
+  /* Focus Ring Tokens */
+  --mc-color-focus-primary: #0057b8;
+  --mc-color-focus-primary-inverse: #ffffff;
+  --mc-focus-outline-width: 2px;
+  --mc-focus-outline-offset: 2px;
+  --mc-focus-outline-style: dashed;
+  --mc-focus-outline-border-radius: 3px;
+
+  /* Radius & Icon Tokens */
+  --mc-radius-none: 0px;
+  --mc-radius-x-small: 4px;
+  --mc-radius-small: 8px;
+  --mc-radius-medium: 12px;
+  --mc-radius-large: 16px;
+  --mc-radius-x-large: 24px;
+  --mc-radius-xx-large: 32px;
+  --mc-radius-full: 1000px;
+
+  /* Spacing Tokens (8px Grid) */
+  --mc-spacing-0-5x: 4px;
+  --mc-spacing-1x: 8px;
+  --mc-spacing-1-5x: 12px;
+  --mc-spacing-2x: 16px;
+  --mc-spacing-2-5x: 20px;
+  --mc-spacing-3x: 24px;
+  --mc-spacing-4x: 32px;
+  --mc-spacing-5x: 40px;
+  --mc-spacing-6x: 48px;
+  --mc-spacing-7x: 56px;
+  --mc-spacing-8x: 64px;
+  --mc-spacing-9x: 72px;
+  --mc-spacing-12x: 96px;
+  --mc-spacing-16x: 128px;
+
+  /* Typography Tokens (English + Bangla Unicode Support) */
+  --mc-typography-font-family-display: Georgia, "Times New Roman", "Noto Serif Bengali", serif;
+  --mc-typography-font-family-serif: Georgia, "Times New Roman", "Noto Serif Bengali", serif;
+  --mc-typography-font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans Bengali", sans-serif;
+
+  --mc-typography-font-size-root: 16px;
+  --mc-typography-font-size-19x: 4.75rem;   /* 76px */
+  --mc-typography-font-size-15x: 3.75rem;   /* 60px */
+  --mc-typography-font-size-12x: 3rem;      /* 48px */
+  --mc-typography-font-size-10x: 2.5rem;    /* 40px */
+  --mc-typography-font-size-8x: 2rem;       /* 32px */
+  --mc-typography-font-size-6x: 1.5rem;     /* 24px */
+  --mc-typography-font-size-5x: 1.25rem;    /* 20px */
+  --mc-typography-font-size-4x: 1rem;       /* 16px */
+  --mc-typography-font-size-3x: 0.75rem;    /* 12px */
+
+  --mc-typography-line-height-19x: 1.0526;
+  --mc-typography-line-height-15x: 1.0667;
+  --mc-typography-line-height-12x: 1.0833;
+  --mc-typography-line-height-10x: 1.1;
+  --mc-typography-line-height-8x: 1.25;
+  --mc-typography-line-height-6x: 1.3333;
+  --mc-typography-line-height-5x: 1.4;
+  --mc-typography-line-height-4x: 1.5;
+  --mc-typography-line-height-3x: 1.3333;
+
+  /* Layout & Transition Tokens */
+  --mc-max-site-width: 1296px;
+  --mc-grid-max-width: 1320px;
+  --mc-transition-timing: 0.3s;
+  --mc-transition-easing: ease-in-out;
+}
+
+/* Base Document Rules */
+html {
+  font-size: var(--mc-typography-font-size-root);
+  font-family: var(--mc-typography-font-family-sans);
+  color: var(--mc-color-text-primary);
+  background-color: var(--mc-color-background-primary);
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  color: var(--mc-color-text-primary);
+  background-color: var(--mc-color-background-primary);
+  line-height: var(--mc-typography-line-height-4x);
+}
+
+/* Reference Typography Helper Classes */
+.font-mc-display {
+  font-family: var(--mc-typography-font-family-display);
+}
+
+.font-mc-serif {
+  font-family: var(--mc-typography-font-family-serif);
+}
+
+.font-mc-sans {
+  font-family: var(--mc-typography-font-family-sans);
+}
+
+.mc-hero-headline {
+  font-family: var(--mc-typography-font-family-display);
+  font-size: var(--mc-typography-font-size-12x);
+  line-height: var(--mc-typography-line-height-12x);
+  font-weight: 300;
+  letter-spacing: -0.015em;
+}
+
+@media (min-width: 905px) {
+  .mc-hero-headline {
+    font-size: var(--mc-typography-font-size-19x);
+    line-height: var(--mc-typography-line-height-19x);
+  }
+}
+
+.mc-heading-h1 {
+  font-family: var(--mc-typography-font-family-display);
+  font-size: var(--mc-typography-font-size-10x);
+  line-height: var(--mc-typography-line-height-10x);
+  font-weight: 700;
+}
+
+.mc-heading-h2 {
+  font-family: var(--mc-typography-font-family-display);
+  font-size: var(--mc-typography-font-size-8x);
+  line-height: var(--mc-typography-line-height-8x);
+  font-weight: 700;
+}
+
+.mc-heading-h3 {
+  font-family: var(--mc-typography-font-family-serif);
+  font-size: var(--mc-typography-font-size-6x);
+  line-height: var(--mc-typography-line-height-6x);
+  font-weight: 700;
+}
+
+/* Reference Container Geometry */
+.mc-container {
+  width: 100%;
+  max-width: var(--mc-grid-max-width);
+  margin-inline: auto;
+  padding-inline: var(--mc-spacing-2x);
+}
+
+@media (min-width: 600px) {
+  .mc-container {
+    padding-inline: var(--mc-spacing-3x);
+  }
+}
+
+@media (min-width: 905px) {
+  .mc-container {
+    padding-inline: var(--mc-spacing-4x);
+  }
+}
+
+/* Reference Pill & Alphabet Button Styles */
+.mc-pill-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 24px;
+  background-color: var(--mc-color-action-primary-default);
+  color: var(--mc-color-text-action-inverse-default);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  transition: background-color var(--mc-transition-timing) var(--mc-transition-easing),
+              transform 0.15s ease;
+}
+
+.mc-pill-primary:hover {
+  background-color: var(--mc-color-action-primary-hover);
+}
+
+.mc-pill-primary:active {
+  background-color: var(--mc-color-action-primary-pressed);
+}
+
+.mc-pill-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 24px;
+  border-radius: 24px;
+  border: 2px solid var(--mc-color-action-primary-default);
+  background-color: transparent;
+  color: var(--mc-color-action-primary-default);
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.2;
+  transition: background-color var(--mc-transition-timing) var(--mc-transition-easing),
+              color var(--mc-transition-timing) var(--mc-transition-easing),
+              border-color var(--mc-transition-timing) var(--mc-transition-easing);
+}
+
+.mc-pill-secondary:hover {
+  background-color: var(--mc-color-action-secondary-hover);
+  color: var(--mc-color-action-primary-pressed);
+  border-color: var(--mc-color-action-primary-pressed);
+}
+
+.mc-alphabet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 1000px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.mc-alphabet-btn:hover,
+.mc-alphabet-btn[aria-current="true"] {
+  background-color: #ffffff;
+  color: #0057b8;
+  border-color: #ffffff;
+}
+
+/* Accessible Focus States Matching Reference (2px dashed #0057b8) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: var(--mc-focus-outline-width) var(--mc-focus-outline-style) var(--mc-color-focus-primary);
+  outline-offset: var(--mc-focus-outline-offset);
+}
+
+.mc-inverse-focus a:focus-visible,
+.mc-inverse-focus button:focus-visible,
+.mc-inverse-focus input:focus-visible {
+  outline-color: var(--mc-color-focus-primary-inverse);
+}
+
+/* WCAG 2.2 AA Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+

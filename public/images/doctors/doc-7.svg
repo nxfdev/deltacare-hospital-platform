@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="g-doc-7" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#005d91" />
+      <stop offset="100%" stop-color="#002443" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#g-doc-7)"/>
+  <circle cx="200" cy="150" r="68" fill="#afd7ff" opacity="0.25"/>
+  <path d="M80 380 C80 285 130 245 200 245 C270 245 320 285 320 380 Z" fill="#afd7ff" opacity="0.2"/>
+  <circle cx="200" cy="150" r="56" fill="#ffffff" opacity="0.92"/>
+  <path d="M104 380 C104 300 144 262 200 262 C256 262 296 300 296 380 Z" fill="#ffffff" opacity="0.92"/>
+  <!-- Stethoscope collar accent -->
+  <path d="M165 272 Q200 320 235 272" fill="none" stroke="#005d91" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="225" cy="310" r="8" fill="#005d91"/>
+  <text x="200" y="166" text-anchor="middle" font-family="Georgia, serif" font-size="42" font-weight="700" fill="#002443">RK</text>
+  <rect x="16" y="16" width="128" height="26" rx="13" fill="#080808" opacity="0.45"/>
+  <text x="80" y="33" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" font-weight="700" fill="#ffffff" letter-spacing="0.8">SYNTHETIC PROFILE</text>
+</svg>
