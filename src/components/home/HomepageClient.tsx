@@ -144,7 +144,7 @@ export function HomepageClient({
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
               <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
-                  src="/images/healing-starts-here.jpg"
+                  src="/images/world-class-care.jpg"
                   alt={t.storySections.story1Title}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
@@ -158,7 +158,7 @@ export function HomepageClient({
             <div className="lg:col-span-5 order-2 lg:order-1 flex justify-center lg:justify-start">
               <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
-                  src="/images/world-class-care.jpg"
+                  src="/images/healing-starts-here.jpg"
                   alt={t.storySections.story2Title}
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
