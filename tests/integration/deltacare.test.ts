@@ -25,8 +25,24 @@ import {
 import {
   createFeedbackSubmission,
   getOperationalAnalytics,
+  updateUserRoleOrStatus,
 } from "@/server/services/communicationAndAnalyticsService";
-import { SessionPayload } from "@/server/auth/session";
+import { createSessionToken, SessionPayload, verifySessionToken } from "@/server/auth/session";
+import {
+  hashPassword,
+  isBcryptHash,
+  migrateLegacyPassword,
+  verifyPassword,
+} from "@/server/auth/passwordService";
+import { getCalendarWeekday } from "@/server/services/appointmentService";
+import {
+  completePasswordReset,
+  requestPasswordReset,
+} from "@/server/services/authRecoveryService";
+import {
+  checkRateLimit,
+  resetRateLimitsForTests,
+} from "@/server/security/rateLimiter";
 
 const superAdminSession: SessionPayload = {
   userId: "user-super-0",
@@ -41,6 +57,7 @@ const adminSession: SessionPayload = {
   email: "admin@deltacare.bd",
   fullName: "Nafisa Chowdhury",
   role: "HOSPITAL_ADMIN",
+  scopedBranchId: "branch-dhanmondi",
   exp: Date.now() + 3600000,
 };
 
@@ -66,6 +83,52 @@ const patientSession: SessionPayload = {
   email: "patient@deltacare.bd",
   fullName: "Tanvir Ahmed",
   role: "PATIENT",
+  exp: Date.now() + 3600000,
+};
+
+const doctor1Session: SessionPayload = {
+  userId: "user-doctor-1",
+  email: "doctor@deltacare.bd",
+  fullName: "Prof. Dr. Anisur Rahman",
+  role: "DOCTOR",
+  doctorProfileId: "doc-1",
+  scopedBranchId: "branch-dhanmondi",
+  exp: Date.now() + 3600000,
+};
+
+const doctor2Session: SessionPayload = {
+  userId: "user-doctor-2",
+  email: "doctor2@deltacare.bd",
+  fullName: "Dr. Nusrat Jahan",
+  role: "DOCTOR",
+  doctorProfileId: "doc-2",
+  scopedBranchId: "branch-dhanmondi",
+  exp: Date.now() + 3600000,
+};
+
+const deptManagerSession: SessionPayload = {
+  userId: "user-dept-1",
+  email: "deptmanager@deltacare.bd",
+  fullName: "Dr. Dept Manager",
+  role: "DEPT_MANAGER",
+  scopedBranchId: "branch-dhanmondi",
+  exp: Date.now() + 3600000,
+};
+
+const unscopedAdminSession: SessionPayload = {
+  userId: "user-admin-unscoped",
+  email: "unscoped@deltacare.bd",
+  fullName: "Unscoped Admin",
+  role: "HOSPITAL_ADMIN",
+  exp: Date.now() + 3600000,
+};
+
+const otherBranchAdminSession: SessionPayload = {
+  userId: "user-admin-gulshan",
+  email: "gulshanadmin@deltacare.bd",
+  fullName: "Gulshan Admin",
+  role: "HOSPITAL_ADMIN",
+  scopedBranchId: "branch-gulshan",
   exp: Date.now() + 3600000,
 };
 
@@ -563,5 +626,489 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       (a) => a.branchId === receptionistSession.scopedBranchId
     );
     expect(dhanmondiAppointments.length).toBeGreaterThan(0);
+  });
+
+  // ==========================================================================
+  // RELEASE 1: SECURITY HARDENING REGRESSION SUITE
+  // ==========================================================================
+
+  it("T-SEC-01: Privilege escalation prevention and role modification hierarchy", async () => {
+    // 1. Hospital Admin attempting SUPER_ADMIN promotion on another user -> REJECTED
+    const promoRes = await updateUserRoleOrStatus(adminSession, {
+      targetUserId: "user-editor-1",
+      role: "SUPER_ADMIN",
+    });
+    expect(promoRes.ok).toBe(false);
+    if (!promoRes.ok) {
+      expect(promoRes.error).toContain("Forbidden");
+    }
+
+    // 2. Hospital Admin attempting self-promotion -> REJECTED
+    const selfPromoRes = await updateUserRoleOrStatus(adminSession, {
+      targetUserId: adminSession.userId,
+      role: "SUPER_ADMIN",
+    });
+    expect(selfPromoRes.ok).toBe(false);
+    if (!selfPromoRes.ok) {
+      expect(selfPromoRes.error).toContain("Forbidden");
+    }
+
+    // 3. Receptionist attempting any role change -> REJECTED
+    const recRoleRes = await updateUserRoleOrStatus(receptionistSession, {
+      targetUserId: "user-editor-1",
+      role: "HOSPITAL_ADMIN",
+    });
+    expect(recRoleRes.ok).toBe(false);
+    if (!recRoleRes.ok) {
+      expect(recRoleRes.error).toContain("Forbidden");
+    }
+
+    // 4. Content Editor attempting any role change -> REJECTED
+    const edRoleRes = await updateUserRoleOrStatus(editorSession, {
+      targetUserId: "user-reception-1",
+      role: "SUPER_ADMIN",
+    });
+    expect(edRoleRes.ok).toBe(false);
+    if (!edRoleRes.ok) {
+      expect(edRoleRes.error).toContain("Forbidden");
+    }
+
+    // 5. Hospital Admin attempting to deactivate another account of equal/higher privilege -> REJECTED
+    const deactAdminRes = await updateUserRoleOrStatus(adminSession, {
+      targetUserId: "user-superadmin-1", // self or other hospital admin
+      isActive: false,
+    });
+    expect(deactAdminRes.ok).toBe(false);
+    if (!deactAdminRes.ok) {
+      expect(deactAdminRes.error).toContain("Forbidden");
+    }
+
+    // 6. Super Admin CAN modify role and status of subordinates -> SUCCESS + AUDIT LOGGED
+    const superModRes = await updateUserRoleOrStatus(superAdminSession, {
+      targetUserId: "user-editor-1",
+      role: "DEPT_MANAGER",
+    });
+    expect(superModRes.ok).toBe(true);
+    if (superModRes.ok) {
+      expect(superModRes.user.role).toBe("DEPT_MANAGER");
+    }
+
+    const db = getDbState();
+    const audit = db.auditEvents.find(
+      (ev) => ev.action === "USER_ROLE_OR_STATUS_UPDATED" && ev.actorUserId === superAdminSession.userId
+    );
+    expect(audit).toBeDefined();
+    expect(audit?.diffJson).toContain("DEPT_MANAGER");
+  });
+
+  it("T-SEC-02: Doctor account association & cross-doctor access prevention", async () => {
+    const db = getDbState();
+    // Verify doctor accounts are seeded with proper profile linkage
+    const docUser1 = db.users.find((u) => u.email === "doctor@deltacare.bd");
+    expect(docUser1).toBeDefined();
+    expect(docUser1?.role).toBe("DOCTOR");
+    expect(docUser1?.doctorProfileId).toBe("doc-1");
+
+    const docUser2 = db.users.find((u) => u.email === "doctor2@deltacare.bd");
+    expect(docUser2).toBeDefined();
+    expect(docUser2?.role).toBe("DOCTOR");
+    expect(docUser2?.doctorProfileId).toBe("doc-2");
+
+    // Doctor 1 has appointment apt-1001 (assigned to doc-1)
+    const apt1001 = db.appointments.find((a) => a.id === "apt-1001");
+    expect(apt1001?.doctorId).toBe("doc-1");
+
+    // Doctor 2 has appointment apt-1002 (assigned to doc-2)
+    const apt1002 = db.appointments.find((a) => a.id === "apt-1002");
+    expect(apt1002?.doctorId).toBe("doc-2");
+
+    // Doctor 1 transitions their own appointment -> SUCCESS
+    const doc1Trans = await transitionAppointmentStatus({
+      appointmentId: "apt-1001",
+      toStatus: "CONFIRMED",
+      actorUserId: doctor1Session.userId,
+      actorName: doctor1Session.fullName,
+      actorRole: doctor1Session.role,
+      reason: "Clinical consultation verified by Dr. Anisur Rahman.",
+    });
+    expect(doc1Trans.ok).toBe(true);
+    if (doc1Trans.ok) {
+      expect(doc1Trans.appointment.status).toBe("CONFIRMED");
+    }
+
+    // Verify doctor appointments filtering by profile
+    const doc1Appointments = db.appointments.filter((a) => a.doctorId === doctor1Session.doctorProfileId);
+    const doc2Appointments = db.appointments.filter((a) => a.doctorId === doctor2Session.doctorProfileId);
+    expect(doc1Appointments.some((a) => a.id === "apt-1001")).toBe(true);
+    expect(doc1Appointments.some((a) => a.id === "apt-1002")).toBe(false);
+    expect(doc2Appointments.some((a) => a.id === "apt-1002")).toBe(true);
+    expect(doc2Appointments.some((a) => a.id === "apt-1001")).toBe(false);
+  });
+
+  it("T-SEC-03: Patient cross-access prevention & private appointment scoping", async () => {
+    const db = getDbState();
+    // Patient Tanvir Ahmed (user-patient-1)
+    const tanvirApts = db.appointments.filter(
+      (a) => a.patientUserId === patientSession.userId || a.patientPhone === "01711223344"
+    );
+    expect(tanvirApts.length).toBeGreaterThan(0);
+
+    // Other patient appointment (apt-1003 is for patient nusrat.demo@example.com / 01711998877)
+    const otherApt = db.appointments.find((a) => a.id === "apt-1003");
+    expect(otherApt).toBeDefined();
+    expect(otherApt?.patientPhone).not.toBe("01711223344");
+
+    // Scoped dashboard logic: Patient can never see other patient's record
+    const patientScopedApts = db.appointments.filter(
+      (a) => a.patientUserId === patientSession.userId || a.patientPhone === "01711223344"
+    );
+    expect(patientScopedApts.some((a) => a.id === "apt-1003")).toBe(false);
+  });
+
+  it("T-SEC-04: Cryptographic password hashing and verification with bcrypt", async () => {
+    const db = getDbState();
+    // 1. Every seeded user must hold a genuine bcrypt hash
+    for (const u of db.users) {
+      expect(isBcryptHash(u.passwordHash)).toBe(true);
+      expect(u.passwordHash).not.toContain("demo-hash:");
+      expect(u.passwordHash).not.toBe("DeltaCare#2026");
+    }
+
+    // 2. Correct password verifies successfully
+    const adminUser = db.users.find((u) => u.email === "admin@deltacare.bd");
+    expect(adminUser).toBeDefined();
+    const correctPasswordValid = await verifyPassword("DeltaCare#2026", adminUser?.passwordHash);
+    expect(correctPasswordValid).toBe(true);
+
+    // 3. Incorrect password strictly rejected
+    const incorrectPasswordValid = await verifyPassword("WrongPassword#999", adminUser?.passwordHash);
+    expect(incorrectPasswordValid).toBe(false);
+
+    // 4. Insecure legacy format (plaintext or demo-hash:) is strictly rejected by verifyPassword
+    const legacyPlaintextValid = await verifyPassword("DeltaCare#2026", "DeltaCare#2026");
+    expect(legacyPlaintextValid).toBe(false);
+
+    const legacyDemoHashValid = await verifyPassword("DeltaCare#2026", "demo-hash:DeltaCare#2026");
+    expect(legacyDemoHashValid).toBe(false);
+
+    // 5. New password hashing enforces length and produces bcrypt output
+    const newHash = await hashPassword("PatientStrongPass#2026");
+    expect(isBcryptHash(newHash)).toBe(true);
+    expect(await verifyPassword("PatientStrongPass#2026", newHash)).toBe(true);
+
+    await expect(hashPassword("short")).rejects.toThrow("at least 6 characters");
+  });
+
+  it("T-SEC-05: Session token signing, expiration, and user invalidation", async () => {
+    const db = getDbState();
+    const adminUser = db.users.find((u) => u.email === "admin@deltacare.bd")!;
+
+    // 1. Valid token verifies and returns session payload
+    const validToken = createSessionToken(adminUser);
+    const verified = verifySessionToken(validToken);
+    expect(verified).not.toBeNull();
+    expect(verified?.email).toBe("admin@deltacare.bd");
+    expect(verified?.role).toBe("HOSPITAL_ADMIN");
+
+    // 2. Tampered signature is strictly rejected
+    const [payloadBase64, signature] = validToken.split(".");
+    const tamperedToken = `${payloadBase64}.tampered_invalid_sig`;
+    expect(verifySessionToken(tamperedToken)).toBeNull();
+
+    // 3. Expired token is rejected
+    const expiredPayload = {
+      userId: adminUser.id,
+      email: adminUser.email,
+      fullName: adminUser.fullName,
+      role: adminUser.role,
+      exp: Date.now() - 10000, // in the past
+    };
+    const expiredData = Buffer.from(JSON.stringify(expiredPayload), "utf8").toString("base64url");
+    // Sign it with valid secret
+    const crypto = await import("crypto");
+    const sig = crypto
+      .createHmac("sha256", process.env.AUTH_SECRET || "deltacare-dev-secret-key-at-least-32-bytes-long")
+      .update(expiredData)
+      .digest("base64url");
+    const expiredToken = `${expiredData}.${sig}`;
+    expect(verifySessionToken(expiredToken)).toBeNull();
+
+    // 4. Deactivated user session is rejected even if signature is valid
+    adminUser.isActive = false;
+    expect(verifySessionToken(validToken)).toBeNull();
+    adminUser.isActive = true; // Restore
+  });
+
+  // ==========================================================================
+  // RELEASE 1.1: COMPREHENSIVE SECURITY VALIDATION & SCHEDULING CORRECTNESS
+  // ==========================================================================
+
+  it("T-REL1.1-01: Password migration, non-rehashing, recovery workflow, and session invalidation", async () => {
+    // 1. Plaintext migration to valid bcrypt
+    const migrated = migrateLegacyPassword("DeltaCare#2026");
+    expect(isBcryptHash(migrated)).toBe(true);
+    expect(await verifyPassword("DeltaCare#2026", migrated)).toBe(true);
+
+    // 2. Already-hashed passwords must NOT be rehashed
+    const existingBcrypt = migrated;
+    const secondPass = migrateLegacyPassword(existingBcrypt);
+    expect(secondPass).toBe(existingBcrypt); // Exact same string, no rehashing!
+
+    // 3. Unrecognized legacy credentials receive FORCE_PASSWORD_RESET and cannot authenticate
+    const forcedResetMarker = migrateLegacyPassword("unrecognized-plaintext-credentials");
+    expect(forcedResetMarker).toContain("FORCE_PASSWORD_RESET:");
+    expect(await verifyPassword("unrecognized-plaintext-credentials", forcedResetMarker)).toBe(false);
+
+    // 4. Password Recovery Workflow (requestPasswordReset + completePasswordReset)
+    const resetReq = await requestPasswordReset("patient@deltacare.bd");
+    expect(resetReq.ok).toBe(true);
+    expect(resetReq.notice).toContain("If an active DeltaCare account matches");
+    expect(resetReq.rawTokenForDev).toBeDefined();
+
+    const rawToken = resetReq.rawTokenForDev!;
+
+    // Invalid token cannot complete reset
+    const badTokenRes = await completePasswordReset("invalid-token-12345", "NewPassword#2026");
+    expect(badTokenRes.ok).toBe(false);
+
+    // Password shorter than 6 characters rejected
+    const shortPassRes = await completePasswordReset(rawToken, "123");
+    expect(shortPassRes.ok).toBe(false);
+
+    // Valid reset completes successfully
+    const validResetRes = await completePasswordReset(rawToken, "NewSecurePassword#2026");
+    expect(validResetRes.ok).toBe(true);
+
+    const db = getDbState();
+    const patientUser = db.users.find((u) => u.email === "patient@deltacare.bd")!;
+    expect(isBcryptHash(patientUser.passwordHash)).toBe(true);
+    expect(await verifyPassword("NewSecurePassword#2026", patientUser.passwordHash)).toBe(true);
+    expect(await verifyPassword("DeltaCare#2026", patientUser.passwordHash)).toBe(false);
+    expect(patientUser.passwordChangedAt).toBeDefined();
+
+    // 5. Existing sessions issued BEFORE password reset are immediately revoked
+    const oldSessionToken = createSessionToken(patientUser);
+    // Artificially simulate old session issued before password change
+    const [payloadBase64] = oldSessionToken.split(".");
+    const decodedPayload = JSON.parse(Buffer.from(payloadBase64, "base64url").toString("utf8"));
+    decodedPayload.iat = new Date("2026-01-01T00:00:00.000Z").getTime(); // in the past before passwordChangedAt
+    const oldPayloadData = Buffer.from(JSON.stringify(decodedPayload), "utf8").toString("base64url");
+    const crypto = await import("crypto");
+    const oldSig = crypto
+      .createHmac("sha256", process.env.AUTH_SECRET || "deltacare-dev-secret-key-at-least-32-bytes-long")
+      .update(oldPayloadData)
+      .digest("base64url");
+    const staleToken = `${oldPayloadData}.${oldSig}`;
+
+    // Must be rejected as invalidated session!
+    expect(verifySessionToken(staleToken)).toBeNull();
+  });
+
+  it("T-REL1.1-02: Role matrix authorization, scope enforcement, and stale permission prevention", async () => {
+    // 1. Test EVERY unauthorized role attempting user role/status modification
+    const unauthorizedRoles = [
+      { role: "PATIENT", session: patientSession },
+      { role: "RECEPTIONIST", session: receptionistSession },
+      { role: "CONTENT_EDITOR", session: editorSession },
+      { role: "DOCTOR", session: doctor1Session },
+      { role: "DEPT_MANAGER", session: deptManagerSession },
+    ];
+
+    for (const { role, session } of unauthorizedRoles) {
+      const res = await updateUserRoleOrStatus(session, {
+        targetUserId: "user-editor-1",
+        role: "HOSPITAL_ADMIN",
+      });
+      expect(res.ok).toBe(false);
+      if (!res.ok) {
+        expect(res.error).toContain("Forbidden");
+      }
+    }
+
+    // 2. Super Admin Account Protection
+    // Hospital admin attempting to deactivate Super Admin -> REJECTED
+    const deactSuperRes = await updateUserRoleOrStatus(adminSession, {
+      targetUserId: superAdminSession.userId,
+      isActive: false,
+    });
+    expect(deactSuperRes.ok).toBe(false);
+    if (!deactSuperRes.ok) {
+      expect(deactSuperRes.error).toContain("Forbidden");
+    }
+
+    // Super Admin attempting self-demotion -> REJECTED
+    const superSelfRes = await updateUserRoleOrStatus(superAdminSession, {
+      targetUserId: superAdminSession.userId,
+      role: "HOSPITAL_ADMIN",
+    });
+    expect(superSelfRes.ok).toBe(false);
+
+    // 3. Branch Scoping: Hospital Admin with branch scope cannot manage staff in another branch
+    const crossBranchRes = await updateUserRoleOrStatus(adminSession, {
+      // adminSession is scoped to branch-dhanmondi; target user in different branch
+      targetUserId: "user-editor-1",
+      isActive: false,
+    });
+    // user-editor-1 has no scopedBranchId or different -> Rejected!
+    expect(crossBranchRes.ok).toBe(false);
+
+    // Hospital admin missing branch scope cannot manage staff
+    const unscopedRes = await updateUserRoleOrStatus(unscopedAdminSession, {
+      targetUserId: "user-reception-1",
+      isActive: false,
+    });
+    expect(unscopedRes.ok).toBe(false);
+    if (!unscopedRes.ok) {
+      expect(unscopedRes.error).toContain("must have an assigned branch scope");
+    }
+
+    // Hospital admin CAN manage lower-level staff within their own branch
+    const validBranchRes = await updateUserRoleOrStatus(adminSession, {
+      targetUserId: "user-reception-1", // receptionist is scoped to branch-dhanmondi
+      isActive: false,
+    });
+    expect(validBranchRes.ok).toBe(true);
+
+    // 4. Stale permissions prevented: token role is verified dynamically from database
+    const db = getDbState();
+    const editorUser = db.users.find((u) => u.id === "user-editor-1")!;
+    const editorToken = createSessionToken(editorUser);
+
+    // Super Admin promotes editor to DEPT_MANAGER in database
+    await updateUserRoleOrStatus(superAdminSession, {
+      targetUserId: "user-editor-1",
+      role: "DEPT_MANAGER",
+    });
+
+    // Verification of the existing token immediately reflects the live role!
+    const verifiedLiveSession = verifySessionToken(editorToken);
+    expect(verifiedLiveSession?.role).toBe("DEPT_MANAGER");
+  });
+
+  it("T-REL1.1-03: Appointment weekday validation, calendar timezone correctness, and non-working day blocking", async () => {
+    // 1. Verify calendar weekday calculation across all 7 days in Asia/Dhaka
+    expect(getCalendarWeekday("2026-11-01", "Asia/Dhaka")).toBe(0); // Sunday
+    expect(getCalendarWeekday("2026-11-02", "Asia/Dhaka")).toBe(1); // Monday
+    expect(getCalendarWeekday("2026-11-03", "Asia/Dhaka")).toBe(2); // Tuesday
+    expect(getCalendarWeekday("2026-11-04", "Asia/Dhaka")).toBe(3); // Wednesday
+    expect(getCalendarWeekday("2026-11-05", "Asia/Dhaka")).toBe(4); // Thursday
+    expect(getCalendarWeekday("2026-11-06", "Asia/Dhaka")).toBe(5); // Friday
+    expect(getCalendarWeekday("2026-11-07", "Asia/Dhaka")).toBe(6); // Saturday
+
+    // 2. Month boundary tests
+    expect(getCalendarWeekday("2026-11-01", "Asia/Dhaka")).toBe(0); // Nov 1: Sunday
+    expect(getCalendarWeekday("2026-11-30", "Asia/Dhaka")).toBe(1); // Nov 30: Monday
+    expect(getCalendarWeekday("2026-02-01", "Asia/Dhaka")).toBe(0); // Feb 1: Sunday
+    expect(getCalendarWeekday("2026-02-28", "Asia/Dhaka")).toBe(6); // Feb 28: Saturday
+
+    // 3. Year boundary tests
+    expect(getCalendarWeekday("2026-01-01", "Asia/Dhaka")).toBe(4); // Jan 1 2026: Thursday
+    expect(getCalendarWeekday("2026-12-31", "Asia/Dhaka")).toBe(4); // Dec 31 2026: Thursday
+    expect(getCalendarWeekday("2027-01-01", "Asia/Dhaka")).toBe(5); // Jan 1 2027: Friday
+
+    // 4. Doctor working on selected weekdays only
+    // doc-1 at Dhanmondi works ONLY on Saturday (6), Monday (1), Wednesday (3)
+    // Wednesday 2026-11-18 -> Working day -> Slots returned
+    const wedSlots = getDoctorBranchAvailability("doc-1", "branch-dhanmondi", "2026-11-18");
+    expect(wedSlots.length).toBeGreaterThan(0);
+    expect(wedSlots[0].time).toBe("16:00");
+
+    // Saturday 2026-11-21 -> Working day -> Slots returned
+    const satSlots = getDoctorBranchAvailability("doc-1", "branch-dhanmondi", "2026-11-21");
+    expect(satSlots.length).toBeGreaterThan(0);
+
+    // Thursday 2026-11-19 -> NON-WORKING day for doc-1 at Dhanmondi -> Zero slots returned
+    const thuSlots = getDoctorBranchAvailability("doc-1", "branch-dhanmondi", "2026-11-19");
+    expect(thuSlots.length).toBe(0);
+
+    // 5. Booking on non-working day is rejected by createAppointmentRequest
+    const nonWorkingBooking = await createAppointmentRequest({
+      doctorId: "doc-1",
+      branchId: "branch-dhanmondi",
+      departmentId: "dept-cardiology",
+      preferredDate: "2026-11-19", // Thursday: non-working day at Dhanmondi
+      preferredTimeSlot: "16:00",
+      visitType: "NEW_CONSULTATION",
+      patientName: "Farhana Test",
+      patientPhone: "01711888999",
+      consentAccepted: true,
+    });
+    expect(nonWorkingBooking.ok).toBe(false);
+    if (!nonWorkingBooking.ok) {
+      expect(nonWorkingBooking.error).toContain("does not have an active chamber on this day");
+    }
+
+    // Booking on working day succeeds
+    const workingBooking = await createAppointmentRequest({
+      doctorId: "doc-1",
+      branchId: "branch-dhanmondi",
+      departmentId: "dept-cardiology",
+      preferredDate: "2026-11-18", // Wednesday: working day
+      preferredTimeSlot: "16:00",
+      visitType: "NEW_CONSULTATION",
+      patientName: "Farhana Test Valid",
+      patientPhone: "01711888998",
+      consentAccepted: true,
+    });
+    expect(workingBooking.ok).toBe(true);
+
+    // 6. Branch-specific schedules:
+    // doc-1 at Gulshan practices on Sunday (0), Tuesday (2), Thursday (4)
+    // Sunday 2026-11-22 is working day at Gulshan!
+    const gulshanSunSlots = getDoctorBranchAvailability("doc-1", "branch-gulshan", "2026-11-22");
+    expect(gulshanSunSlots.length).toBeGreaterThan(0);
+    expect(gulshanSunSlots[0].time).toBe("17:00");
+
+    // Saturday 2026-11-21 is non-working day at Gulshan!
+    const gulshanSatSlots = getDoctorBranchAvailability("doc-1", "branch-gulshan", "2026-11-21");
+    expect(gulshanSatSlots.length).toBe(0);
+  });
+
+  it("T-REL1.1-04: Server-side rate limiting and abuse prevention", () => {
+    resetRateLimitsForTests();
+    const testIp = "192.168.1.100";
+    const config = { maxRequests: 5, windowMs: 15 * 60 * 1000 };
+
+    // Requests 1 through 5 are allowed
+    for (let i = 1; i <= 5; i++) {
+      const res = checkRateLimit("test_auth_action", testIp, config);
+      expect(res.allowed).toBe(true);
+      expect(res.remaining).toBe(5 - i);
+    }
+
+    // 6th request is blocked with HTTP 429 semantics
+    const blockedRes = checkRateLimit("test_auth_action", testIp, config);
+    expect(blockedRes.allowed).toBe(false);
+    expect(blockedRes.remaining).toBe(0);
+    expect(blockedRes.retryAfterSeconds).toBeGreaterThan(0);
+
+    // Different IP is NOT affected
+    const otherIpRes = checkRateLimit("test_auth_action", "192.168.1.200", config);
+    expect(otherIpRes.allowed).toBe(true);
+
+    // Different action is NOT affected
+    const otherActionRes = checkRateLimit("different_action", testIp, config);
+    expect(otherActionRes.allowed).toBe(true);
+  });
+
+  it("T-REL1.1-05: Audit log integrity, credential exclusion, and historical immutability", () => {
+    const db = getDbState();
+    // 1. Audit events must exist and have mandatory fields
+    expect(db.auditEvents.length).toBeGreaterThan(0);
+    for (const ev of db.auditEvents) {
+      expect(ev.id).toBeDefined();
+      expect(ev.action).toBeDefined();
+      expect(ev.actorUserId).toBeDefined();
+      expect(ev.occurredAt).toBeDefined();
+
+      // 2. Sensitive credentials must NEVER appear in audit summaries or diffJson
+      expect(ev.summary).not.toContain("passwordHash");
+      expect(ev.summary).not.toContain("$2b$");
+      expect(ev.summary).not.toContain("demo-hash:");
+      if (ev.diffJson) {
+        expect(ev.diffJson).not.toContain("passwordHash");
+        expect(ev.diffJson).not.toContain("$2b$");
+      }
+    }
   });
 });

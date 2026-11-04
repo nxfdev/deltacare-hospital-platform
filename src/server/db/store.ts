@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import { createInitialSeedState, DeltaCareDatabaseState } from "./seedData";
 import { AuditEvent, RoleCode } from "@/types/domain";
+import { isBcryptHash, migrateLegacyPassword } from "@/server/auth/passwordService";
 
 // ============================================================================
 // DeltaCare Transactional Repository & Concurrency Engine
@@ -15,6 +16,28 @@ const DB_FILE = path.join(DATA_DIR, "deltacare-db.json");
 let memoryCache: DeltaCareDatabaseState | null = null;
 let txQueue: Promise<unknown> = Promise.resolve();
 
+function sanitizeLoadedState(state: DeltaCareDatabaseState): boolean {
+  let modified = false;
+  // Migrate any legacy plaintext or demo hashes
+  if (Array.isArray(state.users)) {
+    for (const u of state.users) {
+      if (!isBcryptHash(u.passwordHash)) {
+        u.passwordHash = migrateLegacyPassword(u.passwordHash);
+        modified = true;
+      }
+    }
+    // Ensure seeded doctor accounts are present
+    const seed = createInitialSeedState();
+    for (const seedUser of seed.users) {
+      if (seedUser.role === "DOCTOR" && !state.users.some((u) => u.id === seedUser.id || u.email === seedUser.email)) {
+        state.users.push(seedUser);
+        modified = true;
+      }
+    }
+  }
+  return modified;
+}
+
 function ensureLoaded(): DeltaCareDatabaseState {
   if (memoryCache) {
     return memoryCache;
@@ -23,6 +46,10 @@ function ensureLoaded(): DeltaCareDatabaseState {
     if (fs.existsSync(DB_FILE)) {
       const raw = fs.readFileSync(DB_FILE, "utf8");
       memoryCache = JSON.parse(raw) as DeltaCareDatabaseState;
+      const modified = sanitizeLoadedState(memoryCache);
+      if (modified) {
+        persistToDisk(memoryCache);
+      }
       return memoryCache;
     }
   } catch {

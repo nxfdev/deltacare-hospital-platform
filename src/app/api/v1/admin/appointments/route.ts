@@ -31,16 +31,24 @@ export async function GET(request: NextRequest) {
   const db = getDbState();
   let list = [...db.appointments];
 
-  // Enforce branch isolation for receptionist if scoped
-  if (session.role === "RECEPTIONIST" && session.scopedBranchId) {
+  // Enforce doctor profile isolation: DOCTOR can ONLY see appointments for their own doctorProfileId
+  if (session.role === "DOCTOR") {
+    if (!session.doctorProfileId) {
+      return NextResponse.json(
+        { ok: false, error: "Forbidden: Doctor account is not associated with any doctor profile." },
+        { status: 403 }
+      );
+    }
+    list = list.filter((a) => a.doctorId === session.doctorProfileId);
+  } else if (session.role === "RECEPTIONIST" && session.scopedBranchId) {
     list = list.filter((a) => a.branchId === session.scopedBranchId);
   } else if (branchId) {
     list = list.filter((a) => a.branchId === branchId);
   }
 
-  if (status) list = list.filter((a) => a.status === status);
-  if (departmentId) list = list.filter((a) => a.departmentId === departmentId);
-  if (doctorId) list = list.filter((a) => a.doctorId === doctorId);
+  if (session.role !== "DOCTOR" && doctorId) {
+    list = list.filter((a) => a.doctorId === doctorId);
+  }
 
   return NextResponse.json({
     ok: true,
@@ -75,6 +83,26 @@ export async function PATCH(request: NextRequest) {
         { ok: false, error: "appointmentId is required." },
         { status: 400 }
       );
+    }
+
+    // Role-specific check: DOCTOR can only modify appointments assigned to their own profile
+    if (session.role === "DOCTOR") {
+      const db = getDbState();
+      const targetApt = db.appointments.find(
+        (a) => a.id === appointmentId || a.reference === appointmentId
+      );
+      if (!targetApt) {
+        return NextResponse.json({ ok: false, error: "Appointment not found." }, { status: 404 });
+      }
+      if (targetApt.doctorId !== session.doctorProfileId) {
+        return NextResponse.json(
+          {
+            ok: false,
+            error: "Forbidden: Doctors can only manage appointments assigned to their own profile.",
+          },
+          { status: 403 }
+        );
+      }
     }
 
     const parsed = appointmentStatusUpdateSchema.safeParse(rest);

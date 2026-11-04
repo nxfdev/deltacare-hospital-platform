@@ -3,8 +3,25 @@ import { registerSchema } from "@/lib/validation/schemas";
 import { recordAuditEvent, runInTransaction } from "@/server/db/store";
 import { createSessionToken, SESSION_COOKIE_NAME } from "@/server/auth/session";
 import { UserAccount } from "@/types/domain";
+import { hashPassword } from "@/server/auth/passwordService";
+import {
+  buildRateLimitResponse,
+  checkRateLimit,
+  getClientIdentifier,
+} from "@/server/security/rateLimiter";
 
 export async function POST(request: NextRequest) {
+  // Stricter rate limiting for registration: 5 attempts per 15 minutes per IP
+  const clientIp = getClientIdentifier(request);
+  const rateLimit = checkRateLimit("auth_register", clientIp, {
+    maxRequests: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return buildRateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   try {
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);
@@ -19,6 +36,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const hashedPassword = await hashPassword(parsed.data.password);
+
     const result = await runInTransaction((state) => {
       const emailLower = parsed.data.email.toLowerCase();
       const exists = state.users.some((u) => u.email.toLowerCase() === emailLower);
@@ -32,7 +51,7 @@ export async function POST(request: NextRequest) {
         email: emailLower,
         fullName: parsed.data.fullName,
         phone: parsed.data.phone,
-        passwordHash: `demo-hash:${parsed.data.password}`,
+        passwordHash: hashedPassword,
         role: "PATIENT",
         isActive: true,
         mfaEnabled: false,

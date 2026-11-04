@@ -291,8 +291,12 @@ export interface UserAccount {
   phone?: string;
   passwordHash: string;
   role: RoleCode;
+  doctorProfileId?: string;
   scopedBranchId?: string;
   scopedDepartmentId?: string;
+  resetTokenHash?: string;
+  resetTokenExpiresAt?: number;
+  passwordChangedAt?: string;
   isActive: boolean;
   mfaEnabled: boolean;
   createdAt: string;

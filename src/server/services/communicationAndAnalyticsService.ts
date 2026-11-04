@@ -340,6 +340,17 @@ export function generateAppointmentsCsv(): string {
   return [headers.join(","), ...rows].join("\n");
 }
 
+const ROLE_PRIVILEGE_LEVEL: Record<RoleCode, number> = {
+  SUPER_ADMIN: 100,
+  HOSPITAL_ADMIN: 80,
+  DEPT_MANAGER: 60,
+  DOCTOR: 40,
+  RECEPTIONIST: 40,
+  CONTENT_EDITOR: 40,
+  SUPPORT_OPERATOR: 40,
+  PATIENT: 10,
+};
+
 export async function updateUserRoleOrStatus(
   session: SessionPayload,
   params: {
@@ -348,14 +359,76 @@ export async function updateUserRoleOrStatus(
     isActive?: boolean;
   }
 ) {
+  // Authorization Gate: Only Super Admin and Hospital Admin can access user management
   if (session.role !== "SUPER_ADMIN" && session.role !== "HOSPITAL_ADMIN") {
-    return { ok: false as const, error: "Only Super Admin or Hospital Admin can manage user roles." };
+    return {
+      ok: false as const,
+      error: "Forbidden: Administrator role required to manage staff accounts.",
+    };
   }
+
+  // Rule 1: Only SUPER_ADMIN can assign or modify user roles
+  if (params.role !== undefined && session.role !== "SUPER_ADMIN") {
+    return {
+      ok: false as const,
+      error: "Forbidden: Only Super Admin can assign or modify user roles.",
+    };
+  }
+
   return runInTransaction((state) => {
     const user = state.users.find((u) => u.id === params.targetUserId);
     if (!user) {
       return { ok: false as const, error: "User not found." };
     }
+
+    const actorLevel = ROLE_PRIVILEGE_LEVEL[session.role] ?? 0;
+    const targetLevel = ROLE_PRIVILEGE_LEVEL[user.role] ?? 0;
+
+    // Rule 2 & 3: Users cannot modify their own role or deactivate their own account
+    if (session.userId === user.id) {
+      if (params.role !== undefined && params.role !== user.role) {
+        return { ok: false as const, error: "Forbidden: Users cannot modify their own role." };
+      }
+      if (params.isActive === false) {
+        return { ok: false as const, error: "Forbidden: Users cannot deactivate their own account." };
+      }
+    }
+
+    // Rule 4: Users cannot modify accounts with equal or higher privilege
+    if (session.userId !== user.id && (actorLevel <= targetLevel || user.role === "SUPER_ADMIN")) {
+      return {
+        ok: false as const,
+        error: "Forbidden: Cannot modify user accounts with equal or higher privilege.",
+      };
+    }
+
+    // Rule 5: Hospital administrators cannot promote anyone to SUPER_ADMIN (defense in depth)
+    if (params.role === "SUPER_ADMIN" && session.role !== "SUPER_ADMIN") {
+      return {
+        ok: false as const,
+        error: "Forbidden: Hospital administrators cannot promote users to Super Admin.",
+      };
+    }
+
+    // Rule 6: Hospital administrators must have an assigned branch scope and can only manage staff within that scope
+    if (session.role === "HOSPITAL_ADMIN") {
+      if (!session.scopedBranchId) {
+        return {
+          ok: false as const,
+          error: "Forbidden: Hospital administrators must have an assigned branch scope to manage staff.",
+        };
+      }
+      if (user.scopedBranchId !== session.scopedBranchId) {
+        return {
+          ok: false as const,
+          error: "Forbidden: Hospital administrators can only manage staff within their assigned branch scope.",
+        };
+      }
+    }
+
+    const previousRole = user.role;
+    const previousActive = user.isActive;
+
     if (params.role) user.role = params.role;
     if (typeof params.isActive === "boolean") user.isActive = params.isActive;
     user.updatedAt = new Date().toISOString();
@@ -367,7 +440,11 @@ export async function updateUserRoleOrStatus(
       action: "USER_ROLE_OR_STATUS_UPDATED",
       entityType: "UserAccount",
       entityId: user.id,
-      summary: `Updated user ${user.email}: role=${user.role}, active=${user.isActive}`,
+      summary: `Updated user ${user.email}: role (${previousRole} -> ${user.role}), active (${previousActive} -> ${user.isActive})`,
+      diffJson: JSON.stringify({
+        before: { role: previousRole, isActive: previousActive },
+        after: { role: user.role, isActive: user.isActive },
+      }),
     });
 
     return { ok: true as const, user };

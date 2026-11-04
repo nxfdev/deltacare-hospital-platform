@@ -3,6 +3,11 @@ import { appointmentRequestSchema } from "@/lib/validation/schemas";
 import { createAppointmentRequest } from "@/server/services/appointmentService";
 import { getCurrentSession } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
+import {
+  buildRateLimitResponse,
+  checkRateLimit,
+  getClientIdentifier,
+} from "@/server/security/rateLimiter";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -37,6 +42,20 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Cross-patient privacy check: If user is authenticated as PATIENT, prevent accessing other patients' records
+  const session = await getCurrentSession();
+  if (session && session.role === "PATIENT") {
+    if (apt.patientUserId && apt.patientUserId !== session.userId) {
+      return NextResponse.json(
+        {
+          ok: false,
+          error: "Forbidden: You cannot access appointment records belonging to another patient.",
+        },
+        { status: 403 }
+      );
+    }
+  }
+
   const doctor = db.doctors.find((d) => d.id === apt.doctorId);
   const department = db.departments.find((d) => d.id === apt.departmentId);
   const branch = db.branches.find((b) => b.id === apt.branchId);
@@ -56,6 +75,17 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // Public appointment creation rate limiting: 10 requests per 15 minutes per IP
+  const clientIp = getClientIdentifier(request);
+  const rateLimit = checkRateLimit("public_appointment_submission", clientIp, {
+    maxRequests: 10,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return buildRateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   try {
     const body = await request.json();
     const parsed = appointmentRequestSchema.safeParse(body);

@@ -21,20 +21,25 @@ export interface SessionPayload {
   email: string;
   fullName: string;
   role: RoleCode;
+  doctorProfileId?: string;
   scopedBranchId?: string;
   scopedDepartmentId?: string;
+  iat?: number;
   exp: number;
 }
 
 export function createSessionToken(user: UserAccount): string {
+  const now = Date.now();
   const payload: SessionPayload = {
     userId: user.id,
     email: user.email,
     fullName: user.fullName,
     role: user.role,
+    doctorProfileId: user.doctorProfileId,
     scopedBranchId: user.scopedBranchId,
     scopedDepartmentId: user.scopedDepartmentId,
-    exp: Date.now() + 1000 * 60 * 60 * 24 * 7, // 7 days
+    iat: now,
+    exp: now + 1000 * 60 * 60 * 24 * 7, // 7 days
   };
   const data = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   const sig = crypto
@@ -62,9 +67,19 @@ export function verifySessionToken(token: string | undefined): SessionPayload | 
     const db = getDbState();
     const user = db.users.find((u) => u.id === payload.userId);
     if (!user || !user.isActive) return null;
+
+    // Password change session revocation (Task 1.6)
+    if (user.passwordChangedAt && payload.iat) {
+      const changedMs = new Date(user.passwordChangedAt).getTime();
+      if (payload.iat < changedMs) {
+        return null; // Session invalidated due to password change
+      }
+    }
+
     return {
       ...payload,
       role: user.role,
+      doctorProfileId: user.doctorProfileId,
       scopedBranchId: user.scopedBranchId,
       scopedDepartmentId: user.scopedDepartmentId,
     };

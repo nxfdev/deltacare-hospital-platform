@@ -2,8 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import { loginSchema } from "@/lib/validation/schemas";
 import { getDbState, recordAuditEvent, runInTransaction } from "@/server/db/store";
 import { createSessionToken, SESSION_COOKIE_NAME } from "@/server/auth/session";
+import { verifyPassword } from "@/server/auth/passwordService";
+import {
+  buildRateLimitResponse,
+  checkRateLimit,
+  getClientIdentifier,
+} from "@/server/security/rateLimiter";
 
 export async function POST(request: NextRequest) {
+  // Stricter rate limiting for authentication: 5 attempts per 15 minutes per IP
+  const clientIp = getClientIdentifier(request);
+  const rateLimit = checkRateLimit("auth_login", clientIp, {
+    maxRequests: 5,
+    windowMs: 15 * 60 * 1000,
+  });
+
+  if (!rateLimit.allowed) {
+    return buildRateLimitResponse(rateLimit.retryAfterSeconds);
+  }
+
   try {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
@@ -21,10 +38,9 @@ export async function POST(request: NextRequest) {
     const emailLower = parsed.data.email.toLowerCase();
     const user = db.users.find((u) => u.email.toLowerCase() === emailLower);
 
-    const isPasswordValid =
-      user &&
-      (user.passwordHash === parsed.data.password ||
-        user.passwordHash === `demo-hash:${parsed.data.password}`);
+    const isPasswordValid = user
+      ? await verifyPassword(parsed.data.password, user.passwordHash)
+      : false;
 
     if (!user || !user.isActive || !isPasswordValid) {
       return NextResponse.json(

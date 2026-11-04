@@ -55,7 +55,8 @@ export async function PATCH(request: NextRequest) {
     });
 
     if (!result.ok) {
-      return NextResponse.json({ ok: false, error: result.error }, { status: 400 });
+      const status = result.error.startsWith("Forbidden") ? 403 : 400;
+      return NextResponse.json({ ok: false, error: result.error }, { status });
     }
 
     return NextResponse.json({

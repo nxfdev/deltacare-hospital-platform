@@ -7,6 +7,32 @@ import { CheckCircle2, ArrowLeft } from "lucide-react";
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/v1/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok && res.status === 429) {
+        setError("Too many recovery attempts. Please try again later.");
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setError("Network error. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#f2f2f2] flex flex-col justify-center py-12 px-4">
@@ -24,6 +50,12 @@ export default function ForgotPasswordPage() {
             Reset Your DeltaCare Password
           </h1>
 
+          {error && (
+            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-700">
+              {error}
+            </div>
+          )}
+
           {submitted ? (
             <div className="p-4 rounded-xl bg-[#ecfdf5] border border-[#059669] text-xs text-[#065f46] space-y-2">
               <div className="flex items-center gap-1.5 font-bold">
@@ -38,13 +70,7 @@ export default function ForgotPasswordPage() {
               </p>
             </div>
           ) : (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSubmitted(true);
-              }}
-              className="space-y-4"
-            >
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label
                   htmlFor="fp-email"
@@ -62,8 +88,12 @@ export default function ForgotPasswordPage() {
                   className="w-full h-11 px-3.5 rounded-lg border border-[#757575] text-sm"
                 />
               </div>
-              <button type="submit" className="mc-btn-primary w-full">
-                Send Recovery Link
+              <button
+                type="submit"
+                disabled={loading}
+                className="mc-btn-primary w-full disabled:opacity-50"
+              >
+                {loading ? "Sending..." : "Send Recovery Link"}
               </button>
             </form>
           )}
