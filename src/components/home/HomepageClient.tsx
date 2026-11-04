@@ -7,9 +7,6 @@ import {
   MapPin,
   Phone,
   ShieldCheck,
-  Calendar,
-  Award,
-  ArrowRight,
 } from "lucide-react";
 import {
   Branch,
@@ -34,7 +31,6 @@ export function HomepageClient({
   const { locale, t } = useLocale();
 
   const featuredConditions = conditions.filter((c) => c.isFeaturedCareArea);
-  const featuredSpecialists = doctors.slice(0, 4);
 
   return (
     <div>
@@ -307,122 +303,6 @@ export function HomepageClient({
               <div className="pt-2">
                 <Link href="/international" className="mc-btn-secondary">
                   <span>{t.storySections.story2Cta}</span>
-                  <ChevronRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Featured Verified Specialists Strip */}
-          <div className="pt-6 border-t border-[#d6d6d6]">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-              <div>
-                <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8]">
-                  {locale === "bn"
-                    ? "বিএমডিসি নিবন্ধিত বিশেষজ্ঞ"
-                    : "BMDC-Verified Senior Consultants"}
-                </p>
-                <h2 className="mt-1 mc-serif text-3xl md:text-4xl text-[#080808]">
-                  {locale === "bn"
-                    ? "আমাদের বিশেষজ্ঞ চিকিৎসকবৃন্দ"
-                    : "Meet Our Verified Specialists"}
-                </h2>
-              </div>
-              <Link href="/doctors" className="mc-btn-secondary">
-                <span>
-                  {locale === "bn"
-                    ? "সকল চিকিৎসক দেখুন"
-                    : "Explore All Specialists"}
-                </span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredSpecialists.map((doc) => (
-                <div
-                  key={doc.id}
-                  className="rounded-2xl border border-[#d6d6d6] bg-white overflow-hidden flex flex-col justify-between hover:border-[#0057b8] transition-all shadow-sm"
-                >
-                  <div>
-                    <div className="aspect-[4/3] bg-[#e8f0f9] flex items-center justify-center p-4">
-                      <img
-                        src={doc.imageUrl}
-                        alt={locale === "bn" ? doc.nameBn : doc.nameEn}
-                        className="h-32 w-32 rounded-full object-cover border-2 border-white shadow"
-                      />
-                    </div>
-                    <div className="p-5 space-y-2">
-                      <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#e8f0f9] text-[#004181]">
-                        <Award className="w-3 h-3" />
-                        BMDC {doc.bmdcRegistrationNo}
-                      </span>
-                      <h3 className="font-bold text-lg text-[#080808]">
-                        <Link
-                          href={`/doctors/${doc.slug}`}
-                          className="hover:text-[#0057b8] hover:underline"
-                        >
-                          {locale === "bn" ? doc.nameBn : doc.nameEn}
-                        </Link>
-                      </h3>
-                      <p className="text-xs font-medium text-[#004181]">
-                        {locale === "bn"
-                          ? doc.designationBn
-                          : doc.designationEn}
-                      </p>
-                      <p className="text-xs text-[#686868] line-clamp-2">
-                        {locale === "bn"
-                          ? doc.qualificationsBn
-                          : doc.qualificationsEn}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="px-5 pb-5 pt-3 border-t border-[#f2f2f2] flex items-center justify-between text-xs">
-                    <div>
-                      <span className="text-[#686868] block">
-                        {locale === "bn" ? "কনসালটেশন ফি" : "Consultation Fee"}
-                      </span>
-                      <span className="font-bold text-sm text-[#080808]">
-                        BDT {doc.consultationFeeBdt}
-                      </span>
-                    </div>
-                    <Link
-                      href={`/appointments?doctorId=${encodeURIComponent(
-                        doc.id
-                      )}`}
-                      className="inline-flex items-center gap-1 px-3 py-2 rounded-full bg-[#0057b8] hover:bg-[#1371d5] text-white font-semibold"
-                    >
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>{locale === "bn" ? "বুকিং" : "Book"}</span>
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Institutional Banner (#0d0d33 matching inspo.html --mc-custom-palette-color-donations-bg) */}
-          <div className="rounded-3xl bg-[#0d0d33] text-white p-8 md:p-12 overflow-hidden">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              <div className="lg:col-span-4 flex items-center gap-4">
-                <img
-                  src="/images/deltacare-logo-inverse.svg"
-                  alt="DeltaCare Institutional Governance"
-                  className="h-14 w-auto"
-                />
-              </div>
-              <div className="lg:col-span-5 space-y-2">
-                <h2 className="mc-serif text-2xl md:text-3xl text-white">
-                  {t.institutionalBanner.title}
-                </h2>
-                <p className="text-sm text-[#e8f0f9] leading-relaxed">
-                  {t.institutionalBanner.description}
-                </p>
-              </div>
-              <div className="lg:col-span-3 flex lg:justify-end">
-                <Link href="/patient-services" className="mc-btn-primary">
-                  <span>{t.institutionalBanner.cta}</span>
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               </div>
