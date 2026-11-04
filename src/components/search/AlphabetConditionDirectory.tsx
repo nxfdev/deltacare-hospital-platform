@@ -118,12 +118,12 @@ export function AlphabetConditionDirectory({
   return (
     <section
       aria-labelledby="alphabet-search-heading"
-      className="bg-white text-[#080808] py-16 md:py-24 border-b border-[#e5e7eb]"
+      className="w-full border-b border-[#e5e7eb] overflow-hidden"
     >
-      <div className="mc-container">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-start">
-          {/* Left Column: Search Diseases, Procedures, Doctors & Departments */}
-          <div className="lg:col-span-5 space-y-6">
+      <div className="w-full grid grid-cols-1 lg:grid-cols-12">
+        {/* Left Section: Search Diseases, Procedures, Doctors & Departments (Pure White) */}
+        <div className="lg:col-span-5 bg-white py-16 md:py-24 px-6 sm:px-10 lg:pl-12 xl:pl-20 2xl:pl-28 lg:pr-10 xl:pr-14 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e5e7eb]">
+          <div className="max-w-xl w-full mx-auto lg:mr-0 space-y-6">
             <div className="space-y-3">
               <h2
                 id="alphabet-search-heading"
@@ -133,7 +133,7 @@ export function AlphabetConditionDirectory({
               </h2>
               <p
                 id="homepage-search-hint"
-                className="text-sm md:text-base text-[#595959] leading-relaxed max-w-lg"
+                className="text-sm md:text-base text-[#595959] leading-relaxed"
               >
                 {t.alphabetSearchSection.searchHint}
               </p>
@@ -156,7 +156,7 @@ export function AlphabetConditionDirectory({
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
                   placeholder={t.alphabetSearchSection.searchPlaceholder}
-                  className="w-full h-16 pl-14 pr-32 rounded-full bg-[#f9fafb] hover:bg-white focus:bg-white text-[#080808] text-base md:text-lg border-2 border-[#e5e7eb] focus:border-[#0057b8] shadow-sm focus:shadow-md focus:outline-none transition-all placeholder-[#9ca3af]"
+                  className="w-full h-16 pl-14 pr-32 rounded-full bg-[#f8fafc] hover:bg-white focus:bg-white text-[#080808] text-base md:text-lg border-2 border-[#e5e7eb] focus:border-[#0057b8] shadow-sm focus:shadow-md focus:outline-none transition-all placeholder-[#9ca3af]"
                 />
                 {searchQuery && (
                   <button
@@ -238,9 +238,11 @@ export function AlphabetConditionDirectory({
               </Link>
             </div>
           </div>
+        </div>
 
-          {/* Right Column: Alphabetical Diseases & Conditions Facet (Circular buttons) */}
-          <div className="lg:col-span-7 space-y-6">
+        {/* Right Section: Alphabetical Diseases & Conditions Facet (Off-White: #f8f9fc) */}
+        <div className="lg:col-span-7 bg-[#f8f9fc] py-16 md:py-24 px-6 sm:px-10 lg:pl-10 xl:pl-14 2xl:pl-16 lg:pr-12 xl:pr-20 2xl:pr-28 flex flex-col justify-center">
+          <div className="max-w-3xl w-full mx-auto lg:ml-0 space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-2xl sm:text-3xl font-serif font-semibold text-[#080808]">
                 {t.alphabetSearchSection.alphabetHeading}
@@ -254,7 +256,7 @@ export function AlphabetConditionDirectory({
               </Link>
             </div>
 
-            {/* 27 Circular Buttons */}
+            {/* 27 Circular Buttons - Popping off off-white background */}
             <ul
               role="list"
               aria-label="Alphabetical index of diseases and conditions"
@@ -271,7 +273,7 @@ export function AlphabetConditionDirectory({
                       className={`w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full border text-sm sm:text-base font-semibold flex items-center justify-center transition-all duration-150 ${
                         isSelected
                           ? "bg-[#0057b8] text-white border-[#0057b8] shadow-md scale-105 font-bold"
-                          : "bg-white border-[#d1d5db] text-[#374151] hover:border-[#0057b8] hover:text-[#0057b8] hover:bg-[#f0f7ff]"
+                          : "bg-white border-[#d1d5db] text-[#374151] hover:border-[#0057b8] hover:text-[#0057b8] hover:bg-white shadow-xs"
                       }`}
                     >
                       {letter}
@@ -281,8 +283,8 @@ export function AlphabetConditionDirectory({
               })}
             </ul>
 
-            {/* Live Selected Letter Preview Strip (Minimal Light Card) */}
-            <div className="rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] p-5 md:p-6 space-y-4">
+            {/* Live Selected Letter Preview Strip (Pure White Card on Off-White Surface) */}
+            <div className="rounded-2xl bg-white border border-[#e2e8f0] p-5 md:p-6 space-y-4 shadow-sm">
               <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-3.5">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8] flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
@@ -315,7 +317,7 @@ export function AlphabetConditionDirectory({
                     <Link
                       key={cond.id}
                       href={`/diseases-conditions/${cond.slug}`}
-                      className="group p-4 rounded-xl bg-white hover:bg-[#f0f7ff] border border-[#e2e8f0] hover:border-[#bfdbfe] shadow-sm hover:shadow transition-all flex items-start justify-between gap-3 text-left"
+                      className="group p-4 rounded-xl bg-[#f8fafc] hover:bg-[#f0f7ff] border border-[#e2e8f0] hover:border-[#bfdbfe] shadow-xs hover:shadow-sm transition-all flex items-start justify-between gap-3 text-left"
                     >
                       <div className="min-w-0">
                         <p className="font-semibold text-sm md:text-[15px] text-[#080808] group-hover:text-[#0057b8] transition-colors">
