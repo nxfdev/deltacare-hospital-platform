@@ -92,39 +92,45 @@ export function HomepageClient({
 
       {/* ====================================================================
           SECTION 4: HEALTH STORIES & CLINICAL APPROACH
-          - Story Split Cards ("Healing starts here" & "World-class care")
+          - Elegant 9:16 Portrait Composition with Minimalist Editorial Typography
          ==================================================================== */}
-      <section className="bg-white py-16 md:py-20 border-b border-[#d6d6d6] space-y-20">
-        <div className="mc-container space-y-20">
-          {/* Story Split Block 1: "Healing starts here" (Text Left, Image Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-6 space-y-5">
-              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
+      <section className="bg-white py-20 md:py-28 border-b border-[#d6d6d6]">
+        <div className="mc-container space-y-24 md:space-y-32">
+          {/* Story Split Block 1: "Healing starts here" (Text Left, 9:16 Image Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <div className="lg:col-span-7 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
+                {locale === "bn" ? "ক্লিনিক্যাল উৎকর্ষ ও সেবা" : "Clinical Excellence"}
+              </span>
+
+              <h2 className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]">
                 {t.storySections.story1Title}
               </h2>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-[#080808]">
-                  {t.storySections.story1Sub1Title}
-                </h3>
-                <p className="text-base text-[#424242] leading-relaxed">
-                  {t.storySections.story1Sub1Body}
-                </p>
-              </div>
+              <div className="space-y-6 pt-2">
+                <div className="border-l-2 border-[#0057b8] pl-5 space-y-1.5">
+                  <h3 className="text-lg font-bold text-[#080808]">
+                    {t.storySections.story1Sub1Title}
+                  </h3>
+                  <p className="text-base text-[#525252] leading-relaxed">
+                    {t.storySections.story1Sub1Body}
+                  </p>
+                </div>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-bold text-[#080808]">
-                  {t.storySections.story1Sub2Title}
-                </h3>
-                <p className="text-base text-[#424242] leading-relaxed">
-                  {t.storySections.story1Sub2Body}{" "}
-                  <Link
-                    href="/departments"
-                    className="text-[#004181] font-semibold underline hover:text-[#0057b8]"
-                  >
-                    {t.storySections.story1Link}
-                  </Link>
-                </p>
+                <div className="border-l-2 border-[#d6d6d6] pl-5 space-y-1.5">
+                  <h3 className="text-lg font-bold text-[#080808]">
+                    {t.storySections.story1Sub2Title}
+                  </h3>
+                  <p className="text-base text-[#525252] leading-relaxed">
+                    {t.storySections.story1Sub2Body}{" "}
+                    <Link
+                      href="/departments"
+                      className="text-[#0057b8] font-semibold underline hover:text-[#004181] transition-colors"
+                    >
+                      {t.storySections.story1Link}
+                    </Link>
+                  </p>
+                </div>
               </div>
 
               <div className="pt-2">
@@ -135,36 +141,44 @@ export function HomepageClient({
               </div>
             </div>
 
-            <div className="lg:col-span-6">
-              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
+            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+              <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
                   src="/images/healing-starts-here.jpg"
                   alt={t.storySections.story1Title}
-                  className="w-full max-h-[480px] object-cover"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
+                <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-3xl pointer-events-none" />
               </div>
             </div>
           </div>
 
-          {/* Story Split Block 2: "World-class care" (Image Left, Text Right on Desktop) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-6 order-2 lg:order-1">
-              <div className="rounded-2xl overflow-hidden border border-[#d6d6d6] shadow-md">
+          {/* Story Split Block 2: "World-class care" (9:16 Image Left, Text Right on Desktop) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            <div className="lg:col-span-5 order-2 lg:order-1 flex justify-center lg:justify-start">
+              <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
                   src="/images/world-class-care.jpg"
                   alt={t.storySections.story2Title}
-                  className="w-full max-h-[480px] object-cover"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
+                <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-3xl pointer-events-none" />
               </div>
             </div>
 
-            <div className="lg:col-span-6 order-1 lg:order-2 space-y-5">
-              <h2 className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]">
+            <div className="lg:col-span-7 order-1 lg:order-2 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
+                {locale === "bn" ? "সবার জন্য স্বাস্থ্যসেবা" : "Cross-Border & Regional Care"}
+              </span>
+
+              <h2 className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]">
                 {t.storySections.story2Title}
               </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
+
+              <p className="text-base sm:text-lg text-[#525252] leading-relaxed pt-1">
                 {t.storySections.story2Body}
               </p>
+
               <div className="pt-2">
                 <Link href="/international" className="mc-btn-secondary">
                   <span>{t.storySections.story2Cta}</span>
