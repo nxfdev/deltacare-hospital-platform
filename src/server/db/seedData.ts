@@ -94,7 +94,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       operatingHoursEn: "Outpatient Chambers: 8:00 AM – 10:00 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৮:০০ – রাত ১০:০০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Dhanmondi+Dhaka",
-      imageUrl: "/images/inspo/Arizona.png",
+      imageUrl: "/images/locations/dhanmondi.jpg",
       servicesSummaryEn: [
         "Cardiology & Heart Valve Center",
         "Neurology & Neurosurgery",
@@ -129,7 +129,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 9:30 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৯:৩০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Gulshan+2+Dhaka",
-      imageUrl: "/images/inspo/Florida.png",
+      imageUrl: "/images/locations/gulshan.jpg",
       servicesSummaryEn: [
         "Executive Health Screening",
         "Gastroenterology & Hepatology",
@@ -164,7 +164,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       operatingHoursEn: "Outpatient Chambers: 8:30 AM – 9:30 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৮:৩০ – রাত ৯:৩০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Uttara+Sector+7+Dhaka",
-      imageUrl: "/images/inspo/Minnesota.png",
+      imageUrl: "/images/locations/uttara.jpg",
       servicesSummaryEn: [
         "Nephrology & Dialysis Support",
         "Internal Medicine & Endocrinology",
@@ -199,7 +199,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 9:00 PM | Urgent Care: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৯:০০ | জরুরি সেবা: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Panchlaish+Chattogram",
-      imageUrl: "/images/inspo/Mayo Clinic Health System.png",
+      imageUrl: "/images/locations/chattogram.jpg",
       servicesSummaryEn: [
         "Cardiology & Preventive Heart Care",
         "Orthopedics & Spine Clinic",
@@ -232,7 +232,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 8:30 PM (Sat–Thu)",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৮:৩০ (শনি–বৃহস্পতি)",
       directionsUrl: "https://maps.google.com/?q=Sylhet+Bangladesh",
-      imageUrl: "/images/inspo/Mayo Clinic Healthcare London UK.png",
+      imageUrl: "/images/locations/sylhet.jpg",
       servicesSummaryEn: [
         "Specialist Tele-Referral & Outpatient Chambers",
         "Diabetes & Hypertension Clinic",
