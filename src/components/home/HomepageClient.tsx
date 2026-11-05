@@ -42,7 +42,7 @@ export function HomepageClient({
          ==================================================================== */}
       <section
         aria-label="Hero Banner"
-        className="relative overflow-hidden bg-[#012d61] text-white min-h-[560px] md:min-h-[660px] lg:min-h-[720px] flex flex-col justify-between items-center"
+        className="relative overflow-hidden bg-[#012d61] text-white min-h-[420px] md:min-h-[495px] lg:min-h-[540px] flex flex-col justify-between items-center"
       >
         {/* Background Visual Layer - Hospital Surgical Team */}
         <div className="absolute inset-0 overflow-hidden">
@@ -57,7 +57,7 @@ export function HomepageClient({
         </div>
 
         {/* Top spacer for vertical balance */}
-        <div className="w-full pt-16 md:pt-24 shrink-0" />
+        <div className="w-full pt-8 md:pt-12 shrink-0" />
 
         {/* Hero Headline Container - Centered with Restored Original Serif Display Font */}
         <div className="mc-container relative z-10 w-full flex flex-col items-center justify-center text-center px-4">
@@ -70,7 +70,7 @@ export function HomepageClient({
         </div>
 
         {/* Hero CTA - Lowered down to the last portion of the blue section */}
-        <div className="relative z-10 w-full flex justify-center items-center pb-12 md:pb-16 pt-8 shrink-0">
+        <div className="relative z-10 w-full flex justify-center items-center pb-6 md:pb-8 pt-4 shrink-0">
           <Link
             href="/request-appointment"
             className="inline-flex items-center justify-center gap-2 px-8 sm:px-9 py-4 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
