@@ -37,39 +37,37 @@ export function HomepageClient({
     <div>
       {/* ====================================================================
           SECTION 2: HERO SECTION (Mirrors inspo.html .cmp-ViewportHero)
-          - Full-bleed dark gradient overlay + 76px display serif headline
-          - Primary & Secondary CTAs
+          - Full-bleed dark gradient overlay + display serif headline
+          - Centered CTA
          ==================================================================== */}
       <section
         aria-label="Hero Banner"
-        className="relative overflow-hidden bg-[#012d61] text-white min-h-[540px] md:min-h-[640px] flex items-end"
+        className="relative overflow-hidden bg-[#012d61] text-white min-h-[500px] md:min-h-[600px] flex items-center justify-center"
       >
         {/* Background Visual Layer - Hospital Surgical Team */}
         <div className="absolute inset-0 overflow-hidden">
           <img
             src="/images/hero-surgery.jpg"
             alt="Advanced surgical and specialist medical team performing operation at DeltaCare"
-            className="w-full h-full object-cover object-[center_35%] opacity-60 scale-105 transition-transform duration-1000 ease-out"
+            className="w-full h-full object-cover object-[center_35%] opacity-50 scale-105 transition-transform duration-1000 ease-out"
           />
-          {/* Multi-layered cinematic gradient: deep navy on the left/bottom to guarantee WCAG AAA text contrast, translucent on the right to showcase the surgical team & theater lighting */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#012d61] via-[#012d61]/85 to-[#012d61]/40" />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#012d61] via-transparent to-[#012d61]/40" />
+          {/* Centered cinematic overlay for balanced contrast */}
+          <div className="absolute inset-0 bg-[#012d61]/70" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#012d61] via-transparent to-[#012d61]/50" />
         </div>
 
-        {/* Hero Content Container */}
-        <div className="mc-container relative z-10 py-14 md:py-20 w-full">
-          <div className="max-w-3xl space-y-6">
-            <h1 className="mc-hero-headline text-white">{t.hero.headline}</h1>
+        {/* Hero Content Container - Centrally Aligned */}
+        <div className="mc-container relative z-10 py-16 md:py-24 w-full flex flex-col items-center justify-center text-center">
+          <div className="max-w-5xl mx-auto flex flex-col items-center justify-center space-y-8 text-center">
+            <h1 className="mc-serif text-3xl sm:text-5xl md:text-6xl lg:text-[68px] xl:text-[76px] text-white font-normal tracking-tight leading-tight text-center sm:whitespace-nowrap">
+              {t.hero.headline}
+            </h1>
 
-            <p className="text-lg md:text-xl text-[#e8f0f9] leading-relaxed max-w-2xl text-justify">
-              {t.hero.subheadline}
-            </p>
-
-            {/* Hero CTA Cluster */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
+            {/* Hero CTA - Centered */}
+            <div className="flex justify-center items-center">
               <Link
                 href="/request-appointment"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
               >
                 <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request Appointment"}</span>
                 <ChevronRight className="w-5 h-5" />

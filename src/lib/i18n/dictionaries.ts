@@ -31,7 +31,7 @@ export const dictionaries = {
       emergencyLabel: "24/7 Emergency & Helpline:",
     },
     hero: {
-      headline: "Care that comes together",
+      headline: "Care That Comes Together",
       subheadline:
         "Bringing the right specialists and coordinated healthcare services together around what matters most: your well-being.",
       primaryCta: "Explore Patient-Centered Care",
