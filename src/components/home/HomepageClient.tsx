@@ -30,7 +30,7 @@ export function HomepageClient({
 }) {
   const { locale, t } = useLocale();
 
-  const featuredConditions = conditions.filter((c) => c.isFeaturedCareArea);
+  const featuredConditions = conditions.slice(0, 12);
 
   return (
     <div>
@@ -199,21 +199,16 @@ export function HomepageClient({
       {/* ====================================================================
           SECTION 5: FEATURED CARE AREAS
           - Full-width spread from left to right edge of screen
-          - 12-column layout with generous fluid horizontal spacing
-          - Spacious, justified, enlarged typography fitting the homepage aesthetic
+          - No enclosing boxes; clean multi-column diseases list with reduced whitespace
          ==================================================================== */}
       <section
         aria-labelledby="featured-care-heading"
-        className="bg-[#f8f9fc] py-20 md:py-28 border-b border-[#d6d6d6]"
+        className="bg-white py-12 md:py-16 border-b border-[#d6d6d6]"
       >
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
-            {/* Left Column: Title & Justified Description */}
-            <div className="lg:col-span-5 xl:col-span-4 space-y-6">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
-                {locale === "bn" ? "বিশেষায়িত চিকিৎসা ক্ষেত্র" : "Specialized Care Areas"}
-              </span>
-
+        <div className="w-full px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
+            {/* Left Column: Title & Description */}
+            <div className="lg:col-span-4 xl:col-span-3 space-y-4">
               <h2
                 id="featured-care-heading"
                 className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
@@ -224,38 +219,18 @@ export function HomepageClient({
               <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
                 {t.featuredCareSection.description}
               </p>
-
-              <div className="pt-2">
-                <Link
-                  href="/departments"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
-                >
-                  <span>{t.featuredCareSection.viewAllLink}</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-              </div>
             </div>
 
-            {/* Right Column: Multi-Column List of Chevron Links with Hairline Dividers */}
-            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-[#d6d6d6] p-8 md:p-10 xl:p-12 shadow-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 xl:gap-x-12">
+            {/* Right Column: Spread-out Diseases List (No Box) */}
+            <div className="lg:col-span-8 xl:col-span-9">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-10 xl:gap-x-14">
                 {featuredConditions.map((item) => (
                   <Link
                     key={item.id}
                     href={`/diseases-conditions/${item.slug}`}
-                    className="group flex items-center justify-between py-4 sm:py-5 border-b border-[#e5e7eb] text-[#004181] hover:text-[#0057b8] text-base md:text-lg font-semibold transition-colors"
+                    className="group flex items-center justify-between py-3.5 sm:py-4 border-b border-[#d6d6d6] text-[#004181] hover:text-[#0057b8] text-base md:text-lg font-medium transition-colors"
                   >
                     <span>{locale === "bn" ? item.nameBn : item.nameEn}</span>
-                    <ChevronRight className="w-5 h-5 text-[#0057b8] shrink-0 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                ))}
-                {departments.slice(0, 4).map((dept) => (
-                  <Link
-                    key={dept.id}
-                    href={`/departments/${dept.slug}`}
-                    className="group flex items-center justify-between py-4 sm:py-5 border-b border-[#e5e7eb] text-[#004181] hover:text-[#0057b8] text-base md:text-lg font-semibold transition-colors"
-                  >
-                    <span>{locale === "bn" ? dept.nameBn : dept.nameEn}</span>
                     <ChevronRight className="w-5 h-5 text-[#0057b8] shrink-0 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 ))}
