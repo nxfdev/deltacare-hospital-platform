@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 56" width="230" height="56" role="img" aria-label="DeltaCare">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" width="200" height="56" role="img" aria-label="DeltaCare">
   <defs>
     <linearGradient id="dcShield" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0057b8" />
@@ -15,7 +15,6 @@
     <rect x="18" y="23.5" width="12" height="3" rx="1" fill="#0057b8"/>
   </g>
   <!-- Wordmark -->
-  <text x="58" y="31" font-family="Georgia, 'Source Serif 4', serif" font-size="26" font-weight="700" fill="#080808" letter-spacing="-0.4">Delta<tspan fill="#0057b8">Care</tspan></text>
-  <text x="59" y="45" font-family="'Plus Jakarta Sans', Arial, sans-serif" font-size="10" font-weight="700" fill="#595959" letter-spacing="1.6">CARE AT DELTACARE</text>
+  <text x="58" y="36" font-family="Georgia, 'Source Serif 4', serif" font-size="27" font-weight="700" fill="#080808" letter-spacing="-0.4">Delta<tspan fill="#0057b8">Care</tspan></text>
 </svg>
 

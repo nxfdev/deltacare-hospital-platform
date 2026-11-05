@@ -6,7 +6,6 @@ import {
   ChevronRight,
   MapPin,
   Phone,
-  ShieldCheck,
 } from "lucide-react";
 import {
   Branch,
@@ -60,11 +59,6 @@ export function HomepageClient({
         {/* Hero Content Container */}
         <div className="mc-container relative z-10 py-14 md:py-20 w-full">
           <div className="max-w-3xl space-y-6">
-            <p className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 border border-white/30 text-xs uppercase tracking-widest font-semibold text-[#e8f0f9]">
-              <ShieldCheck className="w-4 h-4 text-[#c5e2f9]" />
-              <span>{t.brand.tagline}</span>
-            </p>
-
             <h1 className="mc-hero-headline text-white">{t.hero.headline}</h1>
 
             <p className="text-lg md:text-xl text-[#e8f0f9] leading-relaxed max-w-2xl text-justify">

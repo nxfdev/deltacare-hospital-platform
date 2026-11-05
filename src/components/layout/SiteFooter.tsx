@@ -58,18 +58,18 @@ export function SiteFooter() {
                 : "A verified multi-disciplinary hospital platform with transparent schedules and clinical governance."}
             </p>
 
-            <div className="pt-1">
+            <div className="pt-2 text-sm text-[#e8f0f9]">
               <a
                 href="tel:10678"
-                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-sm text-[#e8f0f9] transition-all group"
+                className="inline-flex items-center gap-2 hover:underline text-[#e8f0f9] transition-colors"
               >
-                <PhoneCall className="w-4 h-4 text-[#c5e2f9] group-hover:scale-110 transition-transform" />
+                <PhoneCall className="w-4 h-4 text-[#c5e2f9] shrink-0" />
                 <span className="font-bold text-white">
                   {locale === "bn"
                     ? "২৪/৭ হেল্পলাইন: ১০৬৭৮"
                     : "24/7 Helpline: 10678"}
                 </span>
-                <span className="text-xs text-[#c5e2f9] font-normal">
+                <span className="text-sm text-[#c5e2f9]">
                   (+880 9612-310678)
                 </span>
               </a>
