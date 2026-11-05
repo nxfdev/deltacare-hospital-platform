@@ -122,12 +122,12 @@ export function AlphabetConditionDirectory({
     >
       <div className="w-full grid grid-cols-1 lg:grid-cols-12">
         {/* Left Section: Search Diseases, Procedures, Doctors & Departments (Pure White) */}
-        <div className="lg:col-span-5 bg-white py-16 md:py-24 px-6 sm:px-10 lg:pl-12 xl:pl-20 2xl:pl-28 lg:pr-10 xl:pr-14 flex flex-col justify-center border-b lg:border-b-0 lg:border-r border-[#e5e7eb]">
+        <div className="lg:col-span-5 bg-white py-12 md:py-16 px-6 sm:px-10 lg:pl-12 xl:pl-20 2xl:pl-28 lg:pr-10 xl:pr-14 flex flex-col justify-start border-b lg:border-b-0 lg:border-r border-[#e5e7eb]">
           <div className="max-w-xl w-full mx-auto lg:mr-0 space-y-6">
             <div className="space-y-3">
               <h2
                 id="alphabet-search-heading"
-                className="text-2xl sm:text-3xl font-bold text-[#080808] leading-tight tracking-tight"
+                className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
               >
                 {t.alphabetSearchSection.searchHeading}
               </h2>
@@ -241,15 +241,15 @@ export function AlphabetConditionDirectory({
         </div>
 
         {/* Right Section: Alphabetical Diseases & Conditions Facet (Off-White: #f8f9fc) */}
-        <div className="lg:col-span-7 bg-[#f8f9fc] py-16 md:py-24 px-6 sm:px-10 lg:pl-10 xl:pl-14 2xl:pl-16 lg:pr-12 xl:pr-20 2xl:pr-28 flex flex-col justify-center">
+        <div className="lg:col-span-7 bg-[#f8f9fc] py-12 md:py-16 px-6 sm:px-10 lg:pl-10 xl:pl-14 2xl:pl-16 lg:pr-12 xl:pr-20 2xl:pr-28 flex flex-col justify-start">
           <div className="max-w-3xl w-full mx-auto lg:ml-0 space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#080808] leading-tight tracking-tight">
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <h2 className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]">
                 {t.alphabetSearchSection.alphabetHeading}
               </h2>
               <Link
                 href="/diseases-conditions"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0057b8] hover:text-[#004181] hover:underline transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0057b8] hover:text-[#004181] hover:underline transition-colors shrink-0"
               >
                 <span>{t.alphabetSearchSection.viewAllConditions}</span>
                 <ChevronRight className="w-4 h-4" />
@@ -283,9 +283,9 @@ export function AlphabetConditionDirectory({
               })}
             </ul>
 
-            {/* Live Selected Letter Preview Strip (Pure White Card on Off-White Surface) */}
-            <div className="rounded-2xl bg-white border border-[#e2e8f0] p-5 md:p-6 space-y-4 shadow-sm">
-              <div className="flex items-center justify-between border-b border-[#e2e8f0] pb-3.5">
+            {/* Live Selected Letter Preview (Unboxed Clean Editorial List) */}
+            <div className="pt-2 space-y-3">
+              <div className="flex items-center justify-between border-b border-[#d1d5db] pb-3">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8] flex items-center gap-2">
                   <BookOpen className="w-4 h-4" />
                   <span>
@@ -306,28 +306,28 @@ export function AlphabetConditionDirectory({
               </div>
 
               {matchingConditions.length === 0 ? (
-                <p className="text-sm text-[#64748b] py-2">
+                <p className="text-sm text-[#64748b] py-4">
                   {locale === "bn"
                     ? `বর্তমানে "${selectedLetter}" অক্ষরে কোনো নিবন্ধ তালিকাভুক্ত নেই। অনুগ্রহ করে C, D, H, I, B, A, বা P অক্ষর নির্বাচন করুন অথবা সম্পূর্ণ ডিরেক্টরি দেখুন।`
                     : `No condition guides under "${selectedLetter}" in this seed set. Try letters A, B, C, D, G, H, I, K, M, O, P, R, S, or T, or browse the full directory.`}
                 </p>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
                   {matchingConditions.map((cond) => (
                     <Link
                       key={cond.id}
                       href={`/diseases-conditions/${cond.slug}`}
-                      className="group p-4 rounded-xl bg-[#f8fafc] hover:bg-[#f0f7ff] border border-[#e2e8f0] hover:border-[#bfdbfe] shadow-xs hover:shadow-sm transition-all flex items-start justify-between gap-3 text-left"
+                      className="group py-3.5 border-b border-[#e2e8f0] flex items-center justify-between gap-3 text-left transition-colors"
                     >
-                      <div className="min-w-0">
-                        <p className="font-semibold text-sm md:text-[15px] text-[#080808] group-hover:text-[#0057b8] transition-colors">
+                      <div className="min-w-0 pr-2">
+                        <span className="font-semibold text-base sm:text-lg text-[#080808] group-hover:text-[#0057b8] transition-colors">
                           {locale === "bn" ? cond.nameBn : cond.nameEn}
-                        </p>
-                        <p className="text-xs text-[#64748b] line-clamp-2 mt-1 leading-relaxed">
+                        </span>
+                        <p className="text-xs sm:text-sm text-[#64748b] line-clamp-1 mt-0.5 leading-relaxed">
                           {locale === "bn" ? cond.summaryBn : cond.summaryEn}
                         </p>
                       </div>
-                      <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#0057b8] group-hover:translate-x-0.5 shrink-0 mt-0.5 transition-transform" />
+                      <ChevronRight className="w-4 h-4 text-[#0057b8] group-hover:translate-x-1 transition-transform shrink-0" />
                     </Link>
                   ))}
                 </div>
