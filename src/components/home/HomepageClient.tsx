@@ -198,45 +198,51 @@ export function HomepageClient({
 
       {/* ====================================================================
           SECTION 5: FEATURED CARE AREAS
-          - 12-column layout (4-col intro + 8-col 2-column list of chevron links)
-          - Mirrors inspo.html .cmp-link-list--featured-care
+          - 12-column layout (5-col intro + 7-col 2-column list of chevron links)
+          - Spacious, justified, enlarged typography fitting the homepage aesthetic
          ==================================================================== */}
       <section
         aria-labelledby="featured-care-heading"
-        className="bg-[#f2f2f2] py-16 md:py-20 border-b border-[#d6d6d6]"
+        className="bg-[#f8f9fc] py-20 md:py-28 border-b border-[#d6d6d6]"
       >
         <div className="mc-container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* Left 4 Columns: Title & Description */}
-            <div className="lg:col-span-4 space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+            {/* Left 5 Columns: Title & Justified Description */}
+            <div className="lg:col-span-5 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
+                {locale === "bn" ? "বিশেষায়িত চিকিৎসা ক্ষেত্র" : "Specialized Care Areas"}
+              </span>
+
               <h2
                 id="featured-care-heading"
-                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
+                className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
               >
                 {t.featuredCareSection.title}
               </h2>
-              <p className="text-base text-[#686868] leading-relaxed">
+
+              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
                 {t.featuredCareSection.description}
               </p>
+
               <div className="pt-2">
                 <Link
                   href="/departments"
-                  className="inline-flex items-center gap-1.5 font-semibold text-[#004181] hover:text-[#0057b8] underline"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
                 >
                   <span>{t.featuredCareSection.viewAllLink}</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </div>
 
-            {/* Right 8 Columns: 2-Column List of Chevron Links with Hairline Dividers */}
-            <div className="lg:col-span-8 bg-white rounded-2xl border border-[#d6d6d6] p-6 md:p-8">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
+            {/* Right 7 Columns: 2-Column List of Chevron Links with Hairline Dividers */}
+            <div className="lg:col-span-7 bg-white rounded-3xl border border-[#d6d6d6] p-8 md:p-10 shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
                 {featuredConditions.map((item) => (
                   <Link
                     key={item.id}
                     href={`/diseases-conditions/${item.slug}`}
-                    className="group flex items-center justify-between py-4 border-b border-[#d6d6d6] text-[#004181] hover:text-[#0057b8] font-semibold transition-colors"
+                    className="group flex items-center justify-between py-4 sm:py-5 border-b border-[#e5e7eb] text-[#004181] hover:text-[#0057b8] text-base md:text-lg font-semibold transition-colors"
                   >
                     <span>{locale === "bn" ? item.nameBn : item.nameEn}</span>
                     <ChevronRight className="w-5 h-5 text-[#0057b8] shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -246,7 +252,7 @@ export function HomepageClient({
                   <Link
                     key={dept.id}
                     href={`/departments/${dept.slug}`}
-                    className="group flex items-center justify-between py-4 border-b border-[#d6d6d6] text-[#004181] hover:text-[#0057b8] font-semibold transition-colors"
+                    className="group flex items-center justify-between py-4 sm:py-5 border-b border-[#e5e7eb] text-[#004181] hover:text-[#0057b8] text-base md:text-lg font-semibold transition-colors"
                   >
                     <span>{locale === "bn" ? dept.nameBn : dept.nameEn}</span>
                     <ChevronRight className="w-5 h-5 text-[#0057b8] shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -266,25 +272,34 @@ export function HomepageClient({
          ==================================================================== */}
       <section
         aria-labelledby="locations-section-heading"
-        className="bg-white py-16 md:py-20"
+        className="bg-white py-20 md:py-28"
       >
         <div className="mc-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Grid Item 1: Header & CTA Block (Mirrors inspo.html .cmp-locations-intro) */}
-            <div className="flex flex-col justify-center pr-4 py-4 space-y-5">
+            <div className="flex flex-col justify-center pr-4 py-6 space-y-6">
+              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
+                {locale === "bn" ? "সারাদেশে সেবা কেন্দ্র" : "Nationwide Network"}
+              </span>
+
               <h2
                 id="locations-section-heading"
-                className="mc-serif text-3xl md:text-[40px] leading-tight text-[#080808]"
+                className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
               >
                 {t.locationsSection.title}
               </h2>
-              <p className="text-base text-[#686868] leading-relaxed">
+
+              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
                 {t.locationsSection.description}
               </p>
-              <div>
-                <Link href="/locations" className="mc-btn-secondary">
+
+              <div className="pt-2">
+                <Link
+                  href="/locations"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
+                >
                   <span>{t.locationsSection.cta}</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </div>
@@ -294,32 +309,32 @@ export function HomepageClient({
               <Link
                 key={branch.id}
                 href={`/locations/${branch.slug}`}
-                className="group relative rounded-2xl overflow-hidden min-h-[280px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
+                className="group relative rounded-3xl overflow-hidden min-h-[320px] md:min-h-[360px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
               >
                 <img
                   src={branch.imageUrl}
                   alt={locale === "bn" ? branch.nameBn : branch.nameEn}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                 />
                 <div className="absolute inset-0 mc-location-scrim" />
 
-                <div className="relative z-10 p-6 text-white">
+                <div className="relative z-10 p-7 text-white">
                   <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-xl font-semibold text-white group-hover:underline">
+                    <h3 className="text-2xl font-bold text-white group-hover:underline">
                       {locale === "bn" ? branch.nameBn : branch.nameEn}
                     </h3>
                     <ChevronRight className="w-5 h-5 text-white shrink-0 group-hover:translate-x-1 transition-transform" />
                   </div>
-                  <p className="mt-1 text-sm text-[#e8f0f9]">
+                  <p className="mt-2 text-sm sm:text-base text-[#e8f0f9] leading-relaxed line-clamp-2">
                     {locale === "bn" ? branch.subtitleBn : branch.subtitleEn}
                   </p>
-                  <div className="mt-3 pt-2.5 border-t border-white/25 flex flex-wrap items-center gap-3 text-xs text-[#c5e2f9]">
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" />
+                  <div className="mt-4 pt-3 border-t border-white/25 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[#c5e2f9]">
+                    <span className="inline-flex items-center gap-1.5 font-medium">
+                      <MapPin className="w-4 h-4" />
                       {locale === "bn" ? branch.cityBn : branch.cityEn}
                     </span>
-                    <span className="inline-flex items-center gap-1">
-                      <Phone className="w-3.5 h-3.5" />
+                    <span className="inline-flex items-center gap-1.5 font-medium">
+                      <Phone className="w-4 h-4" />
                       {branch.phone}
                     </span>
                   </div>
