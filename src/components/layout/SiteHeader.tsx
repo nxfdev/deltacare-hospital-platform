@@ -233,7 +233,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           labelEn: "Diseases and Conditions (A–Z)",
           labelBn: "রোগ ও শারীরিক অবস্থা (A–Z)",
           href: "/diseases-conditions",
-          descriptionEn: "Verified medical articles, causes, and specialist treatment options.",
+          descriptionEn: "Comprehensive index of medical conditions and specialist care plans.",
           descriptionBn: "চিকিৎসক-যাচাইকৃত রোগ নির্দেশিকা ও চিকিৎসা পরামর্শ।",
           icon: BookOpen,
         },
@@ -254,12 +254,28 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           icon: Building2,
         },
         {
+          labelEn: "Find Doctors by Condition",
+          labelBn: "রোগ অনুযায়ী ডাক্তার খুঁজুন",
+          href: "/doctors",
+          descriptionEn: "Locate BMDC-registered specialists by disease, symptom, or treatment.",
+          descriptionBn: "রোগ বা উপসর্গ অনুযায়ী যাচাইকৃত বিশেষজ্ঞ চিকিৎসক খুঁজুন।",
+          icon: Stethoscope,
+        },
+        {
           labelEn: "Health Guidance & Policies",
           labelBn: "স্বাস্থ্য নীতিমালা ও পরামর্শ",
           href: "/patient-services",
           descriptionEn: "Safe clinical practices, patient privacy, and fee transparency.",
           descriptionBn: "নিরাপদ চিকিৎসা নির্দেশিকা, গোপনীয়তা ও স্বচ্ছ ফি নীতিমালা।",
           icon: ShieldCheck,
+        },
+        {
+          labelEn: "Emergency Care & Triage",
+          labelBn: "জরুরি সেবা ও ট্রায়াজ",
+          href: "/contact",
+          descriptionEn: "Immediate clinical guidance, emergency contact, and helpline.",
+          descriptionBn: "জরুরি স্বাস্থ্য নির্দেশিকা এবং ২৪/৭ সাপোর্ট হেল্পলাইন।",
+          icon: Activity,
         },
       ],
       teaser: {
@@ -606,106 +622,66 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
       </div>
 
       {/* ====================================================================
-          SPACIOUS & ELEGANT MEGA-MENU FLYOUT
-          - Compact whitespace, high visual impact, tactile card layout
-          - Larger, crisp typography and vibrant icons
+          SPREAD-OUT EDITORIAL MEGA-MENU FLYOUT
+          - No rectangular card boxes
+          - Options spread out across full screen width (Left, Center, Right)
+          - Large, prominent, legible fonts with clean whitespace balance
          ==================================================================== */}
       {activeMenuId && (
         <div
           role="region"
           aria-label="Navigation dropdown menu"
-          className="hidden lg:block bg-white border-t border-b border-[#e2e8f0] shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150"
+          className="hidden lg:block bg-white border-t border-b border-[#e5e7eb] shadow-xl animate-in fade-in slide-in-from-top-1 duration-150"
         >
           {primaryMenus
             .filter((m) => m.id === activeMenuId)
             .map((menu) => (
-              <div key={menu.id} className="w-full max-w-6xl xl:max-w-7xl mx-auto px-6 lg:px-8 py-5">
-                <div className="grid grid-cols-12 gap-6 xl:gap-8 items-stretch">
-                  {/* Left Column: Menu Links with Descriptions */}
-                  <div className="col-span-8 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#f1f5f9]">
-                        <p className="text-xs font-extrabold uppercase tracking-widest text-[#0057b8] flex items-center gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#0057b8]" />
-                          {locale === "bn" ? menu.labelBn : menu.labelEn}
-                        </p>
-                        <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">
-                          {locale === "bn" ? "সরাসরি ব্রাউজ করুন" : "Direct Access"}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        {menu.items.map((item) => {
-                          const Icon = item.icon || ChevronRight;
-                          const itemTitle = locale === "bn" ? item.labelBn : item.labelEn;
-                          const itemDesc = locale === "bn" ? item.descriptionBn : item.descriptionEn;
-                          return (
-                            <Link
-                              key={item.href + item.labelEn}
-                              href={item.href}
-                              onClick={() => setActiveMenuId(null)}
-                              className="group p-3 rounded-xl border border-[#e2e8f0] bg-[#f8fafc]/70 hover:bg-[#eff6ff] hover:border-[#93c5fd] hover:shadow-sm transition-all duration-150 flex items-start gap-3"
-                            >
-                              <div className="w-10 h-10 rounded-lg bg-[#e8f0f9] text-[#0057b8] group-hover:bg-[#0057b8] group-hover:text-white flex items-center justify-center shrink-0 transition-colors duration-150 shadow-xs mt-0.5">
-                                <Icon className="w-5 h-5" />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                  <span className="font-bold text-[#0f172a] group-hover:text-[#0057b8] text-[15.5px] xl:text-[16.5px] leading-snug transition-colors">
-                                    {itemTitle}
-                                  </span>
-                                  <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#0057b8] group-hover:translate-x-0.5 transition-all shrink-0 ml-1.5" />
-                                </div>
-                                {itemDesc && (
-                                  <p className="text-[13px] text-[#475569] group-hover:text-[#1e293b] mt-0.5 leading-snug line-clamp-1">
-                                    {itemDesc}
-                                  </p>
-                                )}
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </div>
+              <div key={menu.id} className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 py-8">
+                {/* Top Section Eyebrow Bar */}
+                <div className="flex items-center justify-between pb-3.5 mb-6 border-b border-[#e5e7eb]">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#0057b8]" />
+                    <span className="text-xs font-extrabold uppercase tracking-widest text-[#0057b8]">
+                      {locale === "bn" ? menu.labelBn : menu.labelEn}
+                    </span>
                   </div>
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">
+                    {locale === "bn" ? "সরাসরি বিভাগ ও সেবাসমূহ" : "Direct Directory Services"}
+                  </span>
+                </div>
 
-                  {/* Right Column: Featured Teaser Card */}
-                  <div className="col-span-4 pl-6 border-l border-[#e2e8f0] flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#f1f5f9]">
-                        <span className="text-xs font-extrabold uppercase tracking-widest text-[#64748b]">
-                          {locale === "bn" ? "বিশেষ তথ্য" : "Featured Guide"}
-                        </span>
-                      </div>
-
+                {/* 3-Column Spread-Out Options Grid (Left, Center, Right) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 xl:gap-x-16 gap-y-7">
+                  {menu.items.map((item) => {
+                    const Icon = item.icon || ChevronRight;
+                    const itemTitle = locale === "bn" ? item.labelBn : item.labelEn;
+                    const itemDesc = locale === "bn" ? item.descriptionBn : item.descriptionEn;
+                    return (
                       <Link
-                        href={menu.teaser.href}
+                        key={item.href + item.labelEn}
+                        href={item.href}
                         onClick={() => setActiveMenuId(null)}
-                        className="group block rounded-2xl overflow-hidden border border-[#e2e8f0] bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] hover:border-[#0057b8] hover:shadow-md transition-all duration-200"
+                        className="group block py-2 hover:bg-[#f0f7ff]/50 rounded-xl px-3 -mx-3 transition-colors duration-150"
                       >
-                        <div className="h-36 overflow-hidden bg-[#012d61] relative">
-                          <img
-                            src={menu.teaser.imageUrl}
-                            alt={locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-                        </div>
-                        <div className="p-4 space-y-1.5">
-                          <h4 className="font-bold text-[#0f172a] text-[16px] group-hover:text-[#0057b8] transition-colors leading-snug">
-                            {locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
-                          </h4>
-                          <p className="text-[13px] text-[#475569] leading-snug line-clamp-2">
-                            {locale === "bn" ? menu.teaser.subtitleBn : menu.teaser.subtitleEn}
-                          </p>
-                          <div className="pt-1.5 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#0057b8] group-hover:text-[#004181]">
-                            <span>{locale === "bn" ? menu.teaser.ctaBn : menu.teaser.ctaEn}</span>
-                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-lg bg-[#e8f0f9] text-[#0057b8] flex items-center justify-center shrink-0 group-hover:bg-[#0057b8] group-hover:text-white transition-colors duration-150">
+                              <Icon className="w-5 h-5" />
+                            </div>
+                            <span className="font-bold text-[#080808] group-hover:text-[#0057b8] text-[18px] xl:text-[19px] leading-snug transition-colors">
+                              {itemTitle}
+                            </span>
                           </div>
+                          <ChevronRight className="w-5 h-5 text-[#9ca3af] group-hover:text-[#0057b8] group-hover:translate-x-1 transition-all shrink-0 ml-2" />
                         </div>
+                        {itemDesc && (
+                          <p className="text-[14px] xl:text-[14.5px] text-[#4b5563] group-hover:text-[#1f2937] mt-1.5 pl-12 leading-relaxed">
+                            {itemDesc}
+                          </p>
+                        )}
                       </Link>
-                    </div>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             ))}
