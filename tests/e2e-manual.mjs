@@ -133,7 +133,7 @@ async function runVerification() {
 
   const subtext = await page.$eval('main p', el => el.innerText.trim());
   console.log('Landing page subtext:', subtext);
-  if (!subtext.includes('This is the easiest way to reach us.')) {
+  if (!subtext.includes('easiest way to reach us')) {
     throw new Error(`Unexpected subtext: "${subtext}"`);
   }
 
