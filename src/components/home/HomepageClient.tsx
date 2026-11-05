@@ -198,17 +198,18 @@ export function HomepageClient({
 
       {/* ====================================================================
           SECTION 5: FEATURED CARE AREAS
-          - 12-column layout (5-col intro + 7-col 2-column list of chevron links)
+          - Full-width spread from left to right edge of screen
+          - 12-column layout with generous fluid horizontal spacing
           - Spacious, justified, enlarged typography fitting the homepage aesthetic
          ==================================================================== */}
       <section
         aria-labelledby="featured-care-heading"
         className="bg-[#f8f9fc] py-20 md:py-28 border-b border-[#d6d6d6]"
       >
-        <div className="mc-container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
-            {/* Left 5 Columns: Title & Justified Description */}
-            <div className="lg:col-span-5 space-y-6">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-16 items-start">
+            {/* Left Column: Title & Justified Description */}
+            <div className="lg:col-span-5 xl:col-span-4 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
                 {locale === "bn" ? "বিশেষায়িত চিকিৎসা ক্ষেত্র" : "Specialized Care Areas"}
               </span>
@@ -235,9 +236,9 @@ export function HomepageClient({
               </div>
             </div>
 
-            {/* Right 7 Columns: 2-Column List of Chevron Links with Hairline Dividers */}
-            <div className="lg:col-span-7 bg-white rounded-3xl border border-[#d6d6d6] p-8 md:p-10 shadow-sm">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10">
+            {/* Right Column: Multi-Column List of Chevron Links with Hairline Dividers */}
+            <div className="lg:col-span-7 xl:col-span-8 bg-white rounded-3xl border border-[#d6d6d6] p-8 md:p-10 xl:p-12 shadow-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-8 xl:gap-x-12">
                 {featuredConditions.map((item) => (
                   <Link
                     key={item.id}
@@ -266,6 +267,7 @@ export function HomepageClient({
 
       {/* ====================================================================
           SECTION 6: LOCATIONS & HOSPITAL BRANCHES
+          - Spread across full width from left to right part of the screen
           - Exact 3-column grid where Col 1 is header/CTA and remaining 5 cards
             flow across the 3-column grid with dark bottom gradient overlays
           - Positioned as the final section of the homepage right before the endbar
@@ -274,8 +276,8 @@ export function HomepageClient({
         aria-labelledby="locations-section-heading"
         className="bg-white py-20 md:py-28"
       >
-        <div className="mc-container">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-10">
             {/* Grid Item 1: Header & CTA Block (Mirrors inspo.html .cmp-locations-intro) */}
             <div className="flex flex-col justify-center pr-4 py-6 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
@@ -309,7 +311,7 @@ export function HomepageClient({
               <Link
                 key={branch.id}
                 href={`/locations/${branch.slug}`}
-                className="group relative rounded-3xl overflow-hidden min-h-[320px] md:min-h-[360px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
+                className="group relative rounded-3xl overflow-hidden min-h-[340px] md:min-h-[380px] xl:min-h-[420px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
               >
                 <img
                   src={branch.imageUrl}
@@ -318,7 +320,7 @@ export function HomepageClient({
                 />
                 <div className="absolute inset-0 mc-location-scrim" />
 
-                <div className="relative z-10 p-7 text-white">
+                <div className="relative z-10 p-7 xl:p-8 text-white">
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="text-2xl font-bold text-white group-hover:underline">
                       {locale === "bn" ? branch.nameBn : branch.nameEn}
