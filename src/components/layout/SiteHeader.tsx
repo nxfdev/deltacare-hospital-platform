@@ -668,7 +668,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                             <div className="w-9 h-9 rounded-lg bg-[#e8f0f9] text-[#0057b8] flex items-center justify-center shrink-0 group-hover:bg-[#0057b8] group-hover:text-white transition-colors duration-150">
                               <Icon className="w-5 h-5" />
                             </div>
-                            <span className="font-bold text-[#080808] group-hover:text-[#0057b8] text-[18px] xl:text-[19px] leading-snug transition-colors">
+                            <span className="font-normal text-[#080808] group-hover:text-[#0057b8] text-[18px] xl:text-[19px] leading-snug transition-colors">
                               {itemTitle}
                             </span>
                           </div>
