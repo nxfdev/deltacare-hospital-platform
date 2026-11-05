@@ -92,11 +92,11 @@ export function HomepageClient({
 
       {/* ====================================================================
           SECTION 4: HEALTH STORIES & CLINICAL APPROACH
-          - Elegant 9:16 Portrait Composition with Minimalist Editorial Typography
+          - Elegant 3:4 Portrait Composition with Minimalist Editorial Typography
          ==================================================================== */}
       <section className="bg-white py-20 md:py-28 border-b border-[#d6d6d6]">
         <div className="mc-container space-y-24 md:space-y-32">
-          {/* Story Split Block 1: "Healing starts here" (Text Left, 9:16 Image Right) */}
+          {/* Story Split Block 1: "Healing starts here" (Text Left, 3:4 Image Right) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-7 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
@@ -142,7 +142,7 @@ export function HomepageClient({
             </div>
 
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
+              <div className="group relative aspect-[3/4] w-full max-w-[400px] sm:max-w-[440px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
                   src="/images/world-class-care.jpg"
                   alt={t.storySections.story1Title}
@@ -153,10 +153,10 @@ export function HomepageClient({
             </div>
           </div>
 
-          {/* Story Split Block 2: "World-class care" (9:16 Image Left, Text Right on Desktop) */}
+          {/* Story Split Block 2: "World-class care" (3:4 Image Left, Text Right on Desktop) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-5 order-2 lg:order-1 flex justify-center lg:justify-start">
-              <div className="group relative aspect-[9/16] w-full max-w-[340px] sm:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
+              <div className="group relative aspect-[3/4] w-full max-w-[400px] sm:max-w-[440px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
                   src="/images/healing-starts-here.jpg"
                   alt={t.storySections.story2Title}
