@@ -37,12 +37,12 @@ export function HomepageClient({
     <div>
       {/* ====================================================================
           SECTION 2: HERO SECTION (Mirrors inspo.html .cmp-ViewportHero)
-          - Full-bleed dark gradient overlay + display serif headline
-          - Centered CTA
+          - Full-bleed dark gradient overlay + enlarged display serif headline (4x)
+          - Centered headline + CTA at the bottom portion of the blue hero
          ==================================================================== */}
       <section
         aria-label="Hero Banner"
-        className="relative overflow-hidden bg-[#012d61] text-white min-h-[500px] md:min-h-[600px] flex items-center justify-center"
+        className="relative overflow-hidden bg-[#012d61] text-white min-h-[560px] md:min-h-[660px] lg:min-h-[720px] flex flex-col justify-between items-center"
       >
         {/* Background Visual Layer - Hospital Surgical Team */}
         <div className="absolute inset-0 overflow-hidden">
@@ -56,24 +56,28 @@ export function HomepageClient({
           <div className="absolute inset-0 bg-gradient-to-t from-[#012d61] via-transparent to-[#012d61]/50" />
         </div>
 
-        {/* Hero Content Container - Centrally Aligned */}
-        <div className="mc-container relative z-10 py-16 md:py-24 w-full flex flex-col items-center justify-center text-center">
-          <div className="max-w-5xl mx-auto flex flex-col items-center justify-center space-y-8 text-center">
-            <h1 className="mc-serif text-3xl sm:text-5xl md:text-6xl lg:text-[68px] xl:text-[76px] text-white font-normal tracking-tight leading-tight text-center sm:whitespace-nowrap">
-              {t.hero.headline}
-            </h1>
+        {/* Top spacer for vertical balance */}
+        <div className="w-full pt-16 md:pt-24 shrink-0" />
 
-            {/* Hero CTA - Centered */}
-            <div className="flex justify-center items-center">
-              <Link
-                href="/request-appointment"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
-              >
-                <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request Appointment"}</span>
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-            </div>
-          </div>
+        {/* Hero Headline Container - Centered with Restored Original Serif Display Font */}
+        <div className="mc-container relative z-10 w-full flex flex-col items-center justify-center text-center px-4">
+          <h1
+            className="mc-hero-headline text-white font-[300] tracking-tight leading-[1.06] text-center sm:whitespace-nowrap text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[94px] 2xl:text-[106px]"
+            style={{ fontFamily: "var(--mc-typography-font-family-display)" }}
+          >
+            {t.hero.headline}
+          </h1>
+        </div>
+
+        {/* Hero CTA - Lowered down to the last portion of the blue section */}
+        <div className="relative z-10 w-full flex justify-center items-center pb-12 md:pb-16 pt-8 shrink-0">
+          <Link
+            href="/request-appointment"
+            className="inline-flex items-center justify-center gap-2 px-8 sm:px-9 py-4 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
+          >
+            <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request Appointment"}</span>
+            <ChevronRight className="w-5 h-5" />
+          </Link>
         </div>
       </section>
 
