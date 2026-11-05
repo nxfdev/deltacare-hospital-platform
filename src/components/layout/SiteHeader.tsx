@@ -383,7 +383,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             7. Search Bar
            ==================================================================== */}
         <div className="hidden lg:flex items-center justify-center h-[135px] gap-3 lg:gap-4 xl:gap-6 2xl:gap-8 mx-auto">
-          {/* OPTION 1: Logo (1.5x) */}
+          {/* OPTION 1: Logo */}
           <Link
             href="/"
             className="flex items-center shrink-0 pr-1 xl:pr-2 focus:outline-none transition-transform hover:opacity-95"
@@ -396,10 +396,10 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             />
           </Link>
 
-          {/* OPTIONS 2, 3, 4: Care at DeltaCare, Health Library, Departments and Specialists (1.5x) */}
+          {/* OPTIONS 2, 3, 4: Care at DeltaCare, Health Library, Departments and Specialists */}
           <nav
             aria-label="Primary Navigation"
-            className="flex items-center gap-1.5 xl:gap-2.5"
+            className="flex items-center gap-1 xl:gap-2"
           >
             {primaryMenus.map((menu) => {
               const isOpen = activeMenuId === menu.id;
@@ -410,7 +410,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                     type="button"
                     aria-expanded={isOpen}
                     onClick={() => setActiveMenuId(isOpen ? null : menu.id)}
-                    className={`inline-flex items-center gap-2 px-4 xl:px-5 py-3 text-[18px] xl:text-[20px] 2xl:text-[21px] font-medium tracking-tight rounded-xl transition-all duration-150 select-none whitespace-nowrap ${
+                    className={`inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-2 text-[15px] xl:text-[16px] font-medium tracking-tight rounded-xl transition-all duration-150 select-none whitespace-nowrap ${
                       isOpen
                         ? "bg-[#e8f0f9] text-[#0057b8] font-semibold"
                         : "text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb]"
@@ -418,7 +418,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                   >
                     <span>{menuLabel}</span>
                     <ChevronDown
-                      className={`w-5 h-5 transition-transform duration-200 ${
+                      className={`w-4 h-4 transition-transform duration-200 ${
                         isOpen ? "rotate-180 text-[#0057b8]" : "text-[#6b7280]"
                       }`}
                       aria-hidden="true"
@@ -429,21 +429,21 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             })}
           </nav>
 
-          {/* OPTION 5: Register / Log in (1.5x) */}
+          {/* OPTION 5: Register / Log in */}
           <div className="flex items-center shrink-0">
             {user ? (
-              <div className="flex items-center gap-2.5 text-base">
+              <div className="flex items-center gap-2 text-sm">
                 <Link
                   href={isStaff ? "/admin" : "/dashboard"}
-                  className="inline-flex items-center gap-2 px-4 xl:px-5 py-2.5 rounded-full bg-[#e8f0f9] text-[#004181] font-semibold hover:bg-[#c5e2f9] transition-colors whitespace-nowrap text-base"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-[#e8f0f9] text-[#004181] font-medium hover:bg-[#c5e2f9] transition-colors whitespace-nowrap text-sm"
                 >
-                  <User className="w-5 h-5 text-[#0057b8]" aria-hidden="true" />
+                  <User className="w-4 h-4 text-[#0057b8]" aria-hidden="true" />
                   <span>{isStaff ? t.nav.adminDashboard : t.nav.myDashboard}</span>
                 </Link>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-sm text-[#6b7280] hover:text-[#080808] underline px-1 transition-colors"
+                  className="text-xs text-[#6b7280] hover:text-[#080808] underline px-1 transition-colors"
                 >
                   {t.nav.logout}
                 </button>
@@ -451,30 +451,30 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-4 xl:px-5 py-3 text-[18px] xl:text-[20px] 2xl:text-[21px] font-medium text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb] rounded-xl transition-colors whitespace-nowrap"
+                className="inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-2 text-[15px] xl:text-[16px] font-medium text-[#1f2937] hover:text-[#0057b8] hover:bg-[#f9fafb] rounded-xl transition-colors whitespace-nowrap"
               >
-                <User className="w-5 h-5 text-[#4b5563]" aria-hidden="true" />
+                <User className="w-4 h-4 text-[#4b5563]" aria-hidden="true" />
                 <span>{t.nav.registerLogin}</span>
               </Link>
             )}
           </div>
 
-          {/* OPTION 6: Bangla / English (1.5x) */}
+          {/* OPTION 6: Bangla / English */}
           <button
             type="button"
             onClick={toggleLocale}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm xl:text-base font-bold rounded-full border-2 border-[#0057b8] text-[#0057b8] hover:bg-[#e8f0f9] transition-colors select-none shrink-0 whitespace-nowrap"
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs xl:text-sm font-bold rounded-full border border-[#0057b8] text-[#0057b8] hover:bg-[#e8f0f9] transition-colors select-none shrink-0 whitespace-nowrap"
             aria-label="Toggle language between English and Bangla"
           >
-            <Globe className="w-5 h-5" aria-hidden="true" />
+            <Globe className="w-4 h-4" aria-hidden="true" />
             <span>{locale === "en" ? "বাংলা" : "English"}</span>
           </button>
 
-          {/* OPTION 7: Search Bar (1.5x) */}
+          {/* OPTION 7: Search Bar */}
           <div className="relative shrink-0">
             <form onSubmit={handleSearchSubmit} className="relative flex items-center">
               <Search
-                className="w-5 h-5 text-[#6b7280] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"
                 aria-hidden="true"
               />
               <input
@@ -486,7 +486,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                 placeholder={
                   locale === "bn" ? "অনুসন্ধান করুন..." : "Search DeltaCare..."
                 }
-                className="w-44 lg:w-56 xl:w-72 2xl:w-80 h-13 xl:h-14 pl-12 pr-10 text-sm xl:text-base rounded-full border border-[#d1d5db] bg-[#f9fafb] text-[#111827] placeholder-[#6b7280] focus:border-[#0057b8] focus:bg-white focus:outline-none transition-all shadow-sm"
+                className="w-40 lg:w-48 xl:w-60 2xl:w-72 h-11 pl-10 pr-9 text-xs xl:text-sm rounded-full border border-[#d1d5db] bg-[#f9fafb] text-[#111827] placeholder-[#6b7280] focus:border-[#0057b8] focus:bg-white focus:outline-none transition-all shadow-sm"
                 aria-label={t.alphabetSearchSection.searchHeading}
               />
               {searchQuery ? (
@@ -496,18 +496,18 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                     setSearchQuery("");
                     setSearchResults([]);
                   }}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#111827] transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#111827] transition-colors"
                   aria-label={t.alphabetSearchSection.clearSearch}
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               ) : (
                 <button
                   type="submit"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#0057b8] transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#9ca3af] hover:text-[#0057b8] transition-colors"
                   aria-label="Submit search"
                 >
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="w-4 h-4" />
                 </button>
               )}
             </form>
