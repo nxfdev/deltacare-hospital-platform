@@ -31,9 +31,9 @@ export const dictionaries = {
       emergencyLabel: "24/7 Emergency & Helpline:",
     },
     hero: {
-      headline: "Transforming your care",
+      headline: "Care that comes together",
       subheadline:
-        "Coordinated multi-disciplinary specialist care across Bangladesh with verified doctor schedules, transparent fees, and accountable appointment workflows.",
+        "Bringing the right specialists and coordinated healthcare services together around what matters most: your well-being.",
       primaryCta: "Explore Patient-Centered Care",
       secondaryCta: "Request Appointment",
       pauseMotion: "Pause ambient motion",
@@ -158,9 +158,9 @@ export const dictionaries = {
       emergencyLabel: "২৪/৭ জরুরি ও হেল্পলাইন:",
     },
     hero: {
-      headline: "আপনার স্বাস্থ্যসেবায় নতুন দিগন্ত",
+      headline: "সমন্বিত যত্নে আপনার পাশে",
       subheadline:
-        "যাচাইকৃত চিকিৎসক সময়সূচী, স্বচ্ছ ফি এবং নির্ভরযোগ্য অ্যাপয়েন্টমেন্ট ব্যবস্থাপনার মাধ্যমে বাংলাদেশে সমন্বিত বিশেষজ্ঞ স্বাস্থ্যসেবা।",
+        "আপনার সুস্বাস্থ্যকে সর্বোচ্চ অগ্রাধিকার দিয়ে বিশেষজ্ঞ চিকিৎসক ও সমন্বিত স্বাস্থ্যসেবাকে একত্রিত করছি।",
       primaryCta: "রোগী-কেন্দ্রিক সেবা সম্পর্কে জানুন",
       secondaryCta: "অ্যাপয়েন্টমেন্ট অনুরোধ",
       pauseMotion: " অ্যানিমেশন বিরতি",
