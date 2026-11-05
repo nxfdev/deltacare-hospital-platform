@@ -636,20 +636,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           {primaryMenus
             .filter((m) => m.id === activeMenuId)
             .map((menu) => (
-              <div key={menu.id} className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 py-8">
-                {/* Top Section Eyebrow Bar */}
-                <div className="flex items-center justify-between pb-3.5 mb-6 border-b border-[#e5e7eb]">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-[#0057b8]" />
-                    <span className="text-xs font-extrabold uppercase tracking-widest text-[#0057b8]">
-                      {locale === "bn" ? menu.labelBn : menu.labelEn}
-                    </span>
-                  </div>
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">
-                    {locale === "bn" ? "সরাসরি বিভাগ ও সেবাসমূহ" : "Direct Directory Services"}
-                  </span>
-                </div>
-
+              <div key={menu.id} className="w-full px-6 sm:px-10 lg:px-14 xl:px-20 py-7">
                 {/* 3-Column Spread-Out Options Grid (Left, Center, Right) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 xl:gap-x-16 gap-y-7">
                   {menu.items.map((item) => {
