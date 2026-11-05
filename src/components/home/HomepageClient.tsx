@@ -108,20 +108,20 @@ export function HomepageClient({
               </h2>
 
               <div className="space-y-6 pt-2">
-                <div className="border-l-2 border-[#0057b8] pl-5 space-y-1.5">
-                  <h3 className="text-lg font-bold text-[#080808]">
+                <div className="border-l-2 border-[#0057b8] pl-5 space-y-2">
+                  <h3 className="text-xl font-bold text-[#080808]">
                     {t.storySections.story1Sub1Title}
                   </h3>
-                  <p className="text-base text-[#525252] leading-relaxed">
+                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
                     {t.storySections.story1Sub1Body}
                   </p>
                 </div>
 
-                <div className="border-l-2 border-[#d6d6d6] pl-5 space-y-1.5">
-                  <h3 className="text-lg font-bold text-[#080808]">
+                <div className="border-l-2 border-[#d6d6d6] pl-5 space-y-2">
+                  <h3 className="text-xl font-bold text-[#080808]">
                     {t.storySections.story1Sub2Title}
                   </h3>
-                  <p className="text-base text-[#525252] leading-relaxed">
+                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
                     {t.storySections.story1Sub2Body}{" "}
                     <Link
                       href="/departments"
@@ -134,9 +134,12 @@ export function HomepageClient({
               </div>
 
               <div className="pt-2">
-                <Link href="/about" className="mc-btn-secondary">
-                  <span>{t.storySections.story1Cta}</span>
-                  <ChevronRight className="w-4 h-4" />
+                <Link
+                  href="/about"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
+                >
+                  <span>{locale === "bn" ? "কেন ডেল্টাকেয়ার বেছে নেবেন" : "Why choose DeltaCare"}</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </div>
@@ -175,14 +178,17 @@ export function HomepageClient({
                 {t.storySections.story2Title}
               </h2>
 
-              <p className="text-base sm:text-lg text-[#525252] leading-relaxed pt-1">
+              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify pt-1">
                 {t.storySections.story2Body}
               </p>
 
               <div className="pt-2">
-                <Link href="/international" className="mc-btn-secondary">
-                  <span>{t.storySections.story2Cta}</span>
-                  <ChevronRight className="w-4 h-4" />
+                <Link
+                  href="/doctors"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
+                >
+                  <span>{locale === "bn" ? "আমাদের বিশেষজ্ঞ চিকিৎসকবৃন্দ" : "Explore Our Specialists"}</span>
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
             </div>
