@@ -20,6 +20,10 @@ import {
   Info,
   MapPin,
   HeartHandshake,
+  HeartPulse,
+  Brain,
+  Activity,
+  ShieldCheck,
 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { STAFF_ROLES } from "@/lib/auth/roles";
@@ -169,35 +173,43 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           icon: HeartHandshake,
         },
         {
+          labelEn: "Request Appointment",
+          labelBn: "অ্যাপয়েন্টমেন্ট অনুরোধ",
+          href: "/request-appointment",
+          descriptionEn: "Start your new or returning patient consultation booking.",
+          descriptionBn: "অনলাইনে বিশেষজ্ঞ ডাক্তার অ্যাপয়েন্টমেন্ট বুকিং শুরু করুন।",
+          icon: Calendar,
+        },
+        {
+          labelEn: "Locations & Campuses",
+          labelBn: "শাখা ও অবস্থানসমূহ",
+          href: "/locations",
+          descriptionEn: "Dhanmondi, Gulshan, Uttara, Chattogram and Sylhet campuses.",
+          descriptionBn: "ধানমন্ডি, গুলশান, উত্তরা, চট্টগ্রাম ও সিলেট হাসপাতাল ক্যাম্পাস।",
+          icon: MapPin,
+        },
+        {
           labelEn: "About DeltaCare",
           labelBn: "ডেল্টাকেয়ার সম্পর্কে",
           href: "/about",
           descriptionEn: "Our clinical leadership, values, and multi-specialty standards.",
-          descriptionBn: "আমাদের ক্লিনিক্যাল নেতৃত্ব, মূল্যবোধ ও মানদণ্ড।",
+          descriptionBn: "আমাদের ক্লিনিক্যাল নেতৃত্ব, মূল্যবোধ ও চিকিৎসার মানদণ্ড।",
           icon: Info,
         },
         {
-          labelEn: "Request Appointment",
-          labelBn: "অ্যাপয়েন্টমেন্ট অনুরোধ করুন",
-          href: "/request-appointment",
-          descriptionEn: "Start your new or returning patient appointment journey.",
-          descriptionBn: "নতুন বা পূর্বের রোগীর অ্যাপয়েন্টমেন্ট প্রক্রিয়া শুরু করুন।",
-          icon: Calendar,
+          labelEn: "Track Appointment Status",
+          labelBn: "অ্যাপয়েন্টমেন্ট ট্র্যাকিং",
+          href: "/track-appointment",
+          descriptionEn: "Live status lookup using your tracking code and mobile number.",
+          descriptionBn: "ট্র্যাকিং কোড ও মোবাইল নম্বর দিয়ে অবস্থান ও স্থিতি দেখুন।",
+          icon: Activity,
         },
         {
-          labelEn: "Locations",
-          labelBn: "শাখা ও অবস্থানসমূহ",
-          href: "/locations",
-          descriptionEn: "Dhanmondi, Uttara, Banani and national hospital campuses.",
-          descriptionBn: "ধানমন্ডি, উত্তরা, বনানী ও দেশজুড়ে হাসপাতাল ক্যাম্পাস।",
-          icon: MapPin,
-        },
-        {
-          labelEn: "Contact Us",
-          labelBn: "যোগাযোগ ও হেল্পলাইন",
+          labelEn: "Contact Us & 24/7 Helpline",
+          labelBn: "যোগাযোগ ও জরুরি হেল্পলাইন",
           href: "/contact",
-          descriptionEn: "24/7 patient helpline 10678, desk support, and callback requests.",
-          descriptionBn: "২৪/৭ হেল্পলাইন ১০৬৭৮ এবং কলব্যাক সেবা।",
+          descriptionEn: "24/7 patient helpline 10678, international desk, and callbacks.",
+          descriptionBn: "২৪/৭ জরুরি হেল্পলাইন ১০৬৭৮ এবং কলব্যাক সেবা।",
           icon: Phone,
         },
       ],
@@ -218,15 +230,15 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
       labelBn: "স্বাস্থ্য তথ্যভাণ্ডার",
       items: [
         {
-          labelEn: "Diseases and Conditions",
+          labelEn: "Diseases and Conditions (A–Z)",
           labelBn: "রোগ ও শারীরিক অবস্থা (A–Z)",
           href: "/diseases-conditions",
-          descriptionEn: "Verified medical articles, causes, and treatment options.",
+          descriptionEn: "Verified medical articles, causes, and specialist treatment options.",
           descriptionBn: "চিকিৎসক-যাচাইকৃত রোগ নির্দেশিকা ও চিকিৎসা পরামর্শ।",
           icon: BookOpen,
         },
         {
-          labelEn: "Symptoms",
+          labelEn: "Symptoms Directory",
           labelBn: "লক্ষণ ও উপসর্গ নির্দেশিকা",
           href: "/diseases-conditions#symptoms",
           descriptionEn: "Understand common clinical signs and when to seek urgent care.",
@@ -242,12 +254,12 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           icon: Building2,
         },
         {
-          labelEn: "Drugs and Supplements",
-          labelBn: "ওষুধ ও সম্পূরক নির্দেশিকা",
-          href: "/tests-procedures#drugs",
-          descriptionEn: "Safe usage, verified clinical instructions, and pharmacy guidance.",
-          descriptionBn: "নিরাপদ সেবনবিধি ও ফার্মেসি নির্দেশিকা।",
-          icon: HeartHandshake,
+          labelEn: "Health Guidance & Policies",
+          labelBn: "স্বাস্থ্য নীতিমালা ও পরামর্শ",
+          href: "/patient-services",
+          descriptionEn: "Safe clinical practices, patient privacy, and fee transparency.",
+          descriptionBn: "নিরাপদ চিকিৎসা নির্দেশিকা, গোপনীয়তা ও স্বচ্ছ ফি নীতিমালা।",
+          icon: ShieldCheck,
         },
       ],
       teaser: {
@@ -270,17 +282,49 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           labelEn: "All Clinical Departments",
           labelBn: "সকল ক্লিনিক্যাল বিভাগ",
           href: "/departments",
-          descriptionEn: "Cardiology, Neurology, Oncology, Orthopedics, Pediatrics, and more.",
-          descriptionBn: "কার্ডিওলজি, নিউরোলজি, অনকোলজি, অর্থোপেডিকস ও অন্যান্য বিভাগ।",
+          descriptionEn: "Comprehensive hospital centers and diagnostic facilities.",
+          descriptionBn: "সকল বিশেষায়িত ক্লিনিক্যাল বিভাগ ও ল্যাবরেটরি।",
           icon: Building2,
         },
         {
-          labelEn: "Verified Specialists",
+          labelEn: "Verified Medical Specialists",
           labelBn: "যাচাইকৃত বিশেষজ্ঞ চিকিৎসক",
           href: "/doctors",
-          descriptionEn: "BMDC-registered consultants with confirmed chamber schedules and fees.",
+          descriptionEn: "BMDC-registered consultants with confirmed chamber schedules.",
           descriptionBn: "বিএমডিসি-যাচাইকৃত কনসালট্যান্ট ও চেম্বার সময়সূচী।",
           icon: Stethoscope,
+        },
+        {
+          labelEn: "Cardiology & Vascular",
+          labelBn: "কার্ডিওলজি ও ভাস্কুলার",
+          href: "/departments/cardiology-vascular",
+          descriptionEn: "Interventional cardiology, heart valve care, and bypass surgery.",
+          descriptionBn: "হৃদরোগ নির্ণয়, ক্যাথল্যাব এবং হার্ট বাইপাস সার্জারি।",
+          icon: HeartPulse,
+        },
+        {
+          labelEn: "Neurology & Stroke Center",
+          labelBn: "নিউরোলজি ও স্ট্রোক সেন্টার",
+          href: "/departments/neurology-stroke",
+          descriptionEn: "Comprehensive stroke unit, neurosurgery, and spine care.",
+          descriptionBn: "স্ট্রোক ইউনিট, নিউরোসার্জারি ও স্পাইনাল কেয়ার।",
+          icon: Brain,
+        },
+        {
+          labelEn: "Oncology & Cancer Care",
+          labelBn: "অনকোলজি ও ক্যানসার কেয়ার",
+          href: "/departments/oncology-cancer-care",
+          descriptionEn: "Medical oncology, tumor boards, and chemotherapy suites.",
+          descriptionBn: "টিউমার বোর্ড, কেমোথেরাপি ও ক্যানসার চিকিৎসা।",
+          icon: Activity,
+        },
+        {
+          labelEn: "Orthopedics & Joint Replacement",
+          labelBn: "অর্থোপেডিকস ও জয়েন্ট রিপ্লেসমেন্ট",
+          href: "/departments/orthopedics-joint",
+          descriptionEn: "Robotic joint replacement, trauma, and sports medicine.",
+          descriptionBn: "জয়েন্ট রিপ্লেসমেন্ট, ট্রমা এবং অর্থোপেডিক সার্জারি।",
+          icon: ShieldCheck,
         },
       ],
       teaser: {
@@ -562,84 +606,105 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
       </div>
 
       {/* ====================================================================
-          SPACIOUS DESKTOP MEGA-MENU FLYOUT (Mayo Clinic inspired)
+          SPACIOUS & ELEGANT MEGA-MENU FLYOUT
+          - Compact whitespace, high visual impact, tactile card layout
+          - Larger, crisp typography and vibrant icons
          ==================================================================== */}
       {activeMenuId && (
         <div
           role="region"
           aria-label="Navigation dropdown menu"
-          className="hidden lg:block bg-white border-t border-b border-[#e5e7eb] shadow-xl animate-in fade-in slide-in-from-top-1 duration-150"
+          className="hidden lg:block bg-white border-t border-b border-[#e2e8f0] shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150"
         >
           {primaryMenus
             .filter((m) => m.id === activeMenuId)
             .map((menu) => (
-              <div key={menu.id} className="w-full max-w-7xl mx-auto px-6 lg:px-10 py-8">
-                <div className="grid grid-cols-12 gap-8 items-start">
+              <div key={menu.id} className="w-full max-w-6xl xl:max-w-7xl mx-auto px-6 lg:px-8 py-5">
+                <div className="grid grid-cols-12 gap-6 xl:gap-8 items-stretch">
                   {/* Left Column: Menu Links with Descriptions */}
-                  <div className="col-span-8 space-y-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8] mb-4">
-                      {locale === "bn" ? menu.labelBn : menu.labelEn}
-                    </p>
+                  <div className="col-span-8 flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#f1f5f9]">
+                        <p className="text-xs font-extrabold uppercase tracking-widest text-[#0057b8] flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#0057b8]" />
+                          {locale === "bn" ? menu.labelBn : menu.labelEn}
+                        </p>
+                        <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">
+                          {locale === "bn" ? "সরাসরি ব্রাউজ করুন" : "Direct Access"}
+                        </span>
+                      </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      {menu.items.map((item) => {
-                        const Icon = item.icon || ChevronRight;
-                        const itemTitle = locale === "bn" ? item.labelBn : item.labelEn;
-                        const itemDesc = locale === "bn" ? item.descriptionBn : item.descriptionEn;
-                        return (
-                          <Link
-                            key={item.href + item.labelEn}
-                            href={item.href}
-                            onClick={() => setActiveMenuId(null)}
-                            className="group p-3.5 rounded-xl border border-transparent hover:border-[#bfdbfe] hover:bg-[#f0f7ff] transition-all flex items-start gap-3.5"
-                          >
-                            <div className="w-9 h-9 rounded-lg bg-[#e8f0f9] text-[#0057b8] group-hover:bg-[#0057b8] group-hover:text-white flex items-center justify-center shrink-0 transition-colors">
-                              <Icon className="w-4 h-4" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between font-semibold text-[#111827] group-hover:text-[#0057b8] text-[15px] transition-colors">
-                                <span>{itemTitle}</span>
-                                <ChevronRight className="w-4 h-4 text-[#9ca3af] group-hover:text-[#0057b8] group-hover:translate-x-0.5 transition-transform" />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {menu.items.map((item) => {
+                          const Icon = item.icon || ChevronRight;
+                          const itemTitle = locale === "bn" ? item.labelBn : item.labelEn;
+                          const itemDesc = locale === "bn" ? item.descriptionBn : item.descriptionEn;
+                          return (
+                            <Link
+                              key={item.href + item.labelEn}
+                              href={item.href}
+                              onClick={() => setActiveMenuId(null)}
+                              className="group p-3 rounded-xl border border-[#e2e8f0] bg-[#f8fafc]/70 hover:bg-[#eff6ff] hover:border-[#93c5fd] hover:shadow-sm transition-all duration-150 flex items-start gap-3"
+                            >
+                              <div className="w-10 h-10 rounded-lg bg-[#e8f0f9] text-[#0057b8] group-hover:bg-[#0057b8] group-hover:text-white flex items-center justify-center shrink-0 transition-colors duration-150 shadow-xs mt-0.5">
+                                <Icon className="w-5 h-5" />
                               </div>
-                              {itemDesc && (
-                                <p className="text-xs text-[#6b7280] group-hover:text-[#4b5563] mt-1 leading-relaxed">
-                                  {itemDesc}
-                                </p>
-                              )}
-                            </div>
-                          </Link>
-                        );
-                      })}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-bold text-[#0f172a] group-hover:text-[#0057b8] text-[15.5px] xl:text-[16.5px] leading-snug transition-colors">
+                                    {itemTitle}
+                                  </span>
+                                  <ChevronRight className="w-4 h-4 text-[#94a3b8] group-hover:text-[#0057b8] group-hover:translate-x-0.5 transition-all shrink-0 ml-1.5" />
+                                </div>
+                                {itemDesc && (
+                                  <p className="text-[13px] text-[#475569] group-hover:text-[#1e293b] mt-0.5 leading-snug line-clamp-1">
+                                    {itemDesc}
+                                  </p>
+                                )}
+                              </div>
+                            </Link>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 
                   {/* Right Column: Featured Teaser Card */}
-                  <div className="col-span-4 pl-4 border-l border-[#e5e7eb]">
-                    <Link
-                      href={menu.teaser.href}
-                      onClick={() => setActiveMenuId(null)}
-                      className="group block rounded-2xl overflow-hidden border border-[#e5e7eb] bg-[#f9fafb] hover:border-[#0057b8] hover:shadow-md transition-all"
-                    >
-                      <div className="aspect-[16/10] overflow-hidden bg-[#012d61]">
-                        <img
-                          src={menu.teaser.imageUrl}
-                          alt={locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
+                  <div className="col-span-4 pl-6 border-l border-[#e2e8f0] flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-[#f1f5f9]">
+                        <span className="text-xs font-extrabold uppercase tracking-widest text-[#64748b]">
+                          {locale === "bn" ? "বিশেষ তথ্য" : "Featured Guide"}
+                        </span>
                       </div>
-                      <div className="p-5 space-y-2">
-                        <h4 className="font-bold text-[#080808] text-base group-hover:text-[#0057b8] transition-colors">
-                          {locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
-                        </h4>
-                        <p className="text-xs text-[#6b7280] leading-relaxed line-clamp-2">
-                          {locale === "bn" ? menu.teaser.subtitleBn : menu.teaser.subtitleEn}
-                        </p>
-                        <div className="pt-2 inline-flex items-center gap-1.5 text-xs font-bold text-[#0057b8]">
-                          <span>{locale === "bn" ? menu.teaser.ctaBn : menu.teaser.ctaEn}</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+
+                      <Link
+                        href={menu.teaser.href}
+                        onClick={() => setActiveMenuId(null)}
+                        className="group block rounded-2xl overflow-hidden border border-[#e2e8f0] bg-gradient-to-b from-[#f8fafc] to-[#f1f5f9] hover:border-[#0057b8] hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="h-36 overflow-hidden bg-[#012d61] relative">
+                          <img
+                            src={menu.teaser.imageUrl}
+                            alt={locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                         </div>
-                      </div>
-                    </Link>
+                        <div className="p-4 space-y-1.5">
+                          <h4 className="font-bold text-[#0f172a] text-[16px] group-hover:text-[#0057b8] transition-colors leading-snug">
+                            {locale === "bn" ? menu.teaser.titleBn : menu.teaser.titleEn}
+                          </h4>
+                          <p className="text-[13px] text-[#475569] leading-snug line-clamp-2">
+                            {locale === "bn" ? menu.teaser.subtitleBn : menu.teaser.subtitleEn}
+                          </p>
+                          <div className="pt-1.5 inline-flex items-center gap-1.5 text-[13px] font-bold text-[#0057b8] group-hover:text-[#004181]">
+                            <span>{locale === "bn" ? menu.teaser.ctaBn : menu.teaser.ctaEn}</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>
