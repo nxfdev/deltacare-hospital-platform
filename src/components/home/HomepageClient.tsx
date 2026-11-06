@@ -262,33 +262,41 @@ export function HomepageClient({
             flow across the 3-column grid with dark bottom gradient overlays
           - Positioned as the final section of the homepage right before the endbar
          ==================================================================== */}
+      {/* ====================================================================
+          SECTION 6: CAMPUSES & LOCATIONS DIRECTORY
+          - 2x3 Grid Composition
+          - Uncurved 4:3 Aspect Ratio Photos (No Text Inside)
+          - Branch Name & Location Placed Directly Under Every Picture
+         ==================================================================== */}
       <section
         aria-labelledby="locations-section-heading"
-        className="bg-white py-20 md:py-28"
+        className="bg-white py-20 md:py-28 border-b border-[#e5e7eb]"
       >
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 xl:gap-10">
-            {/* Grid Item 1: Header & CTA Block (Mirrors inspo.html .cmp-locations-intro) */}
-            <div className="flex flex-col justify-center pr-4 py-6 space-y-6">
-              <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
-                {locale === "bn" ? "সারাদেশে সেবা কেন্দ্র" : "Nationwide Network"}
-              </span>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+            {/* Grid Item 1: Header & CTA Block */}
+            <div className="flex flex-col justify-between p-2 space-y-6">
+              <div className="space-y-4">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
+                  {locale === "bn" ? "সারাদেশে সেবা কেন্দ্র" : "Nationwide Network"}
+                </span>
 
-              <h2
-                id="locations-section-heading"
-                className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
-              >
-                {t.locationsSection.title}
-              </h2>
+                <h2
+                  id="locations-section-heading"
+                  className="mc-serif text-3xl sm:text-4xl lg:text-[42px] leading-tight text-[#080808]"
+                >
+                  {t.locationsSection.title}
+                </h2>
 
-              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
-                {t.locationsSection.description}
-              </p>
+                <p className="text-base sm:text-lg text-[#595959] leading-relaxed">
+                  {t.locationsSection.description}
+                </p>
+              </div>
 
               <div className="pt-2">
                 <Link
                   href="/locations"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-sm hover:shadow-md transition-all group"
                 >
                   <span>{t.locationsSection.cta}</span>
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -296,43 +304,60 @@ export function HomepageClient({
               </div>
             </div>
 
-            {/* Grid Items 2..6: 5 Campus Image Cards with Bottom Gradient Scrim */}
-            {branches.slice(0, 5).map((branch) => (
-              <Link
-                key={branch.id}
-                href={`/locations/${branch.slug}`}
-                className="group relative rounded-3xl overflow-hidden min-h-[340px] md:min-h-[380px] xl:min-h-[420px] flex flex-col justify-end border border-[#d6d6d6] shadow-sm hover:shadow-xl transition-all"
-              >
-                <img
-                  src={branch.imageUrl}
-                  alt={locale === "bn" ? branch.nameBn : branch.nameEn}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                />
-                <div className="absolute inset-0 mc-location-scrim" />
+            {/* Grid Items 2..6: 5 Campus Cards with 4:3 Uncurved Photos & Clean Under-Image Labels */}
+            {branches.slice(0, 5).map((branch) => {
+              const displayName =
+                locale === "bn"
+                  ? branch.nameBn
+                  : branch.id === "branch-chattogram"
+                  ? "DeltaCare in Chattogram"
+                  : branch.id === "branch-sylhet"
+                  ? "DeltaCare in Sylhet"
+                  : branch.nameEn;
 
-                <div className="relative z-10 p-7 xl:p-8 text-white">
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="text-2xl font-bold text-white group-hover:underline">
-                      {locale === "bn" ? branch.nameBn : branch.nameEn}
+              const displayLocation =
+                locale === "bn"
+                  ? branch.cityBn || branch.addressBn
+                  : branch.slug === "dhanmondi-flagship"
+                  ? "Dhanmondi, Dhaka"
+                  : branch.slug === "gulshan-specialized"
+                  ? "Gulshan, Dhaka"
+                  : branch.slug === "uttara-medical-campus"
+                  ? "Uttara, Dhaka"
+                  : branch.slug === "chattogram-regional"
+                  ? "Panchlaish, Chattogram"
+                  : branch.slug === "sylhet-consultation-center"
+                  ? "Subhanighat, Sylhet"
+                  : branch.cityEn || "Bangladesh";
+
+              return (
+                <Link
+                  key={branch.id}
+                  href={`/locations/${branch.slug}`}
+                  className="group block transition-transform text-left"
+                >
+                  {/* 4:3 Uncurved Picture */}
+                  <div className="aspect-[4/3] w-full overflow-hidden bg-[#f3f4f6]">
+                    <img
+                      src={branch.imageUrl}
+                      alt={displayName}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
+                  </div>
+
+                  {/* Branch Name & Location Under Picture */}
+                  <div className="pt-4 pb-2 space-y-1">
+                    <h3 className="text-xl sm:text-2xl font-bold text-[#080808] group-hover:text-[#0057b8] transition-colors flex items-center justify-between gap-2">
+                      <span>{displayName}</span>
+                      <ChevronRight className="w-5 h-5 text-[#0057b8] group-hover:translate-x-1 transition-transform shrink-0" />
                     </h3>
-                    <ChevronRight className="w-5 h-5 text-white shrink-0 group-hover:translate-x-1 transition-transform" />
+                    <p className="text-sm sm:text-base text-[#595959]">
+                      {displayLocation}
+                    </p>
                   </div>
-                  <p className="mt-2 text-sm sm:text-base text-[#e8f0f9] leading-relaxed line-clamp-2">
-                    {locale === "bn" ? branch.subtitleBn : branch.subtitleEn}
-                  </p>
-                  <div className="mt-4 pt-3 border-t border-white/25 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[#c5e2f9]">
-                    <span className="inline-flex items-center gap-1.5 font-medium">
-                      <MapPin className="w-4 h-4" />
-                      {locale === "bn" ? branch.cityBn : branch.cityEn}
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 font-medium">
-                      <Phone className="w-4 h-4" />
-                      {branch.phone}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
