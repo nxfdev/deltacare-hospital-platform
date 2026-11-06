@@ -36,192 +36,204 @@ export default async function DepartmentDetailPage({
   const procedures = getPublishedProcedures(dept.id);
 
   return (
-    <div className="bg-[#f2f2f2] min-h-screen py-12">
-      <div className="mc-container space-y-10">
-        <div>
+    <div className="min-h-screen bg-white">
+      {/* Full-bleed Stretched Blue Hero Header */}
+      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
           <Link
             href="/departments"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#004181] hover:text-[#0057b8] hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#93c5fd] hover:underline mb-2"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>All Clinical Departments / সকল ক্লিনিক্যাল বিভাগ</span>
           </Link>
-        </div>
-
-        <div className="bg-[#012d61] text-white rounded-3xl p-8 md:p-12 space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-xs font-bold uppercase tracking-wider text-[#c5e2f9]">
-            <Stethoscope className="w-3.5 h-3.5" />
-            <span>DeltaCare Clinical Department</span>
-          </span>
-          <h1 className="mc-serif text-3xl md:text-5xl text-white">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
+            DeltaCare Clinical Department
+          </p>
+          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
             {dept.nameEn}
           </h1>
           <p className="text-xl text-[#c5e2f9] font-medium">{dept.nameBn}</p>
-          <p className="text-base text-[#e8f0f9] max-w-3xl leading-relaxed">
+          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
             {dept.overviewEn}
           </p>
-          <p className="text-sm text-[#c5e2f9] max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-[#c5e2f9] max-w-3xl leading-relaxed">
             {dept.overviewBn}
           </p>
-          <div className="pt-2">
+          <div className="pt-3">
             <Link
-              href={`/appointments?departmentId=${encodeURIComponent(dept.id)}`}
-              className="mc-btn-secondary-inverse"
+              href={`/request-appointment?departmentId=${encodeURIComponent(dept.id)}`}
+              className="mc-btn-primary inline-flex items-center gap-2 text-sm !py-3 !px-6"
             >
               <Calendar className="w-4 h-4" />
               <span>Request Appointment in {dept.nameEn}</span>
             </Link>
           </div>
         </div>
+      </div>
 
-        {/* Department Specialists */}
-        <section className="space-y-5">
-          <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
-            Verified Department Specialists ({doctors.length})
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {doctors.map((doc) => (
-              <div
-                key={doc.id}
-                className="bg-white rounded-2xl border border-[#d6d6d6] p-6 flex items-start gap-4 justify-between"
-              >
-                <div className="flex items-start gap-4">
-                  <img
-                    src={doc.imageUrl}
-                    alt={doc.nameEn}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-[#0057b8] bg-[#e8f0f9]"
-                  />
-                  <div className="space-y-1">
-                    <span className="inline-flex items-center gap-1 text-xs font-bold text-[#004181]">
-                      <Award className="w-3.5 h-3.5 text-[#0057b8]" />
-                      BMDC: {doc.bmdcRegistrationNo}
-                    </span>
-                    <h3 className="text-lg font-bold text-[#080808]">
-                      <Link
-                        href={`/doctors/${doc.slug}`}
-                        className="hover:text-[#0057b8] hover:underline"
-                      >
-                        {doc.nameEn}
-                      </Link>
-                    </h3>
-                    <p className="text-xs text-[#004181] font-semibold">
-                      {doc.nameBn} • {doc.designationEn}
-                    </p>
-                    <p className="text-xs text-[#686868]">
-                      {doc.qualificationsEn}
-                    </p>
-                    <p className="text-sm font-bold text-[#080808] pt-1">
-                      Consultation Fee: BDT {doc.consultationFeeBdt}
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  href={`/appointments?doctorId=${encodeURIComponent(doc.id)}`}
-                  className="mc-btn-primary !py-2 !px-4 text-xs shrink-0"
-                >
-                  Book
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Published Diagnostic Services & Transparent Fees */}
-        {services.length > 0 && (
-          <section className="bg-white rounded-2xl border border-[#d6d6d6] p-6 md:p-8 space-y-4">
-            <h2 className="mc-serif text-2xl text-[#080808]">
-              Approved Services & Transparent Fee Schedule
-            </h2>
-            <div className="divide-y divide-[#d6d6d6]">
-              {services.map((srv) => (
+      {/* Main Body - Unboxed Editorial */}
+      <div className="w-full py-12 md:py-16">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-16">
+          {/* Department Specialists */}
+          <section className="space-y-6">
+            <div className="pb-4 border-b-2 border-[#080808]">
+              <h2 className="mc-serif text-3xl sm:text-4xl text-[#080808]">
+                Verified Department Specialists ({doctors.length})
+              </h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+              {doctors.map((doc) => (
                 <div
-                  key={srv.id}
-                  className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                  key={doc.id}
+                  className="pb-8 border-b border-[#e5e7eb] flex items-start justify-between gap-6"
                 >
-                  <div className="space-y-1">
-                    <h3 className="font-bold text-base text-[#080808]">
-                      {srv.nameEn} ({srv.nameBn})
-                    </h3>
-                    <p className="text-sm text-[#424242]">{srv.descriptionEn}</p>
-                    {srv.preparationEn && (
-                      <p className="text-xs text-[#004181]">
-                        <strong>Preparation:</strong> {srv.preparationEn}
+                  <div className="flex items-start gap-5">
+                    <img
+                      src={doc.imageUrl}
+                      alt={doc.nameEn}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-[#0057b8] bg-[#e8f0f9] shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#0057b8]">
+                        <Award className="w-3.5 h-3.5" />
+                        BMDC: {doc.bmdcRegistrationNo}
+                      </span>
+                      <h3 className="text-xl font-bold text-[#080808]">
+                        <Link
+                          href={`/doctors/${doc.slug}`}
+                          className="hover:text-[#0057b8] hover:underline"
+                        >
+                          {doc.nameEn}
+                        </Link>
+                      </h3>
+                      <p className="text-sm text-[#004181] font-semibold">
+                        {doc.nameBn} • {doc.designationEn}
                       </p>
-                    )}
+                      <p className="text-sm text-[#4b5563]">
+                        {doc.qualificationsEn}
+                      </p>
+                      <p className="text-base font-bold text-[#080808] pt-1">
+                        Consultation Fee: BDT {doc.consultationFeeBdt}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <span className="block text-lg font-bold text-[#004181]">
-                      {srv.feeLabelEn}
-                    </span>
-                    <span className="text-xs text-[#686868]">
-                      Effective {srv.effectiveFrom}
-                    </span>
-                  </div>
+                  <Link
+                    href={`/request-appointment?doctorId=${encodeURIComponent(doc.id)}`}
+                    className="mc-btn-primary !py-2 !px-4 text-xs shrink-0"
+                  >
+                    Book
+                  </Link>
                 </div>
               ))}
             </div>
           </section>
-        )}
 
-        {/* Related Conditions & Procedures */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-3">
-            <h2 className="font-bold text-lg text-[#080808] flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#0057b8]" />
-              <span>Conditions Treated in {dept.nameEn}</span>
-            </h2>
-            {conditions.length === 0 ? (
-              <p className="text-sm text-[#686868]">
-                Browse our full A–Z condition directory for patient guides.
-              </p>
-            ) : (
-              <ul className="divide-y divide-[#d6d6d6]">
-                {conditions.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      href={`/diseases-conditions/${c.slug}`}
-                      className="py-3 flex items-center justify-between text-sm font-semibold text-[#004181] hover:text-[#0057b8]"
-                    >
-                      <span>
-                        {c.nameEn} ({c.nameBn})
+          {/* Published Diagnostic Services & Transparent Fees */}
+          {services.length > 0 && (
+            <section className="space-y-6">
+              <div className="pb-4 border-b-2 border-[#080808]">
+                <h2 className="mc-serif text-3xl sm:text-4xl text-[#080808]">
+                  Approved Services &amp; Transparent Fee Schedule
+                </h2>
+              </div>
+              <div className="divide-y divide-[#e5e7eb]">
+                {services.map((srv) => (
+                  <div
+                    key={srv.id}
+                    className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#fbfbfb] px-2 transition-colors"
+                  >
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-lg text-[#080808]">
+                        {srv.nameEn}{" "}
+                        <span className="font-normal text-sm text-[#4b5563]">
+                          ({srv.nameBn})
+                        </span>
+                      </h3>
+                      <p className="text-base text-[#4b5563]">{srv.descriptionEn}</p>
+                      {srv.preparationEn && (
+                        <p className="text-sm text-[#004181]">
+                          <strong>Preparation:</strong> {srv.preparationEn}
+                        </p>
+                      )}
+                    </div>
+                    <div className="sm:text-right shrink-0">
+                      <span className="block text-xl font-bold text-[#004181]">
+                        {srv.feeLabelEn}
                       </span>
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </li>
+                      <span className="text-xs font-semibold text-[#6b7280]">
+                        Effective {srv.effectiveFrom}
+                      </span>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            )}
-          </div>
+              </div>
+            </section>
+          )}
 
-          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-3">
-            <h2 className="font-bold text-lg text-[#080808]">
-              Diagnostic Tests & Procedures
-            </h2>
-            {procedures.length === 0 ? (
-              <p className="text-sm text-[#686868]">
-                Explore all diagnostic preparation guides in Tests & Procedures.
-              </p>
-            ) : (
-              <ul className="divide-y divide-[#d6d6d6]">
-                {procedures.map((p) => (
-                  <li key={p.id}>
-                    <Link
-                      href={`/tests-procedures/${p.slug}`}
-                      className="py-3 flex items-center justify-between text-sm font-semibold text-[#004181] hover:text-[#0057b8]"
-                    >
-                      <span>
-                        {p.nameEn} ({p.nameBn})
-                      </span>
-                      <ChevronRight className="w-4 h-4" />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            )}
+          {/* Related Conditions & Procedures - Unboxed Editorial */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4">
+            <div className="space-y-4">
+              <div className="pb-3 border-b-2 border-[#080808]">
+                <h2 className="font-bold text-xl text-[#080808] flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-[#0057b8]" />
+                  <span>Conditions Treated in {dept.nameEn}</span>
+                </h2>
+              </div>
+              {conditions.length === 0 ? (
+                <p className="text-base text-[#6b7280]">
+                  Browse our full A–Z condition directory for patient guides.
+                </p>
+              ) : (
+                <ul className="divide-y divide-[#e5e7eb]">
+                  {conditions.map((c) => (
+                    <li key={c.id}>
+                      <Link
+                        href={`/diseases-conditions/${c.slug}`}
+                        className="py-3.5 flex items-center justify-between text-base font-semibold text-[#004181] hover:text-[#0057b8]"
+                      >
+                        <span>
+                          {c.nameEn} ({c.nameBn})
+                        </span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="pb-3 border-b-2 border-[#080808]">
+                <h2 className="font-bold text-xl text-[#080808]">
+                  Diagnostic Tests &amp; Procedures
+                </h2>
+              </div>
+              {procedures.length === 0 ? (
+                <p className="text-base text-[#6b7280]">
+                  Explore all diagnostic preparation guides in Tests &amp; Procedures.
+                </p>
+              ) : (
+                <ul className="divide-y divide-[#e5e7eb]">
+                  {procedures.map((p) => (
+                    <li key={p.id}>
+                      <Link
+                        href={`/tests-procedures/${p.slug}`}
+                        className="py-3.5 flex items-center justify-between text-base font-semibold text-[#004181] hover:text-[#0057b8]"
+                      >
+                        <span>
+                          {p.nameEn} ({p.nameBn})
+                        </span>
+                        <ChevronRight className="w-4 h-4" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-

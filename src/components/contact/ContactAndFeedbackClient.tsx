@@ -120,35 +120,48 @@ export function ContactAndFeedbackClient({
   };
 
   return (
-    <div className="bg-[#f2f2f2] min-h-screen py-12">
-      <div className="mc-container space-y-12">
-        <div className="bg-[#012d61] text-white rounded-3xl p-8 md:p-12 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#c5e2f9]">
-            Care at DeltaCare • Patient Communications & Relations
+    <div className="min-h-screen bg-white">
+      {/* Full-bleed Stretched Blue Hero Header */}
+      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
+            Care at DeltaCare • Patient Communications &amp; Relations
           </p>
-          <h1 className="mc-serif text-3xl md:text-5xl text-white">
+          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
             {locale === "bn"
-              ? "যোগাযোগ, কলব্যাক ও গোপনীয় মতামত"
-              : "Contact Us, Callback & Private Feedback"}
+              ? "যোগাযোগ, কলব্যাক ও মতামত"
+              : "Contact Us & Patient Relations"}
           </h1>
-          <p className="text-base text-[#e8f0f9] max-w-3xl">
+          <p className="text-xl text-[#c5e2f9] font-medium">
+            ২৪/৭ পেশেন্ট ডেস্ক ও সরাসরি সহায়তা
+          </p>
+          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
             {locale === "bn"
               ? "আমাদের পেশেন্ট ডেস্কের সাথে যোগাযোগ করুন, কলব্যাক অনুরোধ জমা দিন অথবা অভ্যন্তরীণ পর্যালোচনার জন্য গোপনীয় মতামত/অভিযোগ নিবন্ধন করুন।"
               : "Request a staff callback from our Patient Desk or submit a confidential service feedback/complaint record for internal Patient Relations review."}
           </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-          {/* Left: Callback & Enquiry Form */}
-          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 md:p-8 shadow-sm space-y-5">
-            <div className="flex items-center gap-2.5">
-              <PhoneCall className="w-6 h-6 text-[#0057b8]" />
-              <h2 className="mc-serif text-2xl text-[#080808]">
-                {locale === "bn"
-                  ? "কলব্যাক ও তথ্য অনুসন্ধান ফর্ম"
-                  : "Request a Staff Callback or Enquiry"}
-              </h2>
-            </div>
+      {/* Main Body - Unboxed 2-Column Editorial Forms */}
+      <div className="w-full py-12 md:py-16">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-start">
+            {/* Left: Callback & Enquiry Form */}
+            <div className="space-y-6 pb-12 lg:pb-0 lg:pr-8 lg:border-r border-[#e5e7eb]">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <PhoneCall className="w-6 h-6 text-[#0057b8]" />
+                  <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
+                    {locale === "bn"
+                      ? "কলব্যাক ও তথ্য অনুসন্ধান ফর্ম"
+                      : "Request a Staff Callback"}
+                  </h2>
+                </div>
+                <p className="text-sm text-[#4b5563]">
+                  Leave your contact details and our team will reach out at your preferred time.
+                </p>
+              </div>
 
             {cbResultRef ? (
               <div className="p-5 rounded-xl bg-[#ecfdf5] border border-[#059669] text-[#065f46] space-y-2">
@@ -298,7 +311,7 @@ export function ContactAndFeedbackClient({
           {/* Right: Private Feedback & Complaint Submission (FR-FB-01..06) */}
           <div
             id="feedback-form"
-            className="bg-white rounded-2xl border border-[#d6d6d6] p-6 md:p-8 shadow-sm space-y-5"
+            className="space-y-6"
           >
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2.5">
@@ -498,6 +511,7 @@ export function ContactAndFeedbackClient({
                 </button>
               </form>
             )}
+          </div>
           </div>
         </div>
       </div>

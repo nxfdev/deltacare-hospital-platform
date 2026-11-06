@@ -75,53 +75,59 @@ export function DoctorsDirectoryClient({
   });
 
   return (
-    <div className="bg-[#f2f2f2] min-h-screen py-12">
-      <div className="mc-container space-y-8">
-        {/* Page Header */}
-        <div className="bg-[#012d61] text-white rounded-3xl p-8 md:p-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#c5e2f9]">
+    <div className="min-h-screen bg-white">
+      {/* Full-bleed Stretched Blue Hero Header */}
+      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
             {locale === "bn"
               ? "ডেল্টাকেয়ারে সেবা • অনুমোদিত চিকিৎসক ডিরেক্টরি"
               : "Care at DeltaCare • Verified Specialist Directory"}
           </p>
-          <h1 className="mt-2 mc-serif text-3xl md:text-5xl text-white">
+          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
             {locale === "bn"
               ? "বিশেষজ্ঞ চিকিৎসক খুঁজুন"
               : "Find a Verified Specialist"}
           </h1>
-          <p className="mt-3 text-base text-[#e8f0f9] max-w-3xl">
+          <p className="text-xl text-[#c5e2f9] font-medium">
+            বিএমডিসি-নিবন্ধিত পরামর্শক ও ক্লিনিক্যাল বিশেষজ্ঞ
+          </p>
+          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
             {locale === "bn"
               ? "বিভাগ, স্পেশালিটি, শাখা এবং ভাষা অনুযায়ী বিএমডিসি-নিবন্ধিত বিশেষজ্ঞ চিকিৎসকদের সময়সূচী ও অনুমোদিত কনসালটেশন ফি দেখুন।"
               : "Search and filter BMDC-registered consultants by department, specialty, hospital branch, and consultation language. Every profile displays verified chamber schedules and effective-dated fees."}
           </p>
         </div>
+      </div>
 
-        {/* Filter Bar */}
-        <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 shadow-sm space-y-4">
-          <div className="flex items-center gap-2 text-sm font-bold text-[#004181]">
-            <Filter className="w-4 h-4 text-[#0057b8]" />
-            <span>
-              {locale === "bn"
-                ? "চিকিৎসক অনুসন্ধান ও ফিল্টার"
-                : "Filter Specialists"}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="relative">
-              <Search className="w-4 h-4 text-[#686868] absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={
-                  locale === "bn"
-                    ? "নাম, বিএমডিসি বা রোগ..."
-                    : "Doctor name, BMDC, interest..."
-                }
-                className="w-full h-11 pl-10 pr-3 rounded-lg border border-[#757575] text-sm"
-              />
+      <div className="w-full py-12 md:py-16">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-12">
+          {/* Unboxed Filter Bar */}
+          <div className="pb-8 border-b border-[#e5e7eb] space-y-4">
+            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#0057b8]">
+              <Filter className="w-4 h-4" />
+              <span>
+                {locale === "bn"
+                  ? "চিকিৎসক অনুসন্ধান ও ফিল্টার"
+                  : "Filter Specialists"}
+              </span>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div className="relative">
+                <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder={
+                    locale === "bn"
+                      ? "নাম, বিএমডিসি বা রোগ..."
+                      : "Doctor name, BMDC, interest..."
+                  }
+                  className="w-full h-11 pl-10 pr-3 border border-[#9ca3af] focus:border-[#0057b8] text-sm outline-none"
+                />
+              </div>
 
             <select
               aria-label="Filter by Department"
@@ -214,8 +220,8 @@ export function DoctorsDirectoryClient({
           )}
         </div>
 
-        {/* Specialist Cards Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Specialist Editorial Grid - Unboxed */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
           {filtered.map((doc) => {
             const dept = departments.find((d) => d.id === doc.departmentId);
             const primaryBranchAssign = doc.branches[0];
@@ -227,7 +233,7 @@ export function DoctorsDirectoryClient({
             return (
               <article
                 key={doc.id}
-                className="bg-white rounded-2xl border border-[#d6d6d6] p-6 shadow-sm hover:border-[#0057b8] transition-all flex flex-col justify-between gap-5"
+                className="pb-8 border-b border-[#e5e7eb] flex flex-col justify-between gap-6"
               >
                 <div className="flex flex-col sm:flex-row gap-5 items-start">
                   <img
@@ -237,33 +243,33 @@ export function DoctorsDirectoryClient({
                   />
                   <div className="space-y-2 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#e8f0f9] text-[#004181] text-xs font-bold">
-                        <Award className="w-3.5 h-3.5 text-[#0057b8]" />
+                      <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#0057b8]">
+                        <Award className="w-3.5 h-3.5" />
                         BMDC: {doc.bmdcRegistrationNo}
                       </span>
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#ecfdf5] text-[#065f46] text-xs font-semibold">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#065f46]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         {locale === "bn" ? "যাচাইকৃত" : "Verified"}
                       </span>
                     </div>
 
-                    <h2 className="text-xl font-bold text-[#080808]">
+                    <h2 className="text-2xl font-bold text-[#080808]">
                       <Link
                         href={`/doctors/${doc.slug}`}
-                        className="hover:text-[#0057b8] hover:underline"
+                        className="hover:text-[#0057b8] transition-colors"
                       >
                         {locale === "bn" ? doc.nameBn : doc.nameEn}
                       </Link>
                     </h2>
 
-                    <p className="text-sm font-semibold text-[#004181]">
+                    <p className="text-base font-semibold text-[#004181]">
                       {locale === "bn" ? doc.designationBn : doc.designationEn}{" "}
                       {dept
                         ? `• ${locale === "bn" ? dept.nameBn : dept.nameEn}`
                         : ""}
                     </p>
 
-                    <p className="text-xs text-[#686868]">
+                    <p className="text-sm text-[#6b7280]">
                       {locale === "bn"
                         ? doc.qualificationsBn
                         : doc.qualificationsEn}{" "}
@@ -271,7 +277,7 @@ export function DoctorsDirectoryClient({
                       {locale === "bn" ? "বছরের অভিজ্ঞতা" : "years experience"}
                     </p>
 
-                    <div className="flex flex-wrap gap-3 pt-1 text-xs text-[#424242]">
+                    <div className="flex flex-wrap gap-3 pt-1 text-sm text-[#4b5563]">
                       {branchObj && (
                         <span className="inline-flex items-center gap-1">
                           <Building2 className="w-3.5 h-3.5 text-[#0057b8]" />
@@ -290,9 +296,9 @@ export function DoctorsDirectoryClient({
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-[#d6d6d6] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="text-xs space-y-0.5">
-                    <p className="text-[#686868]">
+                <div className="pt-4 border-t border-[#f3f4f6] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="text-sm space-y-0.5">
+                    <p className="text-[#6b7280]">
                       {scheduleRule
                         ? `${
                             locale === "bn"
@@ -301,17 +307,17 @@ export function DoctorsDirectoryClient({
                           } (${scheduleRule.startTime}–${scheduleRule.endTime})`
                         : "Chamber by appointment"}
                     </p>
-                    <p className="font-bold text-sm text-[#080808]">
+                    <p className="font-bold text-base text-[#080808]">
                       {locale === "bn" ? "কনসালটেশন ফি:" : "Consultation Fee:"}{" "}
                       BDT {doc.consultationFeeBdt}{" "}
-                      <span className="font-normal text-xs text-[#686868]">
+                      <span className="font-normal text-xs text-[#6b7280]">
                         (Follow-up: BDT {doc.followupFeeBdt} • Effective{" "}
                         {doc.feeEffectiveFrom})
                       </span>
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-2.5 shrink-0">
+                  <div className="flex items-center gap-3 shrink-0">
                     <Link
                       href={`/doctors/${doc.slug}`}
                       className="mc-btn-secondary !py-2 !px-4 text-xs"
@@ -319,10 +325,10 @@ export function DoctorsDirectoryClient({
                       {locale === "bn" ? "প্রোফাইল" : "View Profile"}
                     </Link>
                     <Link
-                      href={`/appointments?doctorId=${encodeURIComponent(
+                      href={`/request-appointment?doctorId=${encodeURIComponent(
                         doc.id
                       )}`}
-                      className="mc-btn-primary !py-2 !px-4 text-xs"
+                      className="mc-btn-primary !py-2 !px-4 text-xs inline-flex items-center gap-1.5"
                     >
                       <Calendar className="w-3.5 h-3.5" />
                       <span>
@@ -339,6 +345,7 @@ export function DoctorsDirectoryClient({
         </div>
       </div>
     </div>
+  </div>
   );
 }
 

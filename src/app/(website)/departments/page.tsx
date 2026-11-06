@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ChevronRight, Stethoscope, Calendar, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Stethoscope, Calendar, CheckCircle2 } from "lucide-react";
 import {
   getPublishedDepartments,
   getPublishedDoctors,
@@ -15,112 +15,120 @@ export default function DepartmentsPage() {
   const services = getPublishedServices();
 
   return (
-    <div className="bg-[#f2f2f2] min-h-screen py-12">
-      <div className="mc-container space-y-10">
-        <div className="bg-[#012d61] text-white rounded-3xl p-8 md:p-12">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#c5e2f9]">
-            Care at DeltaCare • Clinical Departments & Programs
+    <div className="min-h-screen bg-white">
+      {/* Full-bleed Stretched Blue Hero Header */}
+      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
+          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
+            Care at DeltaCare • Clinical Departments &amp; Programs
           </p>
-          <h1 className="mt-2 mc-serif text-3xl md:text-5xl text-white">
-            Clinical Departments & Specialties / ক্লিনিক্যাল বিভাগসমূহ
+          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
+            Clinical Departments &amp; Specialties
           </h1>
-          <p className="mt-3 text-base text-[#e8f0f9] max-w-3xl">
+          <p className="text-xl text-[#c5e2f9] font-medium">
+            ক্লিনিক্যাল বিভাগ ও বিশেষায়িত সেন্টার
+          </p>
+          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
             Explore DeltaCare&apos;s multidisciplinary clinical departments,
             verified consultant rosters, and transparent diagnostic service fees.
           </p>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {departments.map((dept) => {
-            const deptDoctors = doctors.filter(
-              (d) => d.departmentId === dept.id
-            );
-            const deptServices = services.filter(
-              (s) => s.departmentId === dept.id
-            );
+      {/* Main Body - Unboxed 2-Column Editorial Layout */}
+      <div className="w-full py-12 md:py-16">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
+            {departments.map((dept) => {
+              const deptDoctors = doctors.filter(
+                (d) => d.departmentId === dept.id
+              );
+              const deptServices = services.filter(
+                (s) => s.departmentId === dept.id
+              );
 
-            return (
-              <article
-                key={dept.id}
-                className="bg-white rounded-2xl border border-[#d6d6d6] p-6 md:p-8 shadow-sm hover:border-[#0057b8] transition-all flex flex-col justify-between gap-6"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e8f0f9] text-[#004181] text-xs font-bold">
-                      <Stethoscope className="w-3.5 h-3.5 text-[#0057b8]" />
-                      <span>{deptDoctors.length} Verified Consultants</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1 text-xs text-[#686868]">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0057b8]" />
-                      Verified {dept.lastVerifiedAt.slice(0, 10)}
-                    </span>
+              return (
+                <div
+                  key={dept.id}
+                  className="pb-10 border-b border-[#e5e7eb] flex flex-col justify-between gap-6"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#0057b8]">
+                        <Stethoscope className="w-4 h-4" />
+                        <span>{deptDoctors.length} Verified Consultants</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1 text-xs text-[#6b7280]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#0057b8]" />
+                        Verified {dept.lastVerifiedAt.slice(0, 10)}
+                      </span>
+                    </div>
+
+                    <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
+                      <Link
+                        href={`/departments/${dept.slug}`}
+                        className="hover:text-[#0057b8] transition-colors"
+                      >
+                        {dept.nameEn}
+                      </Link>
+                    </h2>
+                    <p className="text-base font-semibold text-[#004181]">
+                      {dept.nameBn}
+                    </p>
+
+                    <p className="text-base text-[#4b5563] leading-relaxed">
+                      {dept.shortDescriptionEn}
+                    </p>
+                    <p className="text-sm text-[#6b7280] leading-relaxed">
+                      {dept.shortDescriptionBn}
+                    </p>
+
+                    {deptServices.length > 0 && (
+                      <div className="pt-3">
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mb-2">
+                          Published Diagnostic &amp; Clinical Services:
+                        </p>
+                        <div className="divide-y divide-[#e5e7eb] border-t border-b border-[#e5e7eb]">
+                          {deptServices.map((srv) => (
+                            <div
+                              key={srv.id}
+                              className="flex items-center justify-between py-2 text-sm text-[#080808]"
+                            >
+                              <span>{srv.nameEn}</span>
+                              <span className="font-bold text-[#004181]">
+                                BDT {srv.feeBdt}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <h2 className="mc-serif text-2xl text-[#080808]">
+                  <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
                     <Link
                       href={`/departments/${dept.slug}`}
-                      className="hover:text-[#0057b8] hover:underline"
+                      className="inline-flex items-center gap-1 text-sm font-bold text-[#004181] hover:text-[#0057b8] hover:underline"
                     >
-                      {dept.nameEn}
+                      <span>Department Overview &amp; Doctors</span>
+                      <ArrowRight className="w-4 h-4" />
                     </Link>
-                  </h2>
-                  <p className="text-sm font-semibold text-[#004181]">
-                    {dept.nameBn}
-                  </p>
-
-                  <p className="text-sm text-[#424242] leading-relaxed">
-                    {dept.shortDescriptionEn}
-                  </p>
-                  <p className="text-xs text-[#686868] leading-relaxed">
-                    {dept.shortDescriptionBn}
-                  </p>
-
-                  {deptServices.length > 0 && (
-                    <div className="pt-2">
-                      <p className="text-xs font-bold uppercase text-[#686868] mb-1.5">
-                        Published Diagnostic & Clinical Services:
-                      </p>
-                      <ul className="space-y-1 text-xs text-[#080808]">
-                        {deptServices.map((srv) => (
-                          <li
-                            key={srv.id}
-                            className="flex items-center justify-between py-1 border-b border-[#f2f2f2]"
-                          >
-                            <span>{srv.nameEn}</span>
-                            <span className="font-bold text-[#004181]">
-                              BDT {srv.feeBdt}
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
+                    <Link
+                      href={`/request-appointment?departmentId=${encodeURIComponent(
+                        dept.id
+                      )}`}
+                      className="mc-btn-primary !py-2 !px-4 text-xs inline-flex items-center gap-1.5"
+                    >
+                      <Calendar className="w-3.5 h-3.5" />
+                      <span>Request Appointment</span>
+                    </Link>
+                  </div>
                 </div>
-
-                <div className="pt-4 border-t border-[#d6d6d6] flex flex-wrap items-center justify-between gap-3">
-                  <Link
-                    href={`/departments/${dept.slug}`}
-                    className="inline-flex items-center gap-1 text-sm font-semibold text-[#004181] hover:text-[#0057b8] underline"
-                  >
-                    <span>Department Overview & Doctors</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </Link>
-                  <Link
-                    href={`/appointments?departmentId=${encodeURIComponent(
-                      dept.id
-                    )}`}
-                    className="mc-btn-primary !py-2 !px-4 text-xs"
-                  >
-                    <Calendar className="w-3.5 h-3.5" />
-                    <span>Request Appointment</span>
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
