@@ -48,6 +48,7 @@ import {
   NotificationRecord,
   OperationalInsight,
   PublicationState,
+  RoleCode,
   ScheduleException,
   ScheduleRule,
   Specialty,
@@ -146,6 +147,7 @@ interface HospitalAdminViewProps {
   }) => Promise<void>;
   activeTab?: HospitalAdminTab;
   onTabChange?: (tab: HospitalAdminTab) => void;
+  userRole?: RoleCode;
 }
 
 export function HospitalAdminView({
@@ -170,14 +172,37 @@ export function HospitalAdminView({
   onCreateDepartment,
   activeTab: controlledTab,
   onTabChange,
+  userRole = "HOSPITAL_ADMIN",
 }: HospitalAdminViewProps) {
-  const [internalTab, setInternalTab] = useState<HospitalAdminTab>("overview");
+  const defaultTabForRole: HospitalAdminTab =
+    userRole === "RECEPTIONIST"
+      ? "front-desk"
+      : userRole === "CONTENT_EDITOR"
+        ? "facebook-studio"
+        : "analytics";
+
+  const [internalTab, setInternalTab] = useState<HospitalAdminTab>(defaultTabForRole);
   const [promotedDoctorId, setPromotedDoctorId] = useState<string | null>(null);
   const activeTab = controlledTab || internalTab;
   const setTab = (tab: HospitalAdminTab) => {
     if (onTabChange) onTabChange(tab);
     setInternalTab(tab);
   };
+
+  const canViewAnalytics =
+    userRole === "HOSPITAL_ADMIN" || userRole === "DEPT_MANAGER" || userRole === "SUPER_ADMIN";
+  const canViewFrontDesk =
+    userRole === "HOSPITAL_ADMIN" ||
+    userRole === "DEPT_MANAGER" ||
+    userRole === "SUPER_ADMIN" ||
+    userRole === "RECEPTIONIST";
+  const canViewCmsAndFacebook =
+    userRole === "HOSPITAL_ADMIN" ||
+    userRole === "DEPT_MANAGER" ||
+    userRole === "SUPER_ADMIN" ||
+    userRole === "CONTENT_EDITOR";
+  const canViewStaffAndAudit =
+    userRole === "HOSPITAL_ADMIN" || userRole === "DEPT_MANAGER" || userRole === "SUPER_ADMIN";
 
   // Specialist Modals State
   const [specialistModalOpen, setSpecialistModalOpen] = useState(false);
@@ -334,86 +359,117 @@ export function HospitalAdminView({
   return (
     <div className="space-y-6">
       {/* ====================================================================
-          UNIFIED HOSPITAL OPERATIONS TABS (PHASE 3 SPECIFICATION)
+          UNIFIED HOSPITAL OPERATIONS TABS (DECLUTTERED 7-TAB NAVIGATION)
          ==================================================================== */}
       <div className="flex items-center gap-1.5 border-b border-[#e5e7eb] pb-3 overflow-x-auto bg-white p-2 border border-[#e5e7eb]">
-        <button
-          type="button"
-          onClick={() => setTab("analytics")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "analytics" || activeTab === "overview" || activeTab === "reports"
-              ? "bg-[#012d61] text-white shadow-xs"
-              : "text-[#444444] hover:bg-[#f0f4f8]"
-          }`}
-        >
-          <BarChart3 className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>1. Executive Analytics</span>
-        </button>
+        {canViewAnalytics && (
+          <button
+            type="button"
+            onClick={() => setTab("analytics")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "analytics" || activeTab === "overview" || activeTab === "reports"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <BarChart3 className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Executive Analytics</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setTab("front-desk")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "front-desk" || activeTab === "appointments" || activeTab === "schedules" || activeTab === "calendar"
-              ? "bg-[#012d61] text-white shadow-xs"
-              : "text-[#444444] hover:bg-[#f0f4f8]"
-          }`}
-        >
-          <Calendar className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>2. Front Desk &amp; Schedule</span>
-        </button>
+        {canViewFrontDesk && (
+          <button
+            type="button"
+            onClick={() => setTab("front-desk")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "front-desk" ||
+              activeTab === "appointments" ||
+              activeTab === "schedules" ||
+              activeTab === "calendar"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <Calendar className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Front Desk &amp; Doctor Schedules</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setTab("facebook-studio")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "facebook-studio"
-              ? "bg-[#012d61] text-white shadow-xs"
-              : "text-[#444444] hover:bg-[#f0f4f8]"
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>3. Daily Facebook Studio</span>
-        </button>
+        {canViewCmsAndFacebook && (
+          <button
+            type="button"
+            onClick={() => setTab("facebook-studio")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "facebook-studio"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Daily Facebook Studio</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setTab("doctors-cms")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "doctors-cms" || activeTab === "specialists" || activeTab === "departments"
-              ? "bg-[#012d61] text-white shadow-xs"
-              : "text-[#444444] hover:bg-[#f0f4f8]"
-          }`}
-        >
-          <Stethoscope className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>4. Doctors &amp; Departments CMS</span>
-        </button>
+        {canViewCmsAndFacebook && (
+          <button
+            type="button"
+            onClick={() => setTab("doctors-cms")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "doctors-cms" || activeTab === "specialists" || activeTab === "departments"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <Stethoscope className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Doctors &amp; Departments CMS</span>
+          </button>
+        )}
 
-        <button
-          type="button"
-          onClick={() => setTab("notices-cms")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
-            activeTab === "notices-cms"
-              ? "bg-[#012d61] text-white shadow-xs"
-              : "text-[#444444] hover:bg-[#f0f4f8]"
-          }`}
-        >
-          <FileText className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>5. Website Notices CMS</span>
-        </button>
+        {canViewCmsAndFacebook && (
+          <button
+            type="button"
+            onClick={() => setTab("notices-cms")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "notices-cms"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Website Notices CMS</span>
+          </button>
+        )}
 
         <button
           type="button"
           onClick={() => setTab("feedback-moderation")}
-          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
             activeTab === "feedback-moderation"
               ? "bg-[#012d61] text-white shadow-xs"
               : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
           <MessageSquare className="w-3.5 h-3.5 text-[#82b4ff]" />
-          <span>6. Patient Feedback Moderation</span>
+          <span>Patient Feedback &amp; Enquiries</span>
         </button>
+
+        {canViewStaffAndAudit && (
+          <button
+            type="button"
+            onClick={() => setTab("staff")}
+            className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
+              activeTab === "staff" ||
+              activeTab === "roles" ||
+              activeTab === "audit" ||
+              activeTab === "approvals"
+                ? "bg-[#012d61] text-white shadow-xs"
+                : "text-[#444444] hover:bg-[#f0f4f8]"
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-[#82b4ff]" />
+            <span>Staff, Roles &amp; Audit Log</span>
+          </button>
+        )}
       </div>
 
 
@@ -843,7 +899,7 @@ export function HospitalAdminView({
       {/* ====================================================================
           TAB 6: DEPARTMENTS (Section 5 Specification)
          ==================================================================== */}
-      {activeTab === "departments" && (
+      {(activeTab === "doctors-cms" || activeTab === "departments") && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
@@ -1112,7 +1168,7 @@ export function HospitalAdminView({
         </div>
       )}
 
-      {activeTab === "roles" && (
+      {(activeTab === "staff" || activeTab === "roles") && (
         <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
           <h3 className="mc-serif text-xl text-[#080808]">Hospital Role &amp; Permission Boundaries</h3>
           <div className="space-y-3 text-xs">
@@ -1216,7 +1272,7 @@ export function HospitalAdminView({
         </div>
       )}
 
-      {activeTab === "approvals" && (
+      {(activeTab === "staff" || activeTab === "approvals") && (
         <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
           <h3 className="mc-serif text-xl text-[#080808]">CMS Editorial &amp; Schedule Approval Queue</h3>
           <p className="text-xs text-[#686868]">
@@ -1270,7 +1326,7 @@ export function HospitalAdminView({
         </div>
       )}
 
-      {activeTab === "audit" && (
+      {(activeTab === "staff" || activeTab === "audit") && (
         <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
           <h3 className="mc-serif text-xl text-[#080808]">Hospital Facility Audit Log</h3>
           <div className="overflow-x-auto">

@@ -98,6 +98,26 @@ export async function getCurrentSession(): Promise<SessionPayload | null> {
   }
 }
 
+export async function resolveStaffSession(request?: Request): Promise<SessionPayload | null> {
+  const cookieSession = await getCurrentSession();
+  if (cookieSession) return cookieSession;
+
+  if (request) {
+    const authHeader = request.headers.get("authorization");
+    if (authHeader && authHeader.toLowerCase().startsWith("bearer ")) {
+      const token = authHeader.slice(7).trim();
+      const verified = verifySessionToken(token);
+      if (verified) return verified;
+    }
+    const staffToken = request.headers.get("x-staff-token");
+    if (staffToken) {
+      const verified = verifySessionToken(staffToken.trim());
+      if (verified) return verified;
+    }
+  }
+  return null;
+}
+
 export function hasRolePermission(
   session: SessionPayload | null,
   allowedRoles: RoleCode[]

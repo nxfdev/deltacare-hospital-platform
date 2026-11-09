@@ -3,7 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, AlertCircle, ShieldCheck } from "lucide-react";
+import {
+  Lock,
+  AlertCircle,
+  ShieldCheck,
+  BarChart3,
+  Calendar,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { STAFF_ROLES } from "@/lib/auth/roles";
 
 export default function LoginPage() {
@@ -13,15 +21,14 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const performLogin = async (loginEmail: string, loginPassword: string) => {
     setErrorMsg(null);
     setLoading(true);
     try {
       const res = await fetch("/api/v1/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
       const data = await res.json();
       if (!res.ok || !data.ok) {
@@ -44,6 +51,17 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await performLogin(email, password);
+  };
+
+  const handleQuickDemoSignIn = async (demoEmail: string, demoPassword: string) => {
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+    await performLogin(demoEmail, demoPassword);
   };
 
   return (
@@ -127,6 +145,86 @@ export default function LoginPage() {
               <span>{loading ? "Signing in..." : "Sign In"}</span>
             </button>
           </form>
+
+          {/* Demo Staff Quick Access Panel */}
+          <div className="pt-5 border-t border-[#e5e7eb] space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#012d61]">
+                Demo Staff Quick Access (1-Click Sign-In)
+              </span>
+              <span className="text-[10px] font-semibold text-[#0057b8] bg-[#e8f0f9] px-2 py-0.5">
+                Role Preview
+              </span>
+            </div>
+
+            <div className="space-y-2">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  void handleQuickDemoSignIn("admin@deltacare.bd", "DeltaCare#2026")
+                }
+                className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#0057b8] bg-slate-50/70 hover:bg-[#f0f7ff] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
+              >
+                <div className="flex items-start gap-2.5">
+                  <BarChart3 className="w-4 h-4 text-[#0057b8] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-[#012d61] group-hover:text-[#0057b8]">
+                      Hospital Admin
+                    </p>
+                    <p className="text-[11px] text-[#4a4a4a] leading-snug mt-0.5">
+                      Analytics, All Schedules, Facebook Studio, CMS &amp; Staff
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#0057b8] shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  void handleQuickDemoSignIn("frontdesk@deltacare.bd", "DeltaCare#2026")
+                }
+                className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#059669] bg-slate-50/70 hover:bg-[#ecfdf5] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
+              >
+                <div className="flex items-start gap-2.5">
+                  <Calendar className="w-4 h-4 text-[#059669] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-[#065f46] group-hover:text-[#059669]">
+                      Front Desk / Doctor&apos;s Assistant
+                    </p>
+                    <p className="text-[11px] text-[#4a4a4a] leading-snug mt-0.5">
+                      14-Day Slot Grid, Extra Chambers, Queue &amp; 10666 Booking
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#059669] shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() =>
+                  void handleQuickDemoSignIn("editor@deltacare.bd", "DeltaCare#2026")
+                }
+                className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#d97706] bg-slate-50/70 hover:bg-[#fffbeb] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
+              >
+                <div className="flex items-start gap-2.5">
+                  <Sparkles className="w-4 h-4 text-[#d97706] shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-[#92400e] group-hover:text-[#d97706]">
+                      CMS &amp; Marketing Editor
+                    </p>
+                    <p className="text-[11px] text-[#4a4a4a] leading-snug mt-0.5">
+                      Daily Facebook Spotlight Cards, Doctors &amp; Notices CMS
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-[#d97706] shrink-0 transition-transform group-hover:translate-x-0.5" />
+              </button>
+            </div>
+          </div>
 
           <div className="pt-4 border-t border-[#d6d6d6] flex items-start gap-2.5 text-xs text-[#4a4a4a]">
             <ShieldCheck className="w-4 h-4 text-[#0057b8] shrink-0 mt-0.5" />

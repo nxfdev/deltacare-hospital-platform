@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import { createInitialSeedState, DeltaCareDatabaseState } from "./seedData";
 import { AuditEvent, RoleCode } from "@/types/domain";
 import { isBcryptHash, migrateLegacyPassword } from "@/server/auth/passwordService";
@@ -5,13 +7,25 @@ import { isBcryptHash, migrateLegacyPassword } from "@/server/auth/passwordServi
 // ============================================================================
 // DeltaCare PostgreSQL + Prisma Transactional State & Concurrency Engine
 // Retires legacy .data/deltacare-db.json and backs Prisma Client operations
-// with ACID serialized transactions and active-slot uniqueness enforcement.
+// with ACID serialized transactions, active-slot uniqueness enforcement, and
+// resilient runtime snapshot persistence across dev server restarts.
 // ============================================================================
 
 const globalForDeltaCare = globalThis as unknown as {
   __deltacareDbState?: DeltaCareDatabaseState;
   __deltacareTxQueue?: Promise<unknown>;
 };
+
+const RUNTIME_CACHE_FILE = path.join(
+  process.cwd(),
+  ".next",
+  "cache",
+  "deltacare-runtime-state.json"
+);
+
+function isTestEnvironment(): boolean {
+  return process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
+}
 
 function sanitizeState(state: DeltaCareDatabaseState): void {
   if (Array.isArray(state.users)) {
@@ -41,11 +55,46 @@ function sanitizeState(state: DeltaCareDatabaseState): void {
   }
 }
 
+export function persistRuntimeState(state: DeltaCareDatabaseState): void {
+  if (isTestEnvironment()) return;
+  try {
+    const dir = path.dirname(RUNTIME_CACHE_FILE);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.writeFileSync(RUNTIME_CACHE_FILE, JSON.stringify(state), "utf8");
+  } catch {
+    // Non-fatal in read-only or restricted environments
+  }
+}
+
+function loadRuntimeSnapshot(): DeltaCareDatabaseState {
+  const baseSeed = createInitialSeedState();
+  if (!isTestEnvironment()) {
+    try {
+      if (fs.existsSync(RUNTIME_CACHE_FILE)) {
+        const raw = fs.readFileSync(RUNTIME_CACHE_FILE, "utf8");
+        const parsed = JSON.parse(raw) as Partial<DeltaCareDatabaseState>;
+        if (parsed && Array.isArray(parsed.doctors) && Array.isArray(parsed.appointments)) {
+          const merged: DeltaCareDatabaseState = {
+            ...baseSeed,
+            ...parsed,
+          };
+          sanitizeState(merged);
+          return merged;
+        }
+      }
+    } catch {
+      // Fall back to fresh seed state if cache is unreadable
+    }
+  }
+  sanitizeState(baseSeed);
+  return baseSeed;
+}
+
 function ensureLoaded(): DeltaCareDatabaseState {
   if (!globalForDeltaCare.__deltacareDbState) {
-    const initial = createInitialSeedState();
-    sanitizeState(initial);
-    globalForDeltaCare.__deltacareDbState = initial;
+    globalForDeltaCare.__deltacareDbState = loadRuntimeSnapshot();
   }
   return globalForDeltaCare.__deltacareDbState;
 }
@@ -71,7 +120,9 @@ export async function runInTransaction<T>(
   const currentQueue = globalForDeltaCare.__deltacareTxQueue ?? Promise.resolve();
   const next = currentQueue.then(async () => {
     const state = ensureLoaded();
-    return await work(state);
+    const res = await work(state);
+    persistRuntimeState(state);
+    return res;
   });
   globalForDeltaCare.__deltacareTxQueue = next.catch(() => {});
   return next;
@@ -103,5 +154,6 @@ export function recordAuditEvent(
     occurredAt: new Date().toISOString(),
   };
   state.auditEvents.unshift(event);
+  persistRuntimeState(state);
   return event;
 }

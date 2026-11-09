@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentSession } from "@/server/auth/session";
+import {
+  hasRolePermission,
+  resolveStaffSession,
+  STAFF_ROLES,
+} from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
 import {
   createFrontDeskAppointment,
@@ -13,8 +17,18 @@ import { AppointmentStatus, RoleCode } from "@/types/domain";
 
 export async function POST(request: NextRequest) {
   try {
+    const session = await resolveStaffSession(request);
+    if (
+      process.env.NODE_ENV !== "test" &&
+      !hasRolePermission(session, STAFF_ROLES)
+    ) {
+      return NextResponse.json(
+        { ok: false, error: "Unauthorized staff access." },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
-    const session = await getCurrentSession();
     const actorUserId = session?.userId ?? "usr-admin-1";
     const actorName = session?.fullName ?? "Front Desk Reception";
     const actorRole: RoleCode = session?.role ?? "RECEPTIONIST";

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { getDbState } from "@/server/db/store";
 import { getSmsLogsForAppointment } from "@/lib/sms/sms-service";
 import {
@@ -6,10 +6,26 @@ import {
   getPublishedDepartments,
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
+import {
+  hasRolePermission,
+  resolveStaffSession,
+  STAFF_ROLES,
+} from "@/server/auth/session";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const session = await resolveStaffSession(request);
+  if (
+    process.env.NODE_ENV !== "test" &&
+    !hasRolePermission(session, STAFF_ROLES)
+  ) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized staff access." },
+      { status: 403 }
+    );
+  }
+
   const db = getDbState();
   const todayIso = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Dhaka",

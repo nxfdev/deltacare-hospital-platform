@@ -4,45 +4,18 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Shield,
-  Building2,
   Calendar,
   BookOpen,
-  CheckSquare,
-  Bot,
   MessageSquare,
   BarChart3,
-  Users,
   LogOut,
   ExternalLink,
   Menu,
   X,
   Stethoscope,
-  Activity,
   CheckCircle2,
-  AlertCircle,
-  Sliders,
-  Share2,
-  History,
   Sparkles,
-  CreditCard,
-  Radio,
-  Server,
-  Zap,
-  Lock,
-  HelpCircle,
-  Plus,
-  CalendarDays,
-  DollarSign,
-  Bell,
-  User,
-  UserX,
-  Layers,
-  MapPin,
   ShieldCheck,
-  Clock,
-  UserCheck,
-  RefreshCw,
 } from "lucide-react";
 import {
   AIUpdateDraft,
@@ -57,7 +30,6 @@ import {
   FeedbackRecord,
   HospitalConfiguration,
   NotificationRecord,
-  PublicationState,
   RoleCode,
   Specialty,
   UserAccount,
@@ -65,10 +37,7 @@ import {
   OperationalInsight,
 } from "@/types/domain";
 import { OperationalAnalyticsReport } from "@/server/services/communicationAndAnalyticsService";
-import { SuperAdminView } from "./SuperAdminView";
-import { HospitalAdminView } from "./HospitalAdminView";
-import { ReceptionistView } from "./ReceptionistView";
-import { ContentEditorView } from "./ContentEditorView";
+import { HospitalAdminView, HospitalAdminTab } from "./HospitalAdminView";
 
 interface AdminConsoleClientProps {
   currentUser: {
@@ -91,11 +60,42 @@ interface AdminConsoleClientProps {
   initialCallbacks: ContactRequest[];
   initialNotifications: NotificationRecord[];
   initialAnalytics: OperationalAnalyticsReport;
-  initialUsers: Array<Pick<UserAccount, "id" | "email" | "fullName" | "phone" | "role" | "scopedBranchId" | "isActive" | "updatedAt">>;
+  initialUsers: Array<
+    Pick<
+      UserAccount,
+      | "id"
+      | "email"
+      | "fullName"
+      | "phone"
+      | "role"
+      | "scopedBranchId"
+      | "isActive"
+      | "updatedAt"
+    >
+  >;
   initialAuditEvents: AuditEvent[];
   initialFacebookBatches?: FacebookPostBatch[];
   initialInsights?: OperationalInsight[];
 }
+
+const LEGACY_TAB_MAP: Record<string, HospitalAdminTab> = {
+  overview: "analytics",
+  reports: "analytics",
+  today: "front-desk",
+  requests: "front-desk",
+  appointments: "front-desk",
+  schedules: "front-desk",
+  calendar: "front-desk",
+  generator: "facebook-studio",
+  content: "notices-cms",
+  profiles: "doctors-cms",
+  specialists: "doctors-cms",
+  departments: "doctors-cms",
+  users: "staff",
+  roles: "staff",
+  audit: "staff",
+  approvals: "staff",
+};
 
 export function AdminConsoleClient({
   currentUser,
@@ -105,15 +105,12 @@ export function AdminConsoleClient({
   initialDepartments,
   initialBranches,
   initialSpecialties,
-  initialConditions,
   initialApprovals,
-  initialAIUpdates,
   initialFeedbacks,
   initialNotifications = [],
   initialAnalytics,
   initialUsers,
   initialAuditEvents,
-  initialFacebookBatches = [],
   initialInsights = [],
 }: AdminConsoleClientProps) {
   const router = useRouter();
@@ -122,30 +119,34 @@ export function AdminConsoleClient({
   const [appointments, setAppointments] = useState<Appointment[]>(initialAppointments);
   const [doctors, setDoctors] = useState<Doctor[]>(initialDoctors);
   const [departments, setDepartments] = useState<Department[]>(initialDepartments);
-  const [conditions, setConditions] = useState<DiseaseCondition[]>(initialConditions);
   const [approvals, setApprovals] = useState<ApprovalRequest[]>(initialApprovals);
-  const [aiUpdates, setAiUpdates] = useState<AIUpdateDraft[]>(initialAIUpdates);
   const [feedbacks, setFeedbacks] = useState<FeedbackRecord[]>(initialFeedbacks);
-  const [users, setUsers] = useState(initialUsers);
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>(initialAuditEvents);
+  const [users] = useState(initialUsers);
+  const [auditEvents] = useState<AuditEvent[]>(initialAuditEvents);
 
   // UI State
   const [statusBanner, setStatusBanner] = useState<string | null>(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Navigation & Active Tab State with History Support
-  const defaultTab =
+  // Role-based default tab
+  const defaultTab: HospitalAdminTab =
     currentUser.role === "RECEPTIONIST"
-      ? "today"
+      ? "front-desk"
       : currentUser.role === "CONTENT_EDITOR"
-      ? "content"
-      : "analytics";
+        ? "facebook-studio"
+        : "analytics";
 
-  const [activeTab, setActiveTab] = useState<string>(() => {
+  const normalizeTab = (raw: string | null): HospitalAdminTab => {
+    if (!raw) return defaultTab;
+    if (LEGACY_TAB_MAP[raw]) return LEGACY_TAB_MAP[raw];
+    return raw as HospitalAdminTab;
+  };
+
+  const [activeTab, setActiveTab] = useState<HospitalAdminTab>(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
-      if (tabParam) return tabParam;
+      if (tabParam) return normalizeTab(tabParam);
     }
     return defaultTab;
   });
@@ -154,13 +155,13 @@ export function AdminConsoleClient({
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get("tab");
-      setActiveTab(tabParam || defaultTab);
+      setActiveTab(normalizeTab(tabParam));
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, [defaultTab]);
 
-  const handleTabChange = (newTab: string) => {
+  const handleTabChange = (newTab: HospitalAdminTab) => {
     setActiveTab(newTab);
     setMobileSidebarOpen(false);
     if (typeof window !== "undefined") {
@@ -184,27 +185,31 @@ export function AdminConsoleClient({
   // ACTION HANDLERS
   // ==========================================================================
 
-  // 1. Save Doctor (Create or Update)
   const handleSaveDoctor = (savedDoctor: Doctor, isNew: boolean) => {
     if (isNew) {
       setDoctors((prev) => [savedDoctor, ...prev]);
-      setStatusBanner(`Successfully created specialist record: ${savedDoctor.nameEn} (BMDC: ${savedDoctor.bmdcRegistrationNo})`);
+      setStatusBanner(
+        `Successfully created specialist record: ${savedDoctor.nameEn} (BMDC: ${savedDoctor.bmdcRegistrationNo})`
+      );
     } else {
       setDoctors((prev) => prev.map((d) => (d.id === savedDoctor.id ? savedDoctor : d)));
-      setStatusBanner(`Updated specialist record: ${savedDoctor.nameEn} (State: ${savedDoctor.publicationState})`);
+      setStatusBanner(
+        `Updated specialist record: ${savedDoctor.nameEn} (State: ${savedDoctor.publicationState})`
+      );
     }
     setTimeout(() => setStatusBanner(null), 6000);
   };
 
-  // 2. Doctor Status Toggle (Deactivate / Activate)
   const handleUpdateDoctorStatus = (updatedDoctor: Doctor) => {
     setDoctors((prev) => prev.map((d) => (d.id === updatedDoctor.id ? updatedDoctor : d)));
-    const actionWord = updatedDoctor.publicationState === "ARCHIVED" ? "Deactivated" : "Activated";
-    setStatusBanner(`${actionWord} specialist ${updatedDoctor.nameEn}. Historical records preserved.`);
+    const actionWord =
+      updatedDoctor.publicationState === "ARCHIVED" ? "Deactivated" : "Activated";
+    setStatusBanner(
+      `${actionWord} specialist ${updatedDoctor.nameEn}. Historical records preserved.`
+    );
     setTimeout(() => setStatusBanner(null), 6000);
   };
 
-  // 3. Appointment Transition
   const handleTransitionAppointment = async (
     aptId: string,
     toStatus: Appointment["status"],
@@ -237,7 +242,6 @@ export function AdminConsoleClient({
     }
   };
 
-  // 4. Review Approval Request
   const handleReviewApproval = async (
     approvalId: string,
     decision: "APPROVED_AND_PUBLISHED" | "REJECTED",
@@ -268,7 +272,6 @@ export function AdminConsoleClient({
     }
   };
 
-  // 5. Update Feedback
   const handleUpdateFeedback = async (
     feedbackId: string,
     status: FeedbackRecord["status"],
@@ -297,36 +300,6 @@ export function AdminConsoleClient({
     }
   };
 
-  // 6. Register Walk-In Feedback
-  const handleRegisterFeedback = async (data: {
-    patientName: string;
-    patientPhone: string;
-    subject: string;
-    message: string;
-    type: "FEEDBACK" | "COMPLAINT" | "SUGGESTION";
-  }) => {
-    try {
-      const res = await fetch("/api/v1/public/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          branchId: currentUser.scopedBranchId || initialBranches[0]?.id || "branch-dhanmondi",
-          consentAccepted: true,
-        }),
-      });
-      const resData = await res.json();
-      if (res.ok && resData.ok) {
-        setFeedbacks((prev) => [resData.feedback, ...prev]);
-        setStatusBanner("Walk-in feedback registered and forwarded to Hospital Admin.");
-        setTimeout(() => setStatusBanner(null), 5000);
-      }
-    } catch {
-      setStatusBanner("Error registering walk-in feedback.");
-    }
-  };
-
-  // 7. Create Department
   const handleCreateDepartment = async (deptData: {
     nameEn: string;
     nameBn: string;
@@ -347,7 +320,9 @@ export function AdminConsoleClient({
       const data = await res.json();
       if (res.ok && data.ok) {
         setDepartments((prev) => [...prev, data.department]);
-        setStatusBanner(`Department ${data.department.nameEn} created successfully.`);
+        setStatusBanner(
+          `Department ${data.department.nameEn} created successfully.`
+        );
         setTimeout(() => setStatusBanner(null), 5000);
       }
     } catch {
@@ -355,171 +330,62 @@ export function AdminConsoleClient({
     }
   };
 
-  // 8. Save Disease Condition (CMS)
-  const handleSaveCondition = async (condition: Partial<DiseaseCondition>) => {
-    try {
-      const res = await fetch("/api/v1/admin/content", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(condition),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        if (condition.id) {
-          setConditions((prev) =>
-            prev.map((c) => (c.id === condition.id ? data.condition : c))
-          );
-        } else {
-          setConditions((prev) => [data.condition, ...prev]);
-        }
-        setStatusBanner(`Saved condition article: ${data.condition.nameEn}.`);
-        setTimeout(() => setStatusBanner(null), 5000);
-      }
-    } catch {
-      setStatusBanner("Error saving disease article.");
-    }
-  };
-
-  // 9. Save Doctor Profile Copy (CMS)
-  const handleSaveDoctorProfileCopy = async (
-    doctorId: string,
-    bioEn: string,
-    bioBn: string
-  ) => {
-    const doc = doctors.find((d) => d.id === doctorId);
-    if (!doc) return;
-    try {
-      const res = await fetch("/api/v1/admin/doctors", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: doc.id,
-          departmentId: doc.departmentId,
-          specialtyIds: doc.specialtyIds,
-          slug: doc.slug,
-          nameEn: doc.nameEn,
-          nameBn: doc.nameBn,
-          designationEn: doc.designationEn,
-          designationBn: doc.designationBn,
-          qualificationsEn: doc.qualificationsEn,
-          qualificationsBn: doc.qualificationsBn,
-          experienceYears: doc.experienceYears,
-          bmdcRegistrationNo: doc.bmdcRegistrationNo,
-          bioEn,
-          bioBn,
-          consultationFeeBdt: doc.consultationFeeBdt,
-          followupFeeBdt: doc.followupFeeBdt,
-          feeEffectiveFrom: doc.feeEffectiveFrom,
-          branchId: doc.branches?.[0]?.branchId || initialBranches[0]?.id || "branch-dhanmondi",
-          roomNumber: doc.branches?.[0]?.roomNumber || "Chamber Desk",
-          publicationState: "PENDING_APPROVAL", // Always requires approval from editor
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        if (data.approvalRequest) {
-          setApprovals((prev) => [data.approvalRequest, ...prev]);
-        }
-        setStatusBanner(`Doctor public profile submitted for Hospital Admin approval.`);
-        setTimeout(() => setStatusBanner(null), 5000);
-      }
-    } catch {
-      setStatusBanner("Error saving doctor profile copy.");
-    }
-  };
-
-  // 10. Update Staff Status (Super Admin)
-  const handleUpdateUserStatus = async (targetUserId: string, nextActive: boolean) => {
-    try {
-      const res = await fetch("/api/v1/admin/users", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ targetUserId, isActive: nextActive }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        setUsers((prev) =>
-          prev.map((u) => (u.id === targetUserId ? { ...u, isActive: data.user.isActive } : u))
-        );
-        setStatusBanner(`Staff member ${data.user.email} status changed to ${data.user.isActive ? "ACTIVE" : "INACTIVE"}.`);
-        setTimeout(() => setStatusBanner(null), 5000);
-      }
-    } catch {
-      setStatusBanner("Error updating user status.");
-    }
-  };
-
-  // 11. Submit AI Update Note
-  const handleSubmitAIUpdate = async (rawNotes: string) => {
-    try {
-      const res = await fetch("/api/v1/admin/ai-updates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          entityType: "SCHEDULE",
-          rawStaffNotes: rawNotes,
-          notes: "Converted from staff notes",
-        }),
-      });
-      const data = await res.json();
-      if (res.ok && data.ok) {
-        setAiUpdates((prev) => [data.draft, ...prev]);
-        setStatusBanner("AI update draft generated and placed in PENDING_APPROVAL.");
-        setTimeout(() => setStatusBanner(null), 5000);
-      }
-    } catch {
-      setStatusBanner("Error generating AI update draft.");
-    }
-  };
-
-  // Determine Role Label & Header Titles
+  // Determine Role Label & Header Titles (Unified Hospital Operations — No Super Admin View)
   const getRoleBadge = (role: RoleCode) => {
     switch (role) {
-      case "SUPER_ADMIN":
-        return {
-          title: "Super Admin",
-          sub: "Platform Console",
-          badgeColor: "bg-[#4f46e5] text-white",
-          headerTitle: "DeltaCare Super Admin — Platform Console",
-          headerSub: "Platform-wide governance, hospital branches, staff accounts & security audit logs.",
-        };
-      case "HOSPITAL_ADMIN":
-      case "DEPT_MANAGER":
-        return {
-          title: "Hospital Admin",
-          sub: "Operations Console",
-          badgeColor: "bg-[#0057b8] text-white",
-          headerTitle: "DeltaCare Admin — Hospital Operations",
-          headerSub: "Assigned hospital operations, specialist CRUD, appointments, approval queue & reports.",
-        };
       case "RECEPTIONIST":
         return {
-          title: "Front Desk",
-          sub: "Reception Console",
+          title: "Front Desk & Chamber Assistant",
+          sub: "Schedule & Slot Operations",
           badgeColor: "bg-[#059669] text-white",
-          headerTitle: "DeltaCare Front Desk — Receptionist Console",
-          headerSub: "Today's queue, appointment verification, check-in, and view-only doctor schedules.",
+          headerTitle: "DeltaCare Front Desk & Doctor Schedule Manager",
+          headerSub:
+            "14-day fixed-slot calendar, 2-click extra chambers, emergency leave blocker, and 10666 SMS booking.",
         };
       case "CONTENT_EDITOR":
         return {
-          title: "Content Editor",
-          sub: "CMS Workspace",
+          title: "CMS & Marketing Editor",
+          sub: "Editorial & Social Studio",
           badgeColor: "bg-[#d97706] text-white",
-          headerTitle: "DeltaCare CMS — Editorial Workspace",
-          headerSub: "Website content, diseases & conditions articles, public specialist bios & AI updates.",
+          headerTitle: "DeltaCare CMS & Daily Facebook Spotlight Studio",
+          headerSub:
+            "Daily Facebook doctor spotlight cards (1080×1080 & 1080×1350), specialist profiles, and hospital notices.",
         };
+      case "HOSPITAL_ADMIN":
+      case "DEPT_MANAGER":
+      case "SUPER_ADMIN":
       default:
         return {
-          title: role,
-          sub: "Staff Portal",
-          badgeColor: "bg-[#475569] text-white",
-          headerTitle: "DeltaCare Staff Console",
-          headerSub: "Operational management console.",
+          title: "Hospital Admin",
+          sub: "Unified Operations Suite",
+          badgeColor: "bg-[#0057b8] text-white",
+          headerTitle: "DeltaCare Admin — Unified Hospital Operations & Analytics",
+          headerSub:
+            "Executive healthcare analytics, live multi-branch schedule engine, daily Facebook studio, and hospital CMS.",
         };
     }
   };
 
   const roleInfo = getRoleBadge(currentUser.role);
+
+  const canViewAnalytics =
+    currentUser.role === "HOSPITAL_ADMIN" ||
+    currentUser.role === "DEPT_MANAGER" ||
+    currentUser.role === "SUPER_ADMIN";
+  const canViewFrontDesk =
+    currentUser.role === "HOSPITAL_ADMIN" ||
+    currentUser.role === "DEPT_MANAGER" ||
+    currentUser.role === "SUPER_ADMIN" ||
+    currentUser.role === "RECEPTIONIST";
+  const canViewCmsAndFacebook =
+    currentUser.role === "HOSPITAL_ADMIN" ||
+    currentUser.role === "DEPT_MANAGER" ||
+    currentUser.role === "SUPER_ADMIN" ||
+    currentUser.role === "CONTENT_EDITOR";
+  const canViewStaffAndAudit =
+    currentUser.role === "HOSPITAL_ADMIN" ||
+    currentUser.role === "DEPT_MANAGER" ||
+    currentUser.role === "SUPER_ADMIN";
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-[#f2f2f2]">
@@ -533,7 +399,7 @@ export function AdminConsoleClient({
       )}
 
       {/* ====================================================================
-          MINIMALIST SIDEBAR (Shared Design System, Role-Scoped Navigation)
+          MINIMALIST SIDEBAR (Unified Role-Scoped Navigation)
          ==================================================================== */}
       <aside
         className={`fixed md:sticky top-0 inset-y-0 left-0 z-40 w-64 bg-[#012d61] text-white flex flex-col justify-between transition-transform duration-200 border-r border-white/10 ${
@@ -561,582 +427,179 @@ export function AdminConsoleClient({
 
           {/* Role Pill & Hospital Scope Indicator */}
           <div className="px-5 py-4 border-b border-white/10 bg-[#002443]/70">
-            <div className="flex items-center justify-between">
-              <span className={`px-2 py-0.5 rounded text-[11px] font-bold tracking-wide uppercase ${roleInfo.badgeColor}`}>
+            <div className="flex items-center justify-between gap-2">
+              <span
+                className={`px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase ${roleInfo.badgeColor}`}
+              >
                 {roleInfo.title}
-              </span>
-              <span className="text-[10px] text-[#c5e2f9] font-medium font-mono">
-                {currentUser.role}
               </span>
             </div>
             <p className="text-xs text-[#e8f0f9] font-semibold mt-1.5 truncate">
               {currentUser.fullName}
             </p>
             <p className="text-[11px] text-[#93c5fd] mt-0.5">
-              {currentUser.scopedBranchId ? "Dhanmondi Campus Desk" : "DeltaCare Platform"}
+              {currentUser.scopedBranchId
+                ? "Dhanmondi Flagship Campus"
+                : "All Hospital Campuses"}
             </p>
           </div>
 
-          {/* Role Navigation List */}
+          {/* Unified Role Navigation List */}
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto text-xs">
             <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#93c5fd]">
               {roleInfo.sub}
             </div>
 
-            {/* SUPER ADMIN NAVIGATION (Section 4 Specification) */}
-            {currentUser.role === "SUPER_ADMIN" && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("overview")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "overview"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Platform Overview</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("hospitals")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "hospitals"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "hospitals" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Hospitals</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("onboarding")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "onboarding"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Plus className={`w-4 h-4 shrink-0 ${activeTab === "onboarding" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Hospital Onboarding</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("subscriptions")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "subscriptions"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <CreditCard className={`w-4 h-4 shrink-0 ${activeTab === "subscriptions" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Subscriptions &amp; Plans</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("users")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "users"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "users" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Platform Users</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {users.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("staff")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "staff"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "staff" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Platform Staff</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("integrations")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "integrations"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Radio className={`w-4 h-4 shrink-0 ${activeTab === "integrations" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Integrations</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("health")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "health"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Server className={`w-4 h-4 shrink-0 ${activeTab === "health" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>System Health</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("analytics")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "analytics"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Zap className={`w-4 h-4 shrink-0 ${activeTab === "analytics" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Platform Analytics</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("audit")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "audit"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Shield className={`w-4 h-4 shrink-0 ${activeTab === "audit" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Audit Logs</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {auditEvents.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("security")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "security"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Lock className={`w-4 h-4 shrink-0 ${activeTab === "security" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Security &amp; Isolation</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("support")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "support"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <HelpCircle className={`w-4 h-4 shrink-0 ${activeTab === "support" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Support &amp; Assistance</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("config")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "config"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Sliders className={`w-4 h-4 shrink-0 ${activeTab === "config" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Platform Settings</span>
-                  </span>
-                </button>
-              </>
+            {canViewAnalytics && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("analytics")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "analytics"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <BarChart3
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "analytics" ? "text-white" : "text-[#38bdf8]"
+                    }`}
+                  />
+                  <span>Executive Analytics</span>
+                </span>
+              </button>
             )}
 
-            {/* HOSPITAL ADMIN NAVIGATION (Section 5 Specification) */}
-            {(currentUser.role === "HOSPITAL_ADMIN" || currentUser.role === "DEPT_MANAGER") && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("analytics")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "analytics" || activeTab === "overview" || activeTab === "reports"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "analytics" || activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>1. Executive Analytics</span>
-                  </span>
-                </button>
+            {canViewFrontDesk && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("front-desk")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "front-desk"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <Calendar
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "front-desk" ? "text-white" : "text-[#93c5fd]"
+                    }`}
+                  />
+                  <span>Front Desk &amp; Schedules</span>
+                </span>
+              </button>
+            )}
 
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("front-desk")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "front-desk" || activeTab === "appointments" || activeTab === "schedules" || activeTab === "calendar"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "front-desk" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>2. Front Desk &amp; Schedule</span>
-                  </span>
-                </button>
+            {canViewCmsAndFacebook && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("facebook-studio")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "facebook-studio"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <Sparkles
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "facebook-studio"
+                        ? "text-white"
+                        : "text-[#93c5fd]"
+                    }`}
+                  />
+                  <span>Daily Facebook Studio</span>
+                </span>
+              </button>
+            )}
 
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("facebook-studio")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "facebook-studio"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Sparkles className={`w-4 h-4 shrink-0 ${activeTab === "facebook-studio" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>3. Daily Facebook Studio</span>
-                  </span>
-                </button>
+            {canViewCmsAndFacebook && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("doctors-cms")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "doctors-cms"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <Stethoscope
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "doctors-cms" ? "text-white" : "text-[#93c5fd]"
+                    }`}
+                  />
+                  <span>Doctors &amp; Depts CMS</span>
+                </span>
+                <span className="px-1.5 py-0.2 bg-white/20 text-[10px] font-bold tabular-nums">
+                  {doctors.length}
+                </span>
+              </button>
+            )}
 
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("doctors-cms")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "doctors-cms" || activeTab === "specialists" || activeTab === "departments"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "doctors-cms" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>4. Doctors &amp; Depts CMS</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {doctors.length}
-                  </span>
-                </button>
+            {canViewCmsAndFacebook && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("notices-cms")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "notices-cms"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <BookOpen
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "notices-cms" ? "text-white" : "text-[#93c5fd]"
+                    }`}
+                  />
+                  <span>Website Notices CMS</span>
+                </span>
+              </button>
+            )}
 
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("notices-cms")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "notices-cms"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === "notices-cms" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>5. Website Notices CMS</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("feedback-moderation")}
-                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+            <button
+              type="button"
+              onClick={() => handleTabChange("feedback-moderation")}
+              className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                activeTab === "feedback-moderation"
+                  ? "bg-[#0057b8] text-white font-bold"
+                  : "text-[#e8f0f9] hover:bg-white/10"
+              }`}
+            >
+              <span className="flex items-center gap-2.5 truncate">
+                <MessageSquare
+                  className={`w-4 h-4 shrink-0 ${
                     activeTab === "feedback-moderation"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
+                      ? "text-white"
+                      : "text-[#93c5fd]"
                   }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "feedback-moderation" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>6. Feedback Moderation</span>
-                  </span>
-                </button>
-              </>
-            )}
+                />
+                <span>Patient Feedback &amp; Enquiries</span>
+              </span>
+            </button>
 
-            {/* RECEPTIONIST NAVIGATION (Section 6 Specification) */}
-            {currentUser.role === "RECEPTIONIST" && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("overview")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "overview"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Front Desk Overview</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("requests")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "requests"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Clock className={`w-4 h-4 shrink-0 ${activeTab === "requests" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Appointment Requests</span>
-                  </span>
-                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
-                      {appointments.filter((a) => a.status === "REQUESTED").length}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("today")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "today"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "today" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Today&apos;s Queue</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {appointments.filter((a) => a.preferredDate === new Date().toISOString().split("T")[0]).length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("calendar")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "calendar"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <CalendarDays className={`w-4 h-4 shrink-0 ${activeTab === "calendar" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Chamber Calendar</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("new-booking")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "new-booking"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Plus className={`w-4 h-4 shrink-0 ${activeTab === "new-booking" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>New Appointment</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("walk-ins")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "walk-ins"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <UserCheck className={`w-4 h-4 shrink-0 ${activeTab === "walk-ins" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Walk-In Patients</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("patients")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "patients"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <User className={`w-4 h-4 shrink-0 ${activeTab === "patients" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Patient Directory</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("rescheduling")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "rescheduling"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <RefreshCw className={`w-4 h-4 shrink-0 ${activeTab === "rescheduling" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Rescheduling</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("cancellations")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "cancellations"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <UserX className={`w-4 h-4 shrink-0 ${activeTab === "cancellations" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Cancellations</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("reports")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "reports"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "reports" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Daily Reports</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("my-profile")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "my-profile"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "my-profile" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Desk Profile</span>
-                  </span>
-                </button>
-              </>
-            )}
-
-            {/* CONTENT EDITOR NAVIGATION (4 Clean Core Sections) */}
-            {currentUser.role === "CONTENT_EDITOR" && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("content")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "content" || activeTab === "overview"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === "content" || activeTab === "overview" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Website Content</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {conditions.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("profiles")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "profiles"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "profiles" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Doctor Profiles</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {doctors.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("generator")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "generator"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "generator" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Daily Availability Generator</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white text-[10px] font-bold">
-                    Cards
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("publishing")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "publishing"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <History className={`w-4 h-4 shrink-0 ${activeTab === "publishing" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Publishing History</span>
-                  </span>
-                </button>
-              </>
+            {canViewStaffAndAudit && (
+              <button
+                type="button"
+                onClick={() => handleTabChange("staff")}
+                className={`w-full text-left px-3 py-2.5 transition-colors flex items-center justify-between text-xs font-semibold cursor-pointer ${
+                  activeTab === "staff"
+                    ? "bg-[#0057b8] text-white font-bold"
+                    : "text-[#e8f0f9] hover:bg-white/10"
+                }`}
+              >
+                <span className="flex items-center gap-2.5 truncate">
+                  <ShieldCheck
+                    className={`w-4 h-4 shrink-0 ${
+                      activeTab === "staff" ? "text-white" : "text-[#93c5fd]"
+                    }`}
+                  />
+                  <span>Staff, Roles &amp; Audit Log</span>
+                </span>
+              </button>
             )}
           </nav>
 
@@ -1153,7 +616,7 @@ export function AdminConsoleClient({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-[#f87171] hover:text-white flex items-center gap-1 font-semibold"
+                className="text-[#f87171] hover:text-white flex items-center gap-1 font-semibold cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign out</span>
@@ -1164,7 +627,7 @@ export function AdminConsoleClient({
       </aside>
 
       {/* ====================================================================
-          MAIN CONTENT AREA (Minimal Header + Role-Specific Dashboard)
+          MAIN CONTENT AREA (Minimal Header + Unified Workspace)
          ==================================================================== */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Minimal Admin Header */}
@@ -1173,7 +636,7 @@ export function AdminConsoleClient({
             <button
               type="button"
               onClick={() => setMobileSidebarOpen(true)}
-              className="md:hidden text-[#080808] p-1.5 rounded-lg hover:bg-[#f2f2f2]"
+              className="md:hidden text-[#080808] p-1.5 hover:bg-[#f2f2f2]"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
@@ -1189,13 +652,20 @@ export function AdminConsoleClient({
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#ecfdf5] text-[#065f46] font-semibold">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-[#ecfdf5] text-[#065f46] font-semibold">
               <span className="w-2 h-2 rounded-full bg-[#059669] animate-pulse" />
               <span>Platform Online</span>
             </div>
             <Link
+              href="/dashboard/front-desk"
+              className="hidden lg:inline-flex items-center gap-1 px-3 py-1.5 border border-[#012d61] text-[#012d61] font-semibold hover:bg-[#f0f4f8]"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>Full-Screen Front Desk</span>
+            </Link>
+            <Link
               href="/"
-              className="hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-[#d6d6d6] text-[#004181] font-semibold hover:bg-[#e8f0f9]"
+              className="hidden md:inline-flex items-center gap-1 px-3 py-1.5 border border-[#d6d6d6] text-[#004181] font-semibold hover:bg-[#e8f0f9]"
             >
               <span>Public Site</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -1209,7 +679,7 @@ export function AdminConsoleClient({
           {statusBanner && (
             <div
               role="status"
-              className="p-3.5 rounded-xl bg-[#e8f0f9] border border-[#0057b8] text-xs text-[#004181] flex items-center justify-between gap-4 shadow-sm"
+              className="p-3.5 bg-[#e8f0f9] border border-[#0057b8] text-xs text-[#004181] flex items-center justify-between gap-4 shadow-xs"
             >
               <div className="flex items-center gap-2 font-medium">
                 <CheckCircle2 className="w-4 h-4 text-[#0057b8] shrink-0" />
@@ -1225,89 +695,36 @@ export function AdminConsoleClient({
             </div>
           )}
 
-          {/* RENDER DEDICATED ROLE DASHBOARD */}
-          {currentUser.role === "SUPER_ADMIN" && (
-            <SuperAdminView
-              hospital={initialHospital}
-              branches={initialBranches}
-              users={users}
-              auditEvents={auditEvents}
-              analytics={initialAnalytics}
-              insights={initialInsights}
-              onUpdateUserStatus={handleUpdateUserStatus}
-              statusBanner={statusBanner}
-              activeTab={activeTab as any}
-              onTabChange={handleTabChange as any}
-            />
-          )}
-
-          {(currentUser.role === "HOSPITAL_ADMIN" || currentUser.role === "DEPT_MANAGER") && (
-            <HospitalAdminView
-              hospital={initialHospital}
-              doctors={doctors}
-              departments={departments}
-              branches={initialBranches}
-              specialties={initialSpecialties}
-              appointments={appointments}
-              approvals={approvals}
-              feedbacks={feedbacks}
-              users={users}
-              notifications={initialNotifications}
-              auditEvents={auditEvents}
-              insights={initialInsights}
-              analytics={{
-                totalAppointments: initialAnalytics.appointments.total,
-                appointmentsByStatus: initialAnalytics.appointments.byStatus,
-                totalDoctors: doctors.length,
-                totalDepartments: departments.length,
-              }}
-              onSaveDoctor={handleSaveDoctor}
-              onUpdateDoctorStatus={handleUpdateDoctorStatus}
-              onTransitionAppointment={handleTransitionAppointment}
-              onReviewApproval={handleReviewApproval}
-              onUpdateFeedback={handleUpdateFeedback}
-              onCreateDepartment={handleCreateDepartment}
-              activeTab={activeTab as any}
-              onTabChange={handleTabChange as any}
-            />
-          )}
-
-          {currentUser.role === "RECEPTIONIST" && (
-            <ReceptionistView
-              currentUser={currentUser}
-              appointments={appointments}
-              doctors={doctors}
-              departments={departments}
-              branches={initialBranches}
-              notifications={initialNotifications}
-              insights={initialInsights}
-              onTransitionAppointment={handleTransitionAppointment}
-              onSubmitFeedback={handleRegisterFeedback}
-              onAppointmentCreated={(newApt) => setAppointments((prev) => [newApt, ...prev])}
-              activeTab={activeTab as any}
-              onTabChange={handleTabChange as any}
-            />
-          )}
-
-          {currentUser.role === "CONTENT_EDITOR" && (
-            <ContentEditorView
-              conditions={conditions}
-              departments={departments}
-              doctors={doctors}
-              branches={initialBranches}
-              approvals={approvals}
-              aiUpdates={aiUpdates}
-              facebookBatches={initialFacebookBatches}
-              onSaveCondition={handleSaveCondition}
-              onSaveDoctorProfileCopy={handleSaveDoctorProfileCopy}
-              onSubmitAIUpdate={handleSubmitAIUpdate}
-              onDoctorUpdated={(updated) =>
-                setDoctors((prev) => prev.map((d) => (d.id === updated.id ? updated : d)))
-              }
-              activeTab={activeTab as any}
-              onTabChange={handleTabChange as any}
-            />
-          )}
+          {/* UNIFIED ROLE-SCOPED HOSPITAL OPERATIONS WORKSPACE */}
+          <HospitalAdminView
+            userRole={currentUser.role}
+            hospital={initialHospital}
+            doctors={doctors}
+            departments={departments}
+            branches={initialBranches}
+            specialties={initialSpecialties}
+            appointments={appointments}
+            approvals={approvals}
+            feedbacks={feedbacks}
+            users={users}
+            notifications={initialNotifications}
+            auditEvents={auditEvents}
+            insights={initialInsights}
+            analytics={{
+              totalAppointments: initialAnalytics.appointments.total,
+              appointmentsByStatus: initialAnalytics.appointments.byStatus,
+              totalDoctors: doctors.length,
+              totalDepartments: departments.length,
+            }}
+            onSaveDoctor={handleSaveDoctor}
+            onUpdateDoctorStatus={handleUpdateDoctorStatus}
+            onTransitionAppointment={handleTransitionAppointment}
+            onReviewApproval={handleReviewApproval}
+            onUpdateFeedback={handleUpdateFeedback}
+            onCreateDepartment={handleCreateDepartment}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
         </main>
       </div>
     </div>
