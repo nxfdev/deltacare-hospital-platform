@@ -32,40 +32,42 @@ export default async function AdminPage() {
       : db.appointments;
 
   return (
-    <AdminConsoleClient
-      currentUser={{
-        userId: session.userId,
-        email: session.email,
-        fullName: session.fullName,
-        role: session.role,
-        scopedBranchId: session.scopedBranchId,
-      }}
-      initialHospital={db.hospital}
-      initialAppointments={scopedAppointments}
-      initialDoctors={db.doctors}
-      initialDepartments={db.departments}
-      initialBranches={db.branches}
-      initialSpecialties={db.specialties}
-      initialConditions={db.conditions}
-      initialApprovals={db.approvalRequests}
-      initialAIUpdates={db.aiUpdateDrafts}
-      initialFeedbacks={db.feedbacks}
-      initialCallbacks={db.contactRequests}
-      initialNotifications={db.notifications}
-      initialAnalytics={analytics}
-      initialUsers={db.users.map((u) => ({
-        id: u.id,
-        email: u.email,
-        fullName: u.fullName,
-        phone: u.phone,
-        role: u.role,
-        scopedBranchId: u.scopedBranchId,
-        isActive: u.isActive,
-        updatedAt: u.updatedAt,
-      }))}
-      initialAuditEvents={db.auditEvents}
-      initialFacebookBatches={db.facebookBatches || []}
-      initialInsights={insights}
-    />
+    <div className="space-y-8">
+      <AdminConsoleClient
+        currentUser={{
+          userId: session.userId,
+          email: session.email,
+          fullName: session.fullName,
+          role: session.role,
+          scopedBranchId: session.scopedBranchId,
+        }}
+        initialHospital={db.hospital}
+        initialAppointments={scopedAppointments}
+        initialDoctors={db.doctors}
+        initialDepartments={db.departments}
+        initialBranches={db.branches}
+        initialSpecialties={db.specialties}
+        initialConditions={db.conditions}
+        initialApprovals={db.approvalRequests}
+        initialAIUpdates={db.aiUpdateDrafts}
+        initialFeedbacks={db.feedbacks}
+        initialCallbacks={db.contactRequests}
+        initialNotifications={db.notifications}
+        initialAnalytics={analytics}
+        initialUsers={db.users.map((u) => ({
+          id: u.id,
+          email: u.email,
+          fullName: u.fullName,
+          phone: u.phone,
+          role: u.role,
+          scopedBranchId: u.scopedBranchId,
+          isActive: u.isActive,
+          updatedAt: u.updatedAt,
+        }))}
+        initialAuditEvents={db.auditEvents}
+        initialFacebookBatches={db.facebookBatches || []}
+        initialInsights={insights}
+      />
+    </div>
   );
 }

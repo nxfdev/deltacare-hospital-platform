@@ -57,8 +57,19 @@ import { SpecialistModal } from "./SpecialistModal";
 import { DeactivateSpecialistModal } from "./DeactivateSpecialistModal";
 import { KpiCard } from "./shared/KpiCard";
 import { ActionableInsightsSection } from "./shared/ActionableInsightsSection";
+import { AdminHealthcareAnalytics } from "./AdminHealthcareAnalytics";
+import { FrontDeskScheduleManager } from "@/components/staff/FrontDeskScheduleManager";
+import { FacebookCampaignGenerator } from "./FacebookCampaignGenerator";
+import { WebsiteNoticesCMS } from "./WebsiteNoticesCMS";
+import { PatientFeedbackModeration } from "./PatientFeedbackModeration";
 
 export type HospitalAdminTab =
+  | "analytics"
+  | "front-desk"
+  | "facebook-studio"
+  | "doctors-cms"
+  | "notices-cms"
+  | "feedback-moderation"
   | "overview"
   | "appointments"
   | "calendar"
@@ -161,6 +172,7 @@ export function HospitalAdminView({
   onTabChange,
 }: HospitalAdminViewProps) {
   const [internalTab, setInternalTab] = useState<HospitalAdminTab>("overview");
+  const [promotedDoctorId, setPromotedDoctorId] = useState<string | null>(null);
   const activeTab = controlledTab || internalTab;
   const setTab = (tab: HospitalAdminTab) => {
     if (onTabChange) onTabChange(tab);
@@ -322,481 +334,130 @@ export function HospitalAdminView({
   return (
     <div className="space-y-6">
       {/* ====================================================================
-          SUB-NAVIGATION TABS (Section 5 Specification)
+          UNIFIED HOSPITAL OPERATIONS TABS (PHASE 3 SPECIFICATION)
          ==================================================================== */}
-      <div className="flex items-center gap-1.5 border-b border-[#d6d6d6] pb-3 overflow-x-auto">
+      <div className="flex items-center gap-1.5 border-b border-[#e5e7eb] pb-3 overflow-x-auto bg-white p-2 border border-[#e5e7eb]">
         <button
           type="button"
-          onClick={() => setTab("overview")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "overview"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("analytics")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "analytics" || activeTab === "overview" || activeTab === "reports"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <Activity className="w-3.5 h-3.5" />
-          <span>Hospital Overview</span>
+          <BarChart3 className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>1. Executive Analytics</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setTab("appointments")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "appointments"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("front-desk")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "front-desk" || activeTab === "appointments" || activeTab === "schedules" || activeTab === "calendar"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <Calendar className="w-3.5 h-3.5" />
-          <span>Appointments ({appointments.length})</span>
+          <Calendar className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>2. Front Desk &amp; Schedule</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setTab("calendar")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "calendar"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("facebook-studio")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "facebook-studio"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <CalendarDays className="w-3.5 h-3.5" />
-          <span>Appointment Calendar</span>
+          <Sparkles className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>3. Daily Facebook Studio</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setTab("patients")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "patients"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("doctors-cms")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "doctors-cms" || activeTab === "specialists" || activeTab === "departments"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <User className="w-3.5 h-3.5" />
-          <span>Patients ({patientsList.length})</span>
+          <Stethoscope className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>4. Doctors &amp; Departments CMS</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setTab("specialists")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "specialists"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("notices-cms")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "notices-cms"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <Stethoscope className="w-3.5 h-3.5" />
-          <span>Specialists &amp; Doctors ({doctors.length})</span>
+          <FileText className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>5. Website Notices CMS</span>
         </button>
 
         <button
           type="button"
-          onClick={() => setTab("departments")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "departments"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
+          onClick={() => setTab("feedback-moderation")}
+          className={`px-3.5 py-2 text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-2 ${
+            activeTab === "feedback-moderation"
+              ? "bg-[#012d61] text-white shadow-xs"
+              : "text-[#444444] hover:bg-[#f0f4f8]"
           }`}
         >
-          <Building2 className="w-3.5 h-3.5" />
-          <span>Departments ({departments.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("specialties")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "specialties"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <Layers className="w-3.5 h-3.5" />
-          <span>Specialties</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("branches")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "branches"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <MapPin className="w-3.5 h-3.5" />
-          <span>Branches ({branches.length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("schedules")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "schedules"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <Clock className="w-3.5 h-3.5" />
-          <span>Doctor Schedules</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("leave")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "leave"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <UserX className="w-3.5 h-3.5" />
-          <span>Leave &amp; Availability</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("staff")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "staff"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <Users className="w-3.5 h-3.5" />
-          <span>Staff &amp; Users</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("roles")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "roles"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>Roles &amp; Permissions</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("fees")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "fees"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <DollarSign className="w-3.5 h-3.5" />
-          <span>Consultation Fees</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("reports")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "reports"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <BarChart3 className="w-3.5 h-3.5" />
-          <span>Reports &amp; Analytics</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("notifications")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "notifications"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <Bell className="w-3.5 h-3.5" />
-          <span>Notifications</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("approvals")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "approvals"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <CheckSquare className="w-3.5 h-3.5" />
-          <span>Approvals ({approvals.filter((a) => a.status === "PENDING_APPROVAL").length})</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("audit")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "audit"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <History className="w-3.5 h-3.5" />
-          <span>Audit History</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setTab("settings")}
-          className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap flex items-center gap-1.5 ${
-            activeTab === "settings"
-              ? "bg-[#0057b8] text-white shadow-xs"
-              : "text-[#484848] hover:bg-[#e2e8f0]"
-          }`}
-        >
-          <Sliders className="w-3.5 h-3.5" />
-          <span>Hospital Settings</span>
+          <MessageSquare className="w-3.5 h-3.5 text-[#82b4ff]" />
+          <span>6. Patient Feedback Moderation</span>
         </button>
       </div>
 
+
+
+        
       {/* ====================================================================
-          TAB 1: OVERVIEW DASHBOARD (Section 5 Specification)
+          TAB 1: EXECUTIVE ANALYTICS
          ==================================================================== */}
-      {activeTab === "overview" && (
-        <div className="space-y-6">
-          {/* Quick Actions Bar */}
-          <div className="bg-white rounded-2xl border border-[#d6d6d6] p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#0057b8]">
-                Hospital Quick Actions:
-              </span>
-            </div>
-            <div className="flex flex-wrap items-center gap-2.5">
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedDoctor(null);
-                  setSpecialistModalMode("CREATE");
-                  setSpecialistModalOpen(true);
-                }}
-                className="mc-btn-primary !py-1.5 !px-3 text-xs"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Add Specialist</span>
-              </button>
+      {(activeTab === "analytics" || activeTab === "overview" || activeTab === "reports") && (
+        <AdminHealthcareAnalytics
+          embedded
+          onPromoteDoctor={(docId) => {
+            setPromotedDoctorId(docId);
+            setTab("facebook-studio");
+          }}
+        />
+      )}
 
-              <button
-                type="button"
-                onClick={() => setTab("departments")}
-                className="mc-btn-secondary !py-1.5 !px-3 text-xs"
-              >
-                <Building2 className="w-3.5 h-3.5" />
-                <span>Add Department</span>
-              </button>
+      {/* ====================================================================
+          TAB 2: FRONT DESK & DOCTOR SCHEDULE MANAGER
+         ==================================================================== */}
+      {(activeTab === "front-desk" || activeTab === "schedules" || activeTab === "calendar") && (
+        <FrontDeskScheduleManager embedded />
+      )}
 
-              <button
-                type="button"
-                onClick={() => setTab("schedules")}
-                className="mc-btn-secondary !py-1.5 !px-3 text-xs"
-              >
-                <Clock className="w-3.5 h-3.5" />
-                <span>Manage Schedules</span>
-              </button>
+      {/* ====================================================================
+          TAB 3: DAILY FACEBOOK CAMPAIGN STUDIO
+         ==================================================================== */}
+      {activeTab === "facebook-studio" && (
+        <FacebookCampaignGenerator embedded initialDoctorId={promotedDoctorId} />
+      )}
 
-              <button
-                type="button"
-                onClick={() => setTab("approvals")}
-                className="mc-btn-secondary !py-1.5 !px-3 text-xs relative"
-              >
-                <CheckSquare className="w-3.5 h-3.5" />
-                <span>Approval Queue</span>
-                {approvals.filter((a) => a.status === "PENDING_APPROVAL").length > 0 && (
-                  <span className="w-2 h-2 rounded-full bg-[#dc2626]" />
-                )}
-              </button>
+      {/* ====================================================================
+          TAB 5: WEBSITE NOTICES CMS
+         ==================================================================== */}
+      {activeTab === "notices-cms" && (
+        <WebsiteNoticesCMS />
+      )}
 
-              <a
-                href="/api/v1/admin/analytics?format=csv"
-                className="mc-btn-secondary !py-1.5 !px-3 text-xs"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>Export CSV Report</span>
-              </a>
-            </div>
-          </div>
-
-          {/* Primary 8 KPI Cards (Section 5 Specification) */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-            <KpiCard
-              title="Today"
-              value={todayAppointments.length}
-              icon={<Calendar className="w-4 h-4 text-[#0057b8]" />}
-              subtitle="Total today"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="Confirmed"
-              value={confirmedToday}
-              icon={<CheckCircle2 className="w-4 h-4 text-[#059669]" />}
-              iconBg="bg-[#dcfce7] text-[#059669]"
-              subtitle="Ready for chamber"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="Pending"
-              value={pendingRequestsTotal}
-              icon={<Clock className="w-4 h-4 text-[#d97706]" />}
-              iconBg="bg-[#fef3c7] text-[#d97706]"
-              highlight={pendingRequestsTotal > 0}
-              subtitle="Needs review"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="Completed"
-              value={completedCount}
-              icon={<Check className="w-4 h-4 text-[#4f46e5]" />}
-              iconBg="bg-[#ede9fe] text-[#4f46e5]"
-              subtitle="Visits done"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="Cancelled"
-              value={cancelledCount}
-              icon={<X className="w-4 h-4 text-[#dc2626]" />}
-              iconBg="bg-[#fee2e2] text-[#dc2626]"
-              subtitle="Cancelled"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="No-Show"
-              value={noShowCount}
-              icon={<UserX className="w-4 h-4 text-[#64748b]" />}
-              iconBg="bg-[#f1f5f9] text-[#64748b]"
-              subtitle="Missed slots"
-              onClick={() => setTab("appointments")}
-            />
-            <KpiCard
-              title="Doctors"
-              value={activeDoctorsCount}
-              icon={<Stethoscope className="w-4 h-4 text-[#0057b8]" />}
-              subtitle="Active specialists"
-              onClick={() => setTab("specialists")}
-            />
-            <KpiCard
-              title="Depts"
-              value={activeDepartmentsCount}
-              icon={<Building2 className="w-4 h-4 text-[#0057b8]" />}
-              subtitle="Clinical depts"
-              onClick={() => setTab("departments")}
-            />
-          </div>
-
-          {/* Actionable Insights Layer */}
-          <ActionableInsightsSection
-            insights={insights}
-            onActionClick={(tab) => setTab(tab as HospitalAdminTab)}
-            title="Hospital Operations Intelligence"
-            subtitle="Automated alerts detecting slot bottlenecks, missing schedules, and leave conflicts"
-          />
-
-          {/* Secondary Analytics: Charts & Distribution */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Department Demand Concentration */}
-            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-[#080808]">Appointments by Department</h3>
-                <span className="text-[11px] font-bold text-[#0057b8]">Live Share</span>
-              </div>
-              <div className="space-y-3 text-xs">
-                {departments.map((dept) => {
-                  const count = appointments.filter((a) => a.departmentId === dept.id).length;
-                  const pct = Math.round((count / Math.max(1, appointments.length)) * 100);
-                  return (
-                    <div key={dept.id} className="space-y-1">
-                      <div className="flex justify-between font-medium">
-                        <span className="truncate">{dept.nameEn}</span>
-                        <span className="font-bold text-[#080808] font-mono">{count} ({pct}%)</span>
-                      </div>
-                      <div className="h-1.5 w-full rounded-full bg-[#f1f5f9] overflow-hidden">
-                        <div
-                          className="h-full bg-[#0057b8] rounded-full"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Doctor Demand & Utilization */}
-            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-[#080808]">Doctor Booking Demand</h3>
-                <button
-                  type="button"
-                  onClick={() => setTab("specialists")}
-                  className="text-[11px] font-bold text-[#0057b8] hover:underline"
-                >
-                  View All
-                </button>
-              </div>
-              <div className="space-y-2.5 text-xs">
-                {doctors.slice(0, 5).map((doc) => {
-                  const count = appointments.filter((a) => a.doctorId === doc.id).length;
-                  return (
-                    <div
-                      key={doc.id}
-                      className="p-2.5 rounded-xl border border-[#ededed] bg-[#f8fafc] flex items-center justify-between"
-                    >
-                      <div className="truncate pr-2">
-                        <p className="font-bold text-[#080808] truncate">{doc.nameEn}</p>
-                        <p className="text-[10px] text-[#686868]">{doc.designationEn}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <span className="font-mono font-bold text-[#0057b8]">{count}</span>
-                        <span className="text-[10px] text-[#686868] block">bookings</span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Status Breakdown & Velocity */}
-            <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-sm text-[#080808]">Operational Metrics</h3>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#f1f5f9] text-[#475569]">
-                  Facility Scope
-                </span>
-              </div>
-              <div className="space-y-3 text-xs">
-                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex justify-between items-center">
-                  <span className="text-[#484848]">Avg Confirmation Velocity</span>
-                  <span className="font-mono font-bold text-[#059669]">~18 minutes</span>
-                </div>
-                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex justify-between items-center">
-                  <span className="text-[#484848]">Consultation Capacity Utilization</span>
-                  <span className="font-mono font-bold text-[#0057b8]">
-                    {Math.round(((confirmedToday + completedCount) / Math.max(1, activeDoctorsCount * 8)) * 100)}%
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex justify-between items-center">
-                  <span className="text-[#484848]">No-Show Frequency</span>
-                  <span className="font-mono font-bold text-[#d97706]">
-                    {Math.round((noShowCount / Math.max(1, appointments.length)) * 100)}%
-                  </span>
-                </div>
-                <div className="p-3 rounded-xl border border-[#ededed] bg-[#f8fafc] flex justify-between items-center">
-                  <span className="text-[#484848]">Registered Patient Base</span>
-                  <span className="font-mono font-bold text-[#080808]">{patientsMap.size} Patients</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* ====================================================================
+          TAB 6: PATIENT FEEDBACK MODERATION
+         ==================================================================== */}
+      {activeTab === "feedback-moderation" && (
+        <PatientFeedbackModeration />
       )}
 
       {/* ====================================================================
@@ -1057,7 +718,7 @@ export function HospitalAdminView({
       {/* ====================================================================
           TAB 5: SPECIALISTS & DOCTORS (Section 5 Specification)
          ==================================================================== */}
-      {activeTab === "specialists" && (
+      {(activeTab === "doctors-cms" || activeTab === "specialists") && (
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

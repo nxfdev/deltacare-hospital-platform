@@ -18,6 +18,7 @@ import {
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
 import { AppointmentBookingModule } from "@/components/appointments/AppointmentBookingModule";
+import { getAvailableSlotsForDoctor } from "@/lib/schedule-engine";
 
 export const dynamic = "force-dynamic";
 
@@ -36,6 +37,27 @@ export default async function DoctorDetailPage({
   const branches = getPublishedBranches();
   const allDoctors = getPublishedDoctors();
   const department = departments.find((d) => d.id === doctor.departmentId);
+
+  const primaryBranchId = doctor.branches[0]?.branchId ?? "branch-dhanmondi";
+  // Find next available chamber date within the next 7 days
+  let nextSlotPreview = await getAvailableSlotsForDoctor({
+    doctorId: doctor.id,
+    branchId: primaryBranchId,
+    date: "2026-11-15",
+  });
+  for (let offset = 0; offset < 7; offset++) {
+    const dt = new Date(Date.now() + offset * 86400000);
+    const dateStr = dt.toISOString().slice(0, 10);
+    const candidate = await getAvailableSlotsForDoctor({
+      doctorId: doctor.id,
+      branchId: primaryBranchId,
+      date: dateStr,
+    });
+    if (candidate.isAvailableDay && candidate.slots.some((s) => s.status === "AVAILABLE")) {
+      nextSlotPreview = candidate;
+      break;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -61,6 +83,12 @@ export default async function DoctorDetailPage({
           <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
             {doctor.qualificationsEn} • {doctor.experienceYears} Years Clinical Experience
           </p>
+          {doctor.workplaceEn && (
+            <p className="text-sm sm:text-base text-[#93c5fd] font-semibold max-w-3xl">
+              {doctor.workplaceEn}
+              {doctor.workplaceBn ? ` (${doctor.workplaceBn})` : ""}
+            </p>
+          )}
         </div>
       </div>
 
@@ -76,7 +104,7 @@ export default async function DoctorDetailPage({
               />
               <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#0057b8]">
                 <Award className="w-3.5 h-3.5" />
-                BMDC: {doctor.bmdcRegistrationNo}
+                BMDC Reg. No: {doctor.bmdcRegistrationNo}
               </span>
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#065f46]">
                 <CheckCircle2 className="w-3.5 h-3.5" />
@@ -88,16 +116,16 @@ export default async function DoctorDetailPage({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b border-[#e5e7eb]">
                 <div>
                   <p className="text-xs text-[#6b7280] uppercase font-bold tracking-wider">
-                    Approved Consultation Fee (Effective {doctor.feeEffectiveFrom})
+                    Consultation Fee / ভিজিট ফি
                   </p>
                   <p className="text-2xl font-bold text-[#080808] mt-1">
-                    BDT {doctor.consultationFeeBdt}{" "}
+                    ৳{doctor.consultationFeeBdt.toLocaleString()}{" "}
                     <span className="text-sm font-normal text-[#6b7280]">
-                      (New Visit)
+                      (New Visit / নতুন রোগী)
                     </span>
                   </p>
                   <p className="text-sm text-[#004181] font-semibold mt-1">
-                    Follow-up Visit: BDT {doctor.followupFeeBdt}
+                    Follow-up / রিপোর্ট দেখানো: ৳{doctor.followupFeeBdt.toLocaleString()}
                   </p>
                 </div>
 
@@ -151,11 +179,19 @@ export default async function DoctorDetailPage({
               <div className="pt-6 border-t border-[#e5e7eb] space-y-4">
                 <h3 className="mc-serif text-2xl text-[#080808] flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-[#0057b8]" />
-                  <span>Active Hospital Chambers &amp; Schedule Rules</span>
+                  <span>Branch-by-Branch Chamber Schedule / শাখাভিত্তিক চেম্বার সময়সূচী</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {doctor.branches.map((dbAssign) => {
                     const br = branches.find((b) => b.id === dbAssign.branchId);
+                    const uniqueLabels = Array.from(
+                      new Set(
+                        dbAssign.scheduleRules.map(
+                          (rule) =>
+                            `${rule.weekdayLabelEn} (${rule.weekdayLabelBn}) · ${rule.startTime} – ${rule.endTime} · ${rule.slotMinutes}m fixed slots`
+                        )
+                      )
+                    );
                     return (
                       <div
                         key={dbAssign.id}
@@ -165,23 +201,44 @@ export default async function DoctorDetailPage({
                           {br?.nameEn} ({br?.nameBn})
                         </p>
                         <p className="text-sm text-[#4b5563]">
-                          Chamber: <strong className="text-[#080808]">{dbAssign.roomNumber}</strong>
+                          Chamber Room: <strong className="text-[#080808]">{dbAssign.roomNumber}</strong>
                         </p>
-                        {dbAssign.scheduleRules.map((rule) => (
+                        {uniqueLabels.map((lbl) => (
                           <div
-                            key={rule.id}
+                            key={lbl}
                             className="text-sm text-[#374151] flex items-center gap-2"
                           >
-                            <Clock className="w-4 h-4 text-[#0057b8]" />
-                            <span>
-                              {rule.weekdayLabelEn}: {rule.startTime} – {rule.endTime} ({rule.slotMinutes}m slots)
-                            </span>
+                            <Clock className="w-4 h-4 text-[#0057b8] shrink-0" />
+                            <span>{lbl}</span>
                           </div>
                         ))}
                       </div>
                     );
                   })}
                 </div>
+
+                {/* Next Available Fixed Time Slots Preview */}
+                {nextSlotPreview.isAvailableDay && nextSlotPreview.slots.length > 0 && (
+                  <div className="pt-4 space-y-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8]">
+                      Next Available Fixed Time Slots ({nextSlotPreview.date} · {nextSlotPreview.chamberRoom}):
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {nextSlotPreview.slots
+                        .filter((s) => s.status === "AVAILABLE")
+                        .slice(0, 8)
+                        .map((slot) => (
+                          <a
+                            key={slot.time24}
+                            href="#book-with-doctor"
+                            className="px-3 py-1.5 bg-[#f0f7ff] hover:bg-[#0057b8] text-[#004181] hover:text-white border border-[#93c5fd] text-xs font-bold transition-colors"
+                          >
+                            {slot.labelEn} ({slot.labelBn})
+                          </a>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

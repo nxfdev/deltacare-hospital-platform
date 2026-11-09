@@ -185,12 +185,49 @@ body {
   font-family: var(--mc-typography-font-family-display);
 }
 
-.font-mc-serif {
+.font-mc-serif,
+.mc-serif {
   font-family: var(--mc-typography-font-family-serif);
 }
 
-.font-mc-sans {
+.font-mc-sans,
+.font-bangla {
   font-family: var(--mc-typography-font-family-sans);
+}
+
+.mc-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background-color: var(--mc-color-action-primary-default);
+  color: #ffffff;
+  font-weight: 700;
+  transition: background-color 0.2s ease;
+}
+
+.mc-btn-primary:hover {
+  background-color: var(--mc-color-action-primary-hover);
+}
+
+.mc-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: 8px;
+  border: 1.5px solid var(--mc-color-action-primary-default);
+  background-color: #ffffff;
+  color: var(--mc-color-action-primary-default);
+  font-weight: 700;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.mc-btn-secondary:hover {
+  background-color: #e8f0f9;
 }
 
 .mc-hero-headline {

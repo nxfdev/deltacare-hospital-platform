@@ -3,6 +3,7 @@ import {
   ContactRequest,
   FeedbackRecord,
   FeedbackStatus,
+  PatientFeedbackRecord,
   RoleCode,
 } from "@/types/domain";
 import {
@@ -92,6 +93,91 @@ function suggestFeedbackCategoryByText(text: string): string {
     return "APPOINTMENT — Suggested routing: Front-Desk Scheduling";
   }
   return "GENERAL — Suggested routing: Patient Experience Desk";
+}
+
+export async function createPatientFeedback(params: {
+  appointmentId?: string | null;
+  doctorId?: string | null;
+  departmentId?: string | null;
+  branchId?: string | null;
+  patientName: string;
+  patientPhone: string;
+  category: "DOCTOR_CARE" | "WAIT_TIME" | "FRONT_DESK_SERVICE" | "CLEANLINESS" | "ONLINE_BOOKING";
+  rating: number;
+  comment: string;
+}): Promise<PatientFeedbackRecord> {
+  return runInTransaction((state) => {
+    if (!Array.isArray(state.patientFeedbacks)) {
+      state.patientFeedbacks = [];
+    }
+    const nowIso = new Date().toISOString();
+    const record: PatientFeedbackRecord = {
+      id: `pfb-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      appointmentId: params.appointmentId || null,
+      doctorId: params.doctorId || null,
+      departmentId: params.departmentId || null,
+      branchId: params.branchId || null,
+      patientName: params.patientName,
+      patientPhone: params.patientPhone,
+      category: params.category,
+      rating: Math.max(1, Math.min(5, params.rating)),
+      comment: params.comment,
+      status: "NEW",
+      adminResponse: null,
+      createdAt: nowIso,
+    };
+    state.patientFeedbacks.unshift(record);
+
+    recordAuditEvent(state, {
+      actorUserId: "visitor",
+      actorName: params.patientName,
+      actorRole: "VISITOR",
+      action: "PATIENT_FEEDBACK_SUBMITTED",
+      entityType: "PatientFeedbackRecord",
+      entityId: record.id,
+      summary: `Patient review submitted for category ${params.category} (★${params.rating}).`,
+    });
+
+    return record;
+  });
+}
+
+export async function updatePatientFeedback(
+  session: SessionPayload,
+  params: {
+    feedbackId: string;
+    status?: "NEW" | "IN_REVIEW" | "RESOLVED";
+    adminResponse?: string | null;
+  }
+): Promise<{ ok: true; feedback: PatientFeedbackRecord } | { ok: false; error: string }> {
+  return runInTransaction((state) => {
+    if (!Array.isArray(state.patientFeedbacks)) {
+      state.patientFeedbacks = [];
+    }
+    const item = state.patientFeedbacks.find((f) => f.id === params.feedbackId);
+    if (!item) {
+      return { ok: false, error: "Patient feedback record not found." };
+    }
+
+    if (params.status) {
+      item.status = params.status;
+    }
+    if (params.adminResponse !== undefined) {
+      item.adminResponse = params.adminResponse;
+    }
+
+    recordAuditEvent(state, {
+      actorUserId: session.userId,
+      actorName: session.fullName,
+      actorRole: session.role,
+      action: "PATIENT_FEEDBACK_MODERATED",
+      entityType: "PatientFeedbackRecord",
+      entityId: item.id,
+      summary: `Updated patient feedback ${item.id} status to ${item.status}.`,
+    });
+
+    return { ok: true, feedback: item };
+  });
 }
 
 export async function createFeedbackSubmission(
@@ -343,7 +429,10 @@ export function generateAppointmentsCsv(): string {
 const ROLE_PRIVILEGE_LEVEL: Record<RoleCode, number> = {
   SUPER_ADMIN: 100,
   HOSPITAL_ADMIN: 80,
+  APPOINTMENT_MANAGER: 65,
   DEPT_MANAGER: 60,
+  CMS_EDITOR: 50,
+  FRONT_DESK: 40,
   DOCTOR: 40,
   RECEPTIONIST: 40,
   CONTENT_EDITOR: 40,

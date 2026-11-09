@@ -5,6 +5,7 @@ import {
   Department,
   DiseaseCondition,
   Doctor,
+  HospitalNotice,
   PublicationState,
 } from "@/types/domain";
 import { doctorUpsertSchema } from "@/lib/validation/schemas";
@@ -586,5 +587,119 @@ export async function upsertConditionRecord(
     });
 
     return { ok: true, condition: created };
+  });
+}
+
+export async function upsertHospitalNotice(
+  session: SessionPayload,
+  input: {
+    id?: string;
+    slug: string;
+    titleEn: string;
+    titleBn: string;
+    summaryEn: string;
+    summaryBn: string;
+    bodyEn: string;
+    bodyBn: string;
+    category?: "CLINICAL_ALERT" | "BRANCH_UPDATE" | "PATIENT_ADVISORY" | "COMMUNITY_HEALTH";
+    branchId?: string | null;
+    isPinned?: boolean;
+    isActive?: boolean;
+  }
+): Promise<{ ok: true; notice: HospitalNotice } | { ok: false; error: string }> {
+  return runInTransaction((state) => {
+    if (!Array.isArray(state.hospitalNotices)) {
+      state.hospitalNotices = [];
+    }
+    const nowIso = new Date().toISOString();
+    const existingIdx = input.id
+      ? state.hospitalNotices.findIndex((n) => n.id === input.id)
+      : state.hospitalNotices.findIndex((n) => n.slug === input.slug);
+
+    if (existingIdx >= 0) {
+      const existing = state.hospitalNotices[existingIdx];
+      const updated: HospitalNotice = {
+        ...existing,
+        ...input,
+        id: existing.id,
+        category: input.category || existing.category || "PATIENT_ADVISORY",
+        branchId: input.branchId !== undefined ? input.branchId : existing.branchId,
+        isPinned: input.isPinned !== undefined ? input.isPinned : existing.isPinned,
+        isActive: input.isActive !== undefined ? input.isActive : existing.isActive,
+        updatedAt: nowIso,
+      };
+      state.hospitalNotices[existingIdx] = updated;
+
+      recordAuditEvent(state, {
+        actorUserId: session.userId,
+        actorName: session.fullName,
+        actorRole: session.role,
+        action: "HOSPITAL_NOTICE_UPDATED",
+        entityType: "HospitalNotice",
+        entityId: updated.id,
+        summary: `Updated hospital notice ${updated.titleEn} (Active: ${updated.isActive})`,
+      });
+
+      return { ok: true, notice: updated };
+    }
+
+    const created: HospitalNotice = {
+      id: input.id || `notice-${Date.now()}`,
+      slug: input.slug,
+      titleEn: input.titleEn,
+      titleBn: input.titleBn,
+      summaryEn: input.summaryEn,
+      summaryBn: input.summaryBn,
+      bodyEn: input.bodyEn,
+      bodyBn: input.bodyBn,
+      category: input.category || "PATIENT_ADVISORY",
+      branchId: input.branchId || null,
+      isPinned: Boolean(input.isPinned),
+      isActive: input.isActive !== false,
+      publishedAt: nowIso,
+      updatedAt: nowIso,
+    };
+    state.hospitalNotices.unshift(created);
+
+    recordAuditEvent(state, {
+      actorUserId: session.userId,
+      actorName: session.fullName,
+      actorRole: session.role,
+      action: "HOSPITAL_NOTICE_CREATED",
+      entityType: "HospitalNotice",
+      entityId: created.id,
+      summary: `Created and published hospital notice ${created.titleEn}`,
+    });
+
+    return { ok: true, notice: created };
+  });
+}
+
+export async function toggleNoticeStatus(
+  session: SessionPayload,
+  noticeId: string
+): Promise<{ ok: true; notice: HospitalNotice } | { ok: false; error: string }> {
+  return runInTransaction((state) => {
+    if (!Array.isArray(state.hospitalNotices)) {
+      state.hospitalNotices = [];
+    }
+    const notice = state.hospitalNotices.find((n) => n.id === noticeId);
+    if (!notice) {
+      return { ok: false, error: "Hospital notice not found." };
+    }
+    notice.isActive = !notice.isActive;
+    notice.updatedAt = new Date().toISOString();
+
+    recordAuditEvent(state, {
+      actorUserId: session.userId,
+      actorName: session.fullName,
+      actorRole: session.role,
+      action: "HOSPITAL_NOTICE_STATUS_TOGGLED",
+      entityType: "HospitalNotice",
+      entityId: notice.id,
+      summary: `Toggled notice ${notice.titleEn} active status to ${notice.isActive}.`,
+    });
+
+    return { ok: true, notice };
   });
 }

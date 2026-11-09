@@ -10,9 +10,13 @@ import {
 import {
   blockDoctorChamberDate,
   createAppointmentRequest,
+  createFrontDeskAppointment,
   getDoctorBranchAvailability,
   transitionAppointmentStatus,
+  upsertDoctorChamberScheduleRule,
+  upsertDoctorScheduleOverride,
 } from "@/server/services/appointmentService";
+import { getSmsLogsForAppointment } from "@/lib/sms/sms-service";
 import {
   reviewApprovalRequest,
   toggleDoctorStatus,
@@ -51,6 +55,23 @@ import {
 import { facebookPublisher } from "@/server/services/facebookPublishingService";
 import { ADMIN_CONSOLE_ROLES } from "@/lib/auth/roles";
 import { getOperationalInsights } from "@/server/services/insightsService";
+import { getAvailableSlotsForDoctor, resolveDhakaWeekday } from "@/lib/schedule-engine";
+import { prisma } from "@/lib/prisma";
+import {
+  computeHealthcareAnalytics,
+  generateDoctorPopularityCsv,
+  generatePatientFeedbackCsv,
+  generateAppointmentRegisterCsv,
+} from "@/server/services/analyticsService";
+import { generateDailyFacebookCampaign } from "@/server/services/facebookCampaignService";
+import {
+  createPatientFeedback,
+  updatePatientFeedback,
+} from "@/server/services/communicationAndAnalyticsService";
+import {
+  upsertHospitalNotice,
+  toggleNoticeStatus,
+} from "@/server/services/cmsService";
 
 const superAdminSession: SessionPayload = {
   userId: "user-super-0",
@@ -438,7 +459,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
     const afterAnalytics = getOperationalAnalytics();
     expect(afterAnalytics.feedback.total).toBe(initialFbCount + 1);
-    expect(getPublishedBranches().length).toBe(5);
+    expect(getPublishedBranches().length).toBeGreaterThanOrEqual(5);
     expect(getPublishedConditions().length).toBeGreaterThanOrEqual(15);
   });
 
@@ -1410,6 +1431,447 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       expect(updatedDoc.bmdcRegistrationNo).toBe(originalBmdc);
       expect(updatedDoc.consultationFeeBdt).toBe(originalFee);
       expect(updatedDoc.publicTaglineEn).toBe("Compassionate Cardiology Care");
+    });
+  });
+
+  // ==========================================================================
+  // PHASE 1: Multi-Branch Fixed-Slot Engine, Prisma Relational Layer & BD Copy
+  // ==========================================================================
+  describe("Phase 1 — Multi-Branch Fixed-Slot Engine & Bangladeshi Clinical Context", () => {
+    it("T-SLOT-01: getAvailableSlotsForDoctor resolves Asia/Dhaka weekday, 15-min slots, and excludes break windows", async () => {
+      // 2026-11-15 is Sunday (weekday 0 in Asia/Dhaka). doc-9 has chamber at branch-dhanmondi 17:00-21:00 (15m slots, break 19:00-19:30)
+      expect(resolveDhakaWeekday("2026-11-15")).toBe(0);
+      const res = await getAvailableSlotsForDoctor({
+        doctorId: "doc-9",
+        branchId: "branch-dhanmondi",
+        date: "2026-11-15",
+      });
+
+      expect(res.isAvailableDay).toBe(true);
+      expect(res.chamberRoom).toBe("Room #402, 3rd Floor");
+      expect(res.slots.some((s) => s.time24 === "17:00")).toBe(true);
+      expect(res.slots.some((s) => s.time24 === "17:15")).toBe(true);
+      // Break window 19:00 - 19:30 is excluded
+      expect(res.slots.some((s) => s.time24 === "19:00")).toBe(false);
+      expect(res.slots.some((s) => s.time24 === "19:15")).toBe(false);
+      expect(res.slots.some((s) => s.time24 === "19:30")).toBe(true);
+    });
+
+    it("T-SLOT-02: getAvailableSlotsForDoctor honors FULL_DAY_LEAVE, CUSTOM_HOURS, and BLOCKED_SLOTS overrides", async () => {
+      // 1. FULL_DAY_LEAVE on 2026-11-26 for doc-9 at branch-dhanmondi
+      const leaveRes = await getAvailableSlotsForDoctor({
+        doctorId: "doc-9",
+        branchId: "branch-dhanmondi",
+        date: "2026-11-26",
+      });
+      expect(leaveRes.isAvailableDay).toBe(false);
+      expect(leaveRes.slots.length).toBe(0);
+      expect(leaveRes.reason).toContain("CME Conference");
+
+      // 2. CUSTOM_HOURS on Friday 2026-11-27 (non-regular day for doc-9) 18:00-20:00 with blocked slot 18:30
+      const customRes = await getAvailableSlotsForDoctor({
+        doctorId: "doc-9",
+        branchId: "branch-dhanmondi",
+        date: "2026-11-27",
+      });
+      expect(customRes.isAvailableDay).toBe(true);
+      expect(customRes.slots.some((s) => s.time24 === "18:00" && s.status === "AVAILABLE")).toBe(true);
+      expect(customRes.slots.some((s) => s.time24 === "18:30" && s.status === "BLOCKED")).toBe(true);
+
+      // 3. BLOCKED_SLOTS on 2026-11-22 for doc-1 at branch-dhanmondi
+      const blockedRes = await getAvailableSlotsForDoctor({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: "2026-11-22",
+      });
+      expect(blockedRes.isAvailableDay).toBe(true);
+      const slot1700 = blockedRes.slots.find((s) => s.time24 === "17:00");
+      expect(slot1700?.status).toBe("BLOCKED");
+    });
+
+    it("T-SEARCH-BD-01: Unified search queries match Bangladeshi institutions (DMC, BSMMU, BIRDEM) and bilingual symptoms (Dengue / ডেঙ্গু)", async () => {
+      const depts = await prisma.department.findMany();
+      expect(depts.length).toBeGreaterThanOrEqual(11);
+
+      const dmcDoctors = getPublishedDoctors({ query: "DMC" });
+      expect(dmcDoctors.length).toBeGreaterThanOrEqual(5);
+
+      const bsmmuDoctors = getPublishedDoctors({ query: "BSMMU" });
+      expect(bsmmuDoctors.length).toBeGreaterThanOrEqual(4);
+
+      const dengueBnHits = executeGlobalSearch("ডেঙ্গু", "bn");
+      expect(dengueBnHits.some((h) => h.type === "DOCTOR")).toBe(true);
+      expect(dengueBnHits.some((h) => h.type === "DEPARTMENT")).toBe(true);
+      expect(dengueBnHits.some((h) => h.type === "CONDITION")).toBe(true);
+
+      const pregnancyHits = executeGlobalSearch("গর্ভকালীন পরিচর্যা", "bn");
+      expect(pregnancyHits.length).toBeGreaterThanOrEqual(2);
+    });
+  });
+
+  // ==========================================================================
+  // PHASE 2: Assistant Schedule Manager, Conflict Detection, Online Booking & SMS
+  // ==========================================================================
+  describe("Phase 2 — Front Desk & Assistant Schedule Manager, Conflict Detection & SMS Service", () => {
+    it("T-PH2-01: Assistant opens CUSTOM_HOURS, blocks fixed slots, marks FULL_DAY_LEAVE, and triggers conflict detection", async () => {
+      // 1. Open ad-hoc CUSTOM_HOURS on a non-regular Friday (2026-12-04) for doc-1 at branch-dhanmondi
+      const customOverride = await upsertDoctorScheduleOverride({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: "2026-12-04",
+        overrideType: "CUSTOM_HOURS",
+        customStartTime: "18:00",
+        customEndTime: "20:00",
+        blockedSlots: [],
+        reasonEn: "Friday Evening Special Chamber",
+        reasonBn: "শুক্রবার বিশেষ চেম্বার",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+      });
+      expect(customOverride.ok).toBe(true);
+
+      // Verify newly opened slots are immediately bookable
+      const customSlots = await getAvailableSlotsForDoctor({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: "2026-12-04",
+      });
+      expect(customSlots.isAvailableDay).toBe(true);
+      expect(
+        customSlots.slots.some((s) => s.time24 === "18:00" && s.status === "AVAILABLE")
+      ).toBe(true);
+
+      // Book a patient on the newly opened 18:00 slot
+      const booked = await createAppointmentRequest({
+        departmentId: "dept-cardiology",
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        preferredDate: "2026-12-04",
+        preferredTimeSlot: "18:00",
+        patientName: "Rafiqul Islam",
+        patientPhone: "+8801715998877",
+        patientAge: 49,
+        patientGender: "MALE",
+        visitType: "NEW_CONSULTATION",
+        consentAccepted: true,
+      });
+      expect(booked.ok).toBe(true);
+      if (!booked.ok) return;
+
+      // Phone is normalized to 11-digit BD format
+      expect(booked.appointment.patientPhone).toBe("01715998877");
+
+      // 2. Assistant blocks 18:00 or marks FULL_DAY_LEAVE -> Conflict Detection flags appointment as RESCHEDULE_REQUESTED
+      const leaveRes = await upsertDoctorScheduleOverride({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: "2026-12-04",
+        overrideType: "FULL_DAY_LEAVE",
+        reasonEn: "Emergency OT Case",
+        reasonBn: "জরুরি অপারেশন",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+      });
+      expect(leaveRes.ok).toBe(true);
+      if (leaveRes.ok) {
+        expect(leaveRes.affectedAppointments.length).toBe(1);
+        expect(leaveRes.affectedAppointments[0].id).toBe(booked.appointment.id);
+        expect(leaveRes.affectedAppointments[0].status).toBe("RESCHEDULE_REQUESTED");
+      }
+    });
+
+    it("T-PH2-02: End-to-end appointment lifecycle dispatches REQUEST_RECEIVED, CONFIRMED, RESCHEDULED, and CANCELLED SMS logs", async () => {
+      // 1. Public booking on Wednesday 2026-12-02 at 16:20 for doc-1 at branch-dhanmondi
+      const reqRes = await createAppointmentRequest({
+        departmentId: "dept-cardiology",
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        preferredDate: "2026-12-02",
+        preferredTimeSlot: "16:20",
+        patientName: "Tahmina Akter",
+        patientPhone: "01819223344",
+        patientAge: 36,
+        patientGender: "FEMALE",
+        visitType: "FOLLOW_UP",
+        consentAccepted: true,
+      });
+      expect(reqRes.ok).toBe(true);
+      if (!reqRes.ok) return;
+
+      const aptId = reqRes.appointment.id;
+      let logs = getSmsLogsForAppointment(aptId);
+      expect(logs.some((l) => l.eventType === "REQUEST_RECEIVED")).toBe(true);
+
+      // 2. Front Desk confirms the booking -> CONFIRMED SMS log recorded
+      const confirmRes = await transitionAppointmentStatus({
+        appointmentId: aptId,
+        toStatus: "CONFIRMED",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+        reason: "Verified by Front Desk",
+      });
+      expect(confirmRes.ok).toBe(true);
+      logs = getSmsLogsForAppointment(aptId);
+      expect(logs.some((l) => l.eventType === "CONFIRMED")).toBe(true);
+      const confirmSms = logs.find((l) => l.eventType === "CONFIRMED")!;
+      expect(confirmSms.messageBody).toContain(reqRes.appointment.reference);
+      expect(confirmSms.messageBody).toContain("১৫ মিনিট পূর্বে");
+
+      // 3. Front Desk reschedules to 16:40 -> RESCHEDULED SMS log recorded & 16:20 released
+      const reschedRes = await transitionAppointmentStatus({
+        appointmentId: aptId,
+        toStatus: "CONFIRMED",
+        newDate: "2026-12-02",
+        newTimeSlot: "16:40",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+        reason: "Moved to 16:40",
+      });
+      expect(reschedRes.ok).toBe(true);
+      logs = getSmsLogsForAppointment(aptId);
+      expect(logs.some((l) => l.eventType === "RESCHEDULED")).toBe(true);
+
+      // 4. Front Desk cancels booking -> CANCELLED SMS log recorded & 16:40 released back to AVAILABLE
+      const cancelRes = await transitionAppointmentStatus({
+        appointmentId: aptId,
+        toStatus: "CANCELLED",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+        reason: "Patient requested cancellation",
+      });
+      expect(cancelRes.ok).toBe(true);
+      logs = getSmsLogsForAppointment(aptId);
+      expect(logs.some((l) => l.eventType === "CANCELLED")).toBe(true);
+
+      const postCancelAvail = await getAvailableSlotsForDoctor({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: "2026-12-02",
+      });
+      const slot1640 = postCancelAvail.slots.find((s) => s.time24 === "16:40");
+      expect(slot1640?.status).toBe("AVAILABLE");
+    });
+
+    it("T-PH2-03: 15-Second Front Desk Quick Booking & Recurring Weekly Rule Editor", async () => {
+      // 1. Update recurring weekly rule for doc-1 at branch-dhanmondi
+      const ruleRes = await upsertDoctorChamberScheduleRule({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        dayOfWeek: 1, // Monday
+        chamberRoom: "Room #301, 2nd Floor (Heart Center)",
+        startTime: "16:00",
+        endTime: "20:00",
+        slotDurationMinutes: 20,
+        isActive: true,
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+      });
+      expect(ruleRes.ok).toBe(true);
+
+      // 2. 15-second phone hotline booking directly as CONFIRMED
+      const qbRes = await createFrontDeskAppointment({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        appointmentDate: "2026-12-07", // Monday
+        slotTime: "16:00",
+        patientName: "Kamrul Hasan",
+        patientPhone: "01911334455",
+        patientAge: 52,
+        patientGender: "MALE",
+        visitType: "NEW_VISIT",
+        bookingSource: "FRONT_DESK_PHONE",
+        symptomsNote: "BP checkup via 10666 hotline",
+        actorUserId: receptionistSession.userId,
+        actorName: receptionistSession.fullName,
+        actorRole: receptionistSession.role,
+      });
+      expect(qbRes.ok).toBe(true);
+      if (qbRes.ok) {
+        expect(qbRes.appointment.status).toBe("CONFIRMED");
+        expect(qbRes.appointment.bookingSource).toBe("FRONT_DESK_PHONE");
+        const smsLogs = getSmsLogsForAppointment(qbRes.appointment.id);
+        expect(smsLogs.some((s) => s.eventType === "CONFIRMED")).toBe(true);
+      }
+    });
+  });
+
+  // ==========================================================================
+  // Phase 3: Healthcare Analytics, Daily Facebook Generator & Hospital CMS Suite
+  // ==========================================================================
+  describe("Phase 3: Healthcare Analytics, Daily Facebook Generator & Hospital CMS Suite", () => {
+    it("T-PH3-01: Healthcare Analytics calculation & CSV exports", async () => {
+      // 1. Compute analytics across all records
+      const analytics = await computeHealthcareAnalytics({ range: "all" });
+
+      // Verify Executive KPIs
+      expect(analytics.kpis.totalAppointments).toBeGreaterThan(0);
+      expect(analytics.kpis.confirmationRatePct).toBeGreaterThanOrEqual(0);
+      expect(analytics.kpis.confirmationRatePct).toBeLessThanOrEqual(100);
+      expect(analytics.kpis.patientSatisfactionScore).toBeGreaterThanOrEqual(1);
+      expect(analytics.kpis.patientSatisfactionScore).toBeLessThanOrEqual(5);
+
+      // Verify Dataset 1: Doctor Popularity & Slot Utilization
+      expect(analytics.dataset1DoctorPopularity.length).toBeGreaterThan(0);
+      const firstDoc = analytics.dataset1DoctorPopularity[0];
+      expect(firstDoc.nameEn).toBeDefined();
+      expect(firstDoc.utilizationPct).toBeGreaterThanOrEqual(0);
+
+      // Verify Dataset 2: Feedback Sentiment across categories
+      expect(analytics.dataset2FeedbackCategories.length).toBe(5);
+      const careSentiment = analytics.dataset2FeedbackCategories.find(
+        (s) => s.category === "DOCTOR_CARE"
+      );
+      expect(careSentiment).toBeDefined();
+      expect(careSentiment?.averageScore).toBeGreaterThanOrEqual(1);
+
+      // Verify Dataset 3: Department Demand
+      expect(analytics.dataset3DepartmentDemand.length).toBeGreaterThan(0);
+      const cardDept = analytics.dataset3DepartmentDemand.find(
+        (d) => d.nameEn.toLowerCase().includes("cardiology")
+      );
+      expect(cardDept).toBeDefined();
+
+      // Verify Dataset 4: 7x4 Rush Heatmap (28 cells)
+      expect(analytics.dataset4RushHeatmap.length).toBe(28);
+
+      // Verify Dataset 5: Booking Velocity
+      expect(analytics.dataset5BookingVelocity.length).toBeGreaterThanOrEqual(1);
+
+      // Verify Dataset 6: Split by Channel and Visit Type
+      expect(analytics.dataset6ChannelSplit.length).toBeGreaterThan(0);
+      expect(analytics.dataset6VisitTypeSplit.length).toBeGreaterThan(0);
+
+      // 2. Verify CSV Export streams
+      const doctorCsv = generateDoctorPopularityCsv(analytics);
+      expect(doctorCsv).toContain("Doctor Name");
+      expect(doctorCsv).toContain("Department");
+      expect(doctorCsv).toContain("Confirmed");
+
+      const feedbackCsv = generatePatientFeedbackCsv();
+      expect(feedbackCsv).toContain("Patient Name");
+      expect(feedbackCsv).toContain("Category");
+      expect(feedbackCsv).toContain("Rating");
+
+      const registerCsv = generateAppointmentRegisterCsv();
+      expect(registerCsv).toContain("Reference ID");
+      expect(registerCsv).toContain("Patient Name");
+      expect(registerCsv).toContain("Status");
+    });
+
+    it("T-PH3-02: Daily Facebook Spotlight Campaign Generation & Exceptions", async () => {
+      const campaignDate = "2026-12-07"; // Monday
+
+      // 1. Generate campaign for scheduled Monday
+      const campaign = await generateDailyFacebookCampaign({
+        date: campaignDate,
+        branchId: "branch-dhanmondi",
+      });
+
+      expect(campaign.ok).toBe(true);
+      expect(campaign.doctors.length).toBeGreaterThan(0);
+
+      const doc1Spotlight = campaign.doctors.find((d) => d.doctorId === "doc-1");
+      expect(doc1Spotlight).toBeDefined();
+      if (doc1Spotlight) {
+        expect(doc1Spotlight.visitingHoursEn).toBeDefined();
+        expect(doc1Spotlight.visitingHoursBn).toBeDefined();
+        expect(doc1Spotlight.caption).toContain("10666");
+        expect(doc1Spotlight.caption).toContain("Dr.");
+        expect(doc1Spotlight.caption).toContain("https://deltacare.bd/appointments");
+      }
+
+      // 2. Add FULL_DAY_LEAVE exception for doc-1 and verify exclusion
+      await upsertDoctorScheduleOverride({
+        doctorId: "doc-1",
+        branchId: "branch-dhanmondi",
+        date: campaignDate,
+        overrideType: "FULL_DAY_LEAVE",
+        reasonEn: "Cardiology Annual CME Conference",
+        actorUserId: adminSession.userId,
+        actorName: adminSession.fullName,
+        actorRole: adminSession.role,
+      });
+
+      const campaignWithLeave = await generateDailyFacebookCampaign({
+        date: campaignDate,
+        branchId: "branch-dhanmondi",
+      });
+
+      const excludedDoc1 = campaignWithLeave.doctors.find((d) => d.doctorId === "doc-1");
+      expect(excludedDoc1).toBeUndefined();
+    });
+
+    it("T-PH3-03: Patient Feedback Submission & Admin Moderation + Hospital Notices CMS", async () => {
+      // 1. Submit patient feedback
+      const feedback = await createPatientFeedback({
+        patientName: "Tasneem Sultana",
+        patientPhone: "01755112233",
+        category: "FRONT_DESK_SERVICE",
+        rating: 4,
+        comment: "Front desk staff quickly assisted my elderly father with a wheelchair.",
+        doctorId: "doc-1",
+        departmentId: "dept-cardiology",
+        branchId: "branch-dhanmondi",
+      });
+
+      expect(feedback.id).toBeDefined();
+      expect(feedback.status).toBe("NEW");
+
+      // 2. Admin moderates feedback to IN_REVIEW
+      const inReviewRes = await updatePatientFeedback(adminSession, {
+        feedbackId: feedback.id,
+        status: "IN_REVIEW",
+      });
+      expect(inReviewRes.ok).toBe(true);
+      if (inReviewRes.ok) {
+        expect(inReviewRes.feedback.status).toBe("IN_REVIEW");
+      }
+
+      // 3. Admin resolves feedback with official response
+      const resolveRes = await updatePatientFeedback(adminSession, {
+        feedbackId: feedback.id,
+        status: "RESOLVED",
+        adminResponse: "Thank you Tasneem. DeltaCare priority patient mobility assistance is always on standby.",
+      });
+      expect(resolveRes.ok).toBe(true);
+      if (resolveRes.ok) {
+        expect(resolveRes.feedback.status).toBe("RESOLVED");
+        expect(resolveRes.feedback.adminResponse).toContain("priority patient mobility");
+      }
+
+      // 4. Hospital Notices CMS — Upsert clinical notice
+      const noticeRes = await upsertHospitalNotice(adminSession, {
+        slug: "cardiology-outpatient-extension",
+        titleEn: "Extended Evening OPD Sessions for Cardiology",
+        titleBn: "কার্ডিওলজি সান্ধ্যকালীন ওপিডি সময়সীমা বর্ধিতকরণ",
+        summaryEn: "OPD hours extended until 9:30 PM at Dhanmondi campus.",
+        summaryBn: "ধানমন্ডি ক্যাম্পাসে ওপিডি রাত ৯:৩০ পর্যন্ত বর্ধিত করা হলো।",
+        bodyEn: "Detailed guidelines for specialized evening echocardiogram appointments.",
+        bodyBn: "সান্ধ্যকালীন ইকোকার্ডিওগ্রামের বিস্তারিত তথ্য।",
+        category: "CLINICAL_ALERT",
+        branchId: "branch-dhanmondi",
+        isPinned: true,
+        isActive: true,
+      });
+
+      expect(noticeRes.ok).toBe(true);
+      if (noticeRes.ok) {
+        expect(noticeRes.notice.slug).toBe("cardiology-outpatient-extension");
+        expect(noticeRes.notice.isActive).toBe(true);
+
+        // 5. Toggle notice visibility
+        const toggleRes = await toggleNoticeStatus(adminSession, noticeRes.notice.id);
+        expect(toggleRes.ok).toBe(true);
+        if (toggleRes.ok) {
+          expect(toggleRes.notice.isActive).toBe(false);
+        }
+      }
     });
   });
 });

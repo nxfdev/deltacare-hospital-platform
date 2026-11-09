@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentSession, hasRolePermission, STAFF_ROLES } from "@/server/auth/session";
+import { getCurrentSession, hasRolePermission } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
-import { updateFeedbackStatus } from "@/server/services/communicationAndAnalyticsService";
+import {
+  updateFeedbackStatus,
+  updatePatientFeedback,
+} from "@/server/services/communicationAndAnalyticsService";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const session = await getCurrentSession();
@@ -12,6 +17,7 @@ export async function GET() {
       "HOSPITAL_ADMIN",
       "DEPT_MANAGER",
       "RECEPTIONIST",
+      "CONTENT_EDITOR",
     ])
   ) {
     return NextResponse.json(
@@ -22,6 +28,7 @@ export async function GET() {
   const db = getDbState();
   return NextResponse.json({
     ok: true,
+    patientFeedbacks: db.patientFeedbacks || [],
     feedbacks: db.feedbacks,
     contactRequests: db.contactRequests,
     notifications: db.notifications,
@@ -47,6 +54,20 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json();
+
+    // Support moderating patient reviews
+    if (body.patientFeedbackId) {
+      const res = await updatePatientFeedback(session, {
+        feedbackId: body.patientFeedbackId,
+        status: body.status,
+        adminResponse: body.adminResponse,
+      });
+      if (!res.ok) {
+        return NextResponse.json({ ok: false, error: res.error }, { status: 404 });
+      }
+      return NextResponse.json({ ok: true, feedback: res.feedback });
+    }
+
     if (!body.feedbackId || !body.status) {
       return NextResponse.json(
         { ok: false, error: "feedbackId and status are required." },
@@ -75,4 +96,3 @@ export async function PATCH(request: NextRequest) {
     );
   }
 }
-

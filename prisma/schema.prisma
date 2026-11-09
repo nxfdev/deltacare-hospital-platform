@@ -1,6 +1,6 @@
 // ============================================================================
-// DeltaCare Hospital Platform — Prisma Relational Schema
-// Source of Truth: 02-SRS.md & 04-SDD-architecture.md
+// DeltaCare Hospital Platform — Prisma Relational Schema (PostgreSQL)
+// Phase 1: Multi-Branch Fixed-Slot Engine, Doctor Chambers & CMS Governance
 // ============================================================================
 
 generator client {
@@ -21,18 +21,80 @@ enum PublicationState {
 }
 
 enum AppointmentStatus {
+  PENDING
   REQUESTED
   PENDING_CONFIRMATION
   CONFIRMED
+  RESCHEDULED
   RESCHEDULE_REQUESTED
   CANCELLED
   COMPLETED
   NO_SHOW
 }
 
+enum VisitType {
+  NEW_VISIT
+  FOLLOW_UP
+  REPORT_SHOW
+  NEW_CONSULTATION
+}
+
+enum BookingSource {
+  ONLINE_WEBSITE
+  FRONT_DESK_PHONE
+  WALK_IN_DESK
+  WEBSITE
+  FRONT_DESK
+  PHONE
+}
+
+enum OverrideType {
+  FULL_DAY_LEAVE
+  CUSTOM_HOURS
+  BLOCKED_SLOTS
+}
+
+enum SmsEventType {
+  REQUEST_RECEIVED
+  CONFIRMED
+  RESCHEDULED
+  CANCELLED
+}
+
+enum SmsProviderStatus {
+  SENT
+  FAILED
+  SIMULATED
+}
+
+enum PatientFeedbackCategory {
+  DOCTOR_CARE
+  WAIT_TIME
+  FRONT_DESK_SERVICE
+  CLEANLINESS
+  ONLINE_BOOKING
+  BILLING_FEE
+  STAFF_CONDUCT
+  FACILITY
+  APPOINTMENT
+  GENERAL
+}
+
+enum PatientFeedbackStatus {
+  NEW
+  IN_REVIEW
+  TRIAGED
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
 enum RoleCode {
   SUPER_ADMIN
   HOSPITAL_ADMIN
+  CMS_EDITOR
+  APPOINTMENT_MANAGER
+  FRONT_DESK
   DEPT_MANAGER
   DOCTOR
   RECEPTIONIST
@@ -70,104 +132,122 @@ enum NotificationStatus {
 }
 
 model HospitalConfiguration {
-  id                  String   @id @default(uuid())
-  code                String   @unique
-  nameEn              String
-  nameBn              String
-  taglineEn           String   @default("Care at DeltaCare")
-  taglineBn           String   @default("ডেল্টাকেয়ারে সেবা")
-  timezone            String   @default("Asia/Dhaka")
-  defaultLocale       String   @default("en")
-  emergencyPhone      String
-  helplinePhone       String
-  generalEmail        String
+  id                   String   @id @default(uuid())
+  code                 String   @unique
+  nameEn               String
+  nameBn               String
+  taglineEn            String   @default("Care at DeltaCare")
+  taglineBn            String   @default("ডেল্টাকেয়ারে সেবা")
+  timezone             String   @default("Asia/Dhaka")
+  defaultLocale        String   @default("en")
+  emergencyPhone       String
+  helplinePhone        String
+  generalEmail         String
   cancellationPolicyEn String
   cancellationPolicyBn String
-  privacyNoticeEn     String
-  privacyNoticeBn     String
-  status              String   @default("ACTIVE")
-  updatedAt           DateTime @updatedAt
-  createdAt           DateTime @default(now())
+  privacyNoticeEn      String
+  privacyNoticeBn      String
+  status               String   @default("ACTIVE")
+  updatedAt            DateTime @updatedAt
+  createdAt            DateTime @default(now())
 
-  branches            Branch[]
-  doctors             Doctor[]
+  branches             Branch[]
+  doctors              Doctor[]
 }
 
 model Branch {
-  id                  String           @id @default(uuid())
-  hospitalId          String
-  slug                String           @unique
-  nameEn              String
-  nameBn              String
-  subtitleEn          String
-  subtitleBn          String
-  addressEn           String
-  addressBn           String
-  cityEn              String
-  cityBn              String
-  phone               String
-  emergencyPhone      String
-  email               String
-  operatingHoursEn    String
-  operatingHoursBn    String
-  directionsUrl       String
-  imageUrl            String
-  servicesSummaryEn   String[]
-  servicesSummaryBn   String[]
-  publicationState    PublicationState @default(PUBLISHED)
-  sortOrder           Int              @default(0)
-  updatedAt           DateTime         @updatedAt
-  createdAt           DateTime         @default(now())
+  id                String           @id @default(uuid())
+  hospitalId        String           @default("hosp-deltacare-bd-01")
+  slug              String           @unique
+  nameEn            String
+  nameBn            String
+  subtitleEn        String           @default("")
+  subtitleBn        String           @default("")
+  addressEn         String
+  addressBn         String
+  cityEn            String           @default("Dhaka")
+  cityBn            String           @default("ঢাকা")
+  hotline           String           @default("10666")
+  phone             String           @default("+88029612301")
+  emergencyPhone    String           @default("+8809612310666")
+  email             String           @default("info@deltacare.bd")
+  operatingHoursEn  String           @default("Outpatient Chambers: 8:00 AM – 10:00 PM | Emergency: 24/7")
+  operatingHoursBn  String           @default("আউটপেশেন্ট চেম্বার: সকাল ৮:০০ – রাত ১০:০০ | জরুরি বিভাগ: ২৪/৭")
+  mapUrl            String           @default("https://maps.google.com/?q=Dhaka")
+  directionsUrl     String           @default("https://maps.google.com/?q=Dhaka")
+  imageUrl          String           @default("/images/locations/dhanmondi.jpg")
+  servicesSummaryEn String[]
+  servicesSummaryBn String[]
+  isActive          Boolean          @default(true)
+  publicationState  PublicationState @default(PUBLISHED)
+  sortOrder         Int              @default(0)
+  updatedAt         DateTime         @updatedAt
+  createdAt         DateTime         @default(now())
 
-  hospital            HospitalConfiguration @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  departments         Department[]
-  doctorBranches      DoctorBranch[]
+  hospital          HospitalConfiguration   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  departments       Department[]
+  doctorBranches    DoctorBranch[]
+  chamberSchedules  DoctorChamberSchedule[]
+  scheduleOverrides DoctorScheduleOverride[]
+  appointments      Appointment[]
+  feedbacks         PatientFeedback[]
+  notices           HospitalNotice[]
 
-  @@index([publicationState, sortOrder])
+  @@index([isActive, publicationState, sortOrder])
 }
 
 model Department {
-  id                  String           @id @default(uuid())
-  branchId            String
-  slug                String           @unique
-  nameEn              String
-  nameBn              String
-  shortDescriptionEn  String
-  shortDescriptionBn  String
-  overviewEn          String
-  overviewBn          String
-  iconName            String           @default("Stethoscope")
-  imageUrl            String?
-  isFeaturedCareArea  Boolean          @default(false)
-  publicationState    PublicationState @default(PUBLISHED)
-  lastVerifiedAt      DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
-  createdAt           DateTime         @default(now())
+  id                 String           @id @default(uuid())
+  branchId           String           @default("branch-dhanmondi")
+  slug               String           @unique
+  nameEn             String
+  nameBn             String
+  shortDescEn        String           @default("")
+  shortDescBn        String           @default("")
+  shortDescriptionEn String           @default("")
+  shortDescriptionBn String           @default("")
+  overviewEn         String           @default("")
+  overviewBn         String           @default("")
+  servicesEn         String[]
+  servicesBn         String[]
+  commonConditionsEn String[]
+  commonConditionsBn String[]
+  icon               String           @default("Stethoscope")
+  iconName           String           @default("Stethoscope")
+  imageUrl           String?
+  displayOrder       Int              @default(0)
+  isActive           Boolean          @default(true)
+  isFeaturedCareArea Boolean          @default(true)
+  publicationState   PublicationState @default(PUBLISHED)
+  lastVerifiedAt     DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime         @default(now())
 
-  branch              Branch           @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  doctors             Doctor[]
-  services            Service[]
-  conditions          DiseaseCondition[]
-  procedures          MedicalProcedure[]
+  branch             Branch             @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  doctors            Doctor[]
+  services           Service[]
+  conditions         DiseaseCondition[]
+  procedures         MedicalProcedure[]
+  feedbacks          PatientFeedback[]
 
-  @@index([publicationState, isFeaturedCareArea])
+  @@index([isActive, publicationState, displayOrder])
 }
 
 model Specialty {
-  id                  String   @id @default(uuid())
-  slug                String   @unique
-  nameEn              String
-  nameBn              String
-  descriptionEn       String
-  descriptionBn       String
-  createdAt           DateTime @default(now())
+  id                String            @id @default(uuid())
+  slug              String            @unique
+  nameEn            String
+  nameBn            String
+  descriptionEn     String
+  descriptionBn     String
+  createdAt         DateTime          @default(now())
 
-  doctorSpecialties   DoctorSpecialty[]
+  doctorSpecialties DoctorSpecialty[]
 }
 
 model Doctor {
   id                  String           @id @default(uuid())
-  hospitalId          String
+  hospitalId          String           @default("hosp-deltacare-bd-01")
   departmentId        String
   slug                String           @unique
   nameEn              String
@@ -176,128 +256,181 @@ model Doctor {
   designationBn       String
   qualificationsEn    String
   qualificationsBn    String
-  experienceYears     Int
+  workplaceEn         String           @default("")
+  workplaceBn         String           @default("")
+  experienceYears     Int              @default(10)
+  bmdcRegNo           String           @unique
   bmdcRegistrationNo  String           @unique
   bioEn               String
   bioBn               String
+  symptomTags         String[]
   clinicalInterestsEn String[]
   clinicalInterestsBn String[]
   languagesEn         String[]
   languagesBn         String[]
-  imageUrl            String
+  photoUrl            String           @default("/images/doctors/doc-1.svg")
+  imageUrl            String           @default("/images/doctors/doc-1.svg")
   consultationFeeBdt  Int
   followupFeeBdt      Int
   feeEffectiveFrom    DateTime         @default(now())
   feeEffectiveTo      DateTime?
+  isActive            Boolean          @default(true)
   publicationState    PublicationState @default(PUBLISHED)
   lastVerifiedAt      DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
   createdAt           DateTime         @default(now())
 
-  hospital            HospitalConfiguration @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  department          Department            @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  hospital            HospitalConfiguration   @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  department          Department              @relation(fields: [departmentId], references: [id], onDelete: Restrict)
   specialties         DoctorSpecialty[]
   doctorBranches      DoctorBranch[]
+  chamberSchedules    DoctorChamberSchedule[]
+  scheduleOverrides   DoctorScheduleOverride[]
+  appointments        Appointment[]
+  feedbacks           PatientFeedback[]
 
-  @@index([publicationState, departmentId])
+  @@index([isActive, publicationState, departmentId])
+}
+
+model DoctorChamberSchedule {
+  id                  String   @id @default(uuid())
+  doctorId            String
+  branchId            String
+  chamberRoom         String   // e.g., "Room #402, 3rd Floor"
+  dayOfWeek           Int      // 0 = Sunday .. 6 = Saturday
+  startTime           String   // "17:00"
+  endTime             String   // "21:00"
+  breakStartTime      String?  // "19:00"
+  breakEndTime        String?  // "19:30"
+  slotDurationMinutes Int      @default(15)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  doctor              Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  branch              Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, branchId, dayOfWeek])
+  @@index([doctorId, branchId, dayOfWeek, isActive])
+}
+
+model DoctorScheduleOverride {
+  id              String       @id @default(uuid())
+  doctorId        String
+  branchId        String
+  date            String       // "YYYY-MM-DD"
+  overrideType    OverrideType // FULL_DAY_LEAVE | CUSTOM_HOURS | BLOCKED_SLOTS
+  customStartTime String?      // "18:00"
+  customEndTime   String?      // "21:30"
+  blockedSlots    String[]     // ["18:00", "18:15"]
+  reasonEn        String
+  reasonBn        String
+  createdByUserId String?
+  createdAt       DateTime     @default(now())
+
+  doctor          Doctor       @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  branch          Branch       @relation(fields: [branchId], references: [id], onDelete: Cascade)
+
+  @@unique([doctorId, branchId, date])
+  @@index([doctorId, branchId, date])
 }
 
 model DoctorSpecialty {
-  doctorId            String
-  specialtyId         String
+  doctorId    String
+  specialtyId String
 
-  doctor              Doctor    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  specialty           Specialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+  doctor      Doctor    @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  specialty   Specialty @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
 
   @@id([doctorId, specialtyId])
 }
 
 model DoctorBranch {
-  id                  String   @id @default(uuid())
-  doctorId            String
-  branchId            String
-  roomNumber          String
-  status              String   @default("ACTIVE")
+  id                 String              @id @default(uuid())
+  doctorId           String
+  branchId           String
+  roomNumber         String
+  status             String              @default("ACTIVE")
 
-  doctor              Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
-  branch              Branch   @relation(fields: [branchId], references: [id], onDelete: Cascade)
-  scheduleRules       ScheduleRule[]
-  scheduleExceptions  ScheduleException[]
-  appointments        Appointment[]
+  doctor             Doctor              @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  branch             Branch              @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  scheduleRules      ScheduleRule[]
+  scheduleExceptions ScheduleException[]
+  appointments       Appointment[]
 
   @@unique([doctorId, branchId])
 }
 
 model ScheduleRule {
-  id                  String           @id @default(uuid())
-  doctorBranchId      String
-  weekday             Int              // 0 = Sunday .. 6 = Saturday
-  weekdayLabelEn      String
-  weekdayLabelBn      String
-  startTime           String           // "16:00"
-  endTime             String           // "20:00"
-  slotMinutes         Int              @default(20)
-  capacityPerSlot     Int              @default(2)
-  effectiveFrom       DateTime
-  effectiveTo         DateTime?
-  publicationState    PublicationState @default(PUBLISHED)
-  updatedAt           DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  doctorBranchId   String
+  weekday          Int              // 0 = Sunday .. 6 = Saturday
+  weekdayLabelEn   String
+  weekdayLabelBn   String
+  startTime        String           // "16:00"
+  endTime          String           // "20:00"
+  slotMinutes      Int              @default(20)
+  capacityPerSlot  Int              @default(1)
+  effectiveFrom    DateTime
+  effectiveTo      DateTime?
+  publicationState PublicationState @default(PUBLISHED)
+  updatedAt        DateTime         @updatedAt
 
-  doctorBranch        DoctorBranch     @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
+  doctorBranch     DoctorBranch     @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
 
   @@index([doctorBranchId, publicationState])
 }
 
 model ScheduleException {
-  id                  String       @id @default(uuid())
-  doctorBranchId      String
-  dateStr             String       // "YYYY-MM-DD"
-  startsAt            DateTime
-  endsAt              DateTime
-  exceptionType       String       // "BLOCKED" | "LEAVE" | "RESCHEDULED"
-  reasonEn            String
-  reasonBn            String
-  createdByUserId     String?
-  createdAt           DateTime     @default(now())
+  id              String       @id @default(uuid())
+  doctorBranchId  String
+  dateStr         String       // "YYYY-MM-DD"
+  startsAt        DateTime
+  endsAt          DateTime
+  exceptionType   String       // "BLOCKED" | "LEAVE" | "RESCHEDULED"
+  reasonEn        String
+  reasonBn        String
+  createdByUserId String?
+  createdAt       DateTime     @default(now())
 
-  doctorBranch        DoctorBranch @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
+  doctorBranch    DoctorBranch @relation(fields: [doctorBranchId], references: [id], onDelete: Cascade)
 
   @@index([doctorBranchId, dateStr])
 }
 
 model Service {
-  id                  String           @id @default(uuid())
-  departmentId        String
-  slug                String           @unique
-  nameEn              String
-  nameBn              String
-  descriptionEn       String
-  descriptionBn       String
-  preparationEn       String?
-  preparationBn       String?
-  publicationState    PublicationState @default(PUBLISHED)
-  lastVerifiedAt      DateTime         @default(now())
-  updatedAt           DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  departmentId     String
+  slug             String           @unique
+  nameEn           String
+  nameBn           String
+  descriptionEn    String
+  descriptionBn    String
+  preparationEn    String?
+  preparationBn    String?
+  publicationState PublicationState @default(PUBLISHED)
+  lastVerifiedAt   DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
-  department          Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  fees                Fee[]
+  department       Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  fees             Fee[]
 
   @@index([departmentId, publicationState])
 }
 
 model Fee {
-  id                  String           @id @default(uuid())
-  serviceId           String
-  amountBdt           Int
-  currency            String           @default("BDT")
-  feeLabelEn          String
-  feeLabelBn          String
-  effectiveFrom       DateTime
-  effectiveTo         DateTime?
-  publicationState    PublicationState @default(PUBLISHED)
-  updatedAt           DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  serviceId        String
+  amountBdt        Int
+  currency         String           @default("BDT")
+  feeLabelEn       String
+  feeLabelBn       String
+  effectiveFrom    DateTime
+  effectiveTo      DateTime?
+  publicationState PublicationState @default(PUBLISHED)
+  updatedAt        DateTime         @updatedAt
 
-  service             Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service          Service          @relation(fields: [serviceId], references: [id], onDelete: Cascade)
 
   @@index([serviceId, publicationState])
 }
@@ -332,99 +465,216 @@ model DiseaseCondition {
 }
 
 model MedicalProcedure {
-  id                  String           @id @default(uuid())
-  departmentId        String
-  slug                String           @unique
-  nameEn              String
-  nameBn              String
-  categoryEn          String
-  categoryBn          String
-  summaryEn           String
-  summaryBn           String
-  preparationEn       String
-  preparationBn       String
-  whatToExpectEn      String
-  whatToExpectBn      String
-  feeBdt              Int?
-  feeEffectiveFrom    DateTime         @default(now())
-  reviewedByEn        String
-  reviewedByBn        String
-  lastReviewedAt      DateTime         @default(now())
-  publicationState    PublicationState @default(PUBLISHED)
-  updatedAt           DateTime         @updatedAt
+  id               String           @id @default(uuid())
+  departmentId     String
+  slug             String           @unique
+  nameEn           String
+  nameBn           String
+  categoryEn       String
+  categoryBn       String
+  summaryEn        String
+  summaryBn        String
+  preparationEn    String
+  preparationBn    String
+  whatToExpectEn   String
+  whatToExpectBn   String
+  feeBdt           Int?
+  feeEffectiveFrom DateTime         @default(now())
+  reviewedByEn     String
+  reviewedByBn     String
+  lastReviewedAt   DateTime         @default(now())
+  publicationState PublicationState @default(PUBLISHED)
+  updatedAt        DateTime         @updatedAt
 
-  department          Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
+  department       Department       @relation(fields: [departmentId], references: [id], onDelete: Restrict)
 
   @@index([publicationState, departmentId])
 }
 
 model Appointment {
-  id                  String            @id @default(uuid())
-  reference           String            @unique // e.g., DC-2026-1042
-  doctorBranchId      String
-  departmentId        String
-  doctorId            String
-  branchId            String
-  patientUserId       String?
-  patientName         String
-  patientPhone        String
-  patientEmail        String?
-  preferredDate       String            // "YYYY-MM-DD"
-  preferredTimeSlot   String            // "17:00"
-  visitType           String            @default("NEW_CONSULTATION") // "NEW_CONSULTATION" | "FOLLOW_UP"
-  reasonNote          String?
-  consentAccepted     Boolean           @default(true)
-  status              AppointmentStatus @default(REQUESTED)
-  source              String            @default("WEBSITE")
-  staffNotes          String?
-  confirmedByUserId   String?
-  confirmedAt         DateTime?
-  updatedAt           DateTime          @updatedAt
-  createdAt           DateTime          @default(now())
+  id                String            @id @default(uuid())
+  referenceCode     String            @unique // e.g., DC-2026-8419
+  reference         String            @unique // Alias for backwards compatibility
+  doctorBranchId    String?
+  departmentId      String
+  doctorId          String
+  branchId          String
+  patientUserId     String?
+  patientName       String
+  patientPhone      String            // BD format 01[3-9]XXXXXXXX
+  patientEmail      String?
+  patientAge        Int?
+  patientGender     String?
+  appointmentDate   String            // "YYYY-MM-DD"
+  preferredDate     String            // "YYYY-MM-DD"
+  slotTime          String            // "17:15"
+  preferredTimeSlot String            // "17:15"
+  visitType         String            @default("NEW_VISIT") // NEW_VISIT | FOLLOW_UP | REPORT_SHOW
+  bookingSource     String            @default("ONLINE_WEBSITE") // ONLINE_WEBSITE | FRONT_DESK_PHONE | WALK_IN_DESK
+  source            String            @default("WEBSITE")
+  symptomsNote      String?
+  reasonNote        String?
+  consentAccepted   Boolean           @default(true)
+  status            AppointmentStatus @default(PENDING)
+  cancelReason      String?
+  staffNotes        String?
+  confirmedByUserId String?
+  confirmedAt       DateTime?
+  updatedAt         DateTime          @updatedAt
+  createdAt         DateTime          @default(now())
 
-  doctorBranch        DoctorBranch      @relation(fields: [doctorBranchId], references: [id], onDelete: Restrict)
-  events              AppointmentEvent[]
+  doctor            Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  branch            Branch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  doctorBranch      DoctorBranch?     @relation(fields: [doctorBranchId], references: [id], onDelete: Restrict)
+  events            AppointmentEvent[]
+  smsLogs           SmsLog[]
+  feedbacks         PatientFeedback[]
 
-  @@index([status, preferredDate])
-  @@index([doctorBranchId, preferredDate, preferredTimeSlot])
+  @@index([doctorId, branchId, appointmentDate, slotTime, status])
+  @@index([status, appointmentDate])
   @@index([patientPhone])
 }
 
-model AppointmentEvent {
-  id                  String             @id @default(uuid())
-  appointmentId       String
-  fromStatus          AppointmentStatus?
-  toStatus            AppointmentStatus
-  actorUserId         String?
-  actorName           String
-  reason              String?
-  createdAt           DateTime           @default(now())
+model SmsLog {
+  id             String            @id @default(uuid())
+  appointmentId  String?
+  recipientPhone String
+  messageBody    String
+  eventType      SmsEventType
+  providerStatus SmsProviderStatus @default(SIMULATED)
+  sentAt         DateTime          @default(now())
 
-  appointment         Appointment        @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  appointment    Appointment?      @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  @@index([appointmentId, sentAt])
+  @@index([recipientPhone])
+}
+
+model PatientFeedback {
+  id             String                  @id @default(uuid())
+  appointmentId  String?
+  doctorId       String?
+  departmentId   String?
+  branchId       String?
+  patientName    String
+  patientPhone   String
+  category       PatientFeedbackCategory @default(DOCTOR_CARE)
+  rating         Int                     @default(5) // 1-5
+  comment        String
+  status         PatientFeedbackStatus   @default(NEW)
+  adminResponse  String?
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  appointment    Appointment?            @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+  doctor         Doctor?                 @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  department     Department?             @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  branch         Branch?                 @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@index([status, category])
+}
+
+model CmsPage {
+  id              String   @id @default(uuid())
+  slug            String   @unique
+  titleEn         String
+  titleBn         String
+  bodyEn          String
+  bodyBn          String
+  isPublished     Boolean  @default(true)
+  updatedByUserId String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model HospitalNotice {
+  id          String    @id @default(uuid())
+  slug        String    @unique
+  titleEn     String
+  titleBn     String
+  summaryEn   String
+  summaryBn   String
+  bodyEn      String
+  bodyBn      String
+  category    String    @default("GENERAL") // GENERAL | CHAMBER_UPDATE | EMERGENCY | HEALTH_CAMP
+  branchId    String?
+  isPinned    Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  publishedAt DateTime  @default(now())
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  branch      Branch?   @relation(fields: [branchId], references: [id], onDelete: SetNull)
+
+  @@index([isActive, isPinned, publishedAt])
+}
+
+model MediaAsset {
+  id               String   @id @default(uuid())
+  fileName         String
+  url              String
+  mimeType         String
+  sizeBytes        Int      @default(0)
+  altTextEn        String?
+  altTextBn        String?
+  uploadedByUserId String?
+  createdAt        DateTime @default(now())
+}
+
+model AppointmentEvent {
+  id            String             @id @default(uuid())
+  appointmentId String
+  fromStatus    AppointmentStatus?
+  toStatus      AppointmentStatus
+  actorUserId   String?
+  actorName     String
+  reason        String?
+  createdAt     DateTime           @default(now())
+
+  appointment   Appointment        @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
 
   @@index([appointmentId, createdAt])
 }
 
 model User {
-  id                  String   @id @default(uuid())
-  email               String   @unique
-  fullName            String
-  phone               String?
-  passwordHash        String
-  role                RoleCode @default(PATIENT)
-  scopedBranchId      String?
-  scopedDepartmentId  String?
-  isActive            Boolean  @default(true)
-  mfaEnabled          Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default(uuid())
+  email              String   @unique
+  fullName           String
+  phone              String?
+  passwordHash       String
+  role               RoleCode @default(PATIENT)
+  mustChangePassword Boolean  @default(false)
+  scopedBranchId     String?
+  scopedDepartmentId String?
+  isActive           Boolean  @default(true)
+  mfaEnabled         Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([role, isActive])
 }
 
+model AuditLog {
+  id          String   @id @default(uuid())
+  actorUserId String
+  actorName   String
+  actorRole   String
+  action      String
+  entityType  String
+  entityId    String
+  summary     String
+  diffJson    String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+}
+
 model ApprovalRequest {
   id                  String           @id @default(uuid())
-  entityType          String           // "DOCTOR" | "SCHEDULE" | "FEE" | "DEPARTMENT" | "CONTENT"
+  entityType          String
   entityId            String
   entityTitle         String
   changeSummary       String
@@ -447,7 +697,7 @@ model AIUpdateDraft {
   staffUserId         String
   staffName           String
   rawInputNote        String
-  category            String           // "DOCTOR_SCHEDULE" | "FEE_UPDATE" | "PUBLIC_NOTICE" | "SERVICE_INFO"
+  category            String
   parsedSummary       String
   proposedPayloadJson String
   draftNoticeEn       String
@@ -460,28 +710,28 @@ model AIUpdateDraft {
 }
 
 model ContactRequest {
-  id                  String   @id @default(uuid())
-  reference           String   @unique
-  fullName            String
-  phone               String
-  email               String?
-  branchId            String?
-  departmentId        String?
-  preferredCallTime   String?
-  message             String
-  consentAccepted     Boolean  @default(true)
-  status              String   @default("OPEN") // "OPEN" | "CONTACTED" | "CLOSED"
-  assignedToName      String?
-  resolutionNote      String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                String   @id @default(uuid())
+  reference         String   @unique
+  fullName          String
+  phone             String
+  email             String?
+  branchId          String?
+  departmentId      String?
+  preferredCallTime String?
+  message           String
+  consentAccepted   Boolean  @default(true)
+  status            String   @default("OPEN")
+  assignedToName    String?
+  resolutionNote    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model Feedback {
   id                  String         @id @default(uuid())
   reference           String         @unique
   type                FeedbackType   @default(FEEDBACK)
-  category            String         // "WAIT_TIME" | "BILLING_FEE" | "STAFF_CONDUCT" | "FACILITY" | "APPOINTMENT" | "GENERAL"
+  category            String
   routedDepartmentId  String?
   branchId            String?
   patientName         String?
@@ -502,44 +752,43 @@ model Feedback {
 }
 
 model Notification {
-  id                  String              @id @default(uuid())
-  channel             NotificationChannel
-  recipient           String
-  templateCode        String
-  subject             String?
-  bodyPreview         String
-  status              NotificationStatus  @default(SENT)
-  relatedEntityType   String?
-  relatedEntityId     String?
-  providerMessageId   String?
-  sentAt              DateTime            @default(now())
+  id                String              @id @default(uuid())
+  channel           NotificationChannel
+  recipient         String
+  templateCode      String
+  subject           String?
+  bodyPreview       String
+  status            NotificationStatus  @default(SENT)
+  relatedEntityType String?
+  relatedEntityId   String?
+  providerMessageId String?
+  sentAt            DateTime            @default(now())
 }
 
 model ConversationSession {
-  id                  String   @id @default(uuid())
-  channel             String   @default("WEBSITE")
-  locale              String   @default("en")
-  queryCategory       String   // "DOCTOR_LOOKUP" | "HOURS_LOCATION" | "FEES_SERVICES" | "APPOINTMENT_INFO" | "CLINICAL_REFUSAL" | "UNKNOWN_ABSTAIN"
-  wasAbstained        Boolean  @default(false)
-  wasClinicalRefusal  Boolean  @default(false)
-  sourceIdsUsed       String[]
-  createdAt           DateTime @default(now())
+  id                 String   @id @default(uuid())
+  channel            String   @default("WEBSITE")
+  locale             String   @default("en")
+  queryCategory      String
+  wasAbstained       Boolean  @default(false)
+  wasClinicalRefusal Boolean  @default(false)
+  sourceIdsUsed      String[]
+  createdAt          DateTime @default(now())
 }
 
 model AuditEvent {
-  id                  String   @id @default(uuid())
-  actorUserId         String
-  actorName           String
-  actorRole           String
-  action              String   // e.g., "APPOINTMENT_CONFIRMED", "DOCTOR_UPDATED", "SCHEDULE_BLOCKED", "CONTENT_PUBLISHED"
-  entityType          String
-  entityId            String
-  summary             String
-  diffJson            String?
-  requestId           String?
-  occurredAt          DateTime @default(now())
+  id          String   @id @default(uuid())
+  actorUserId String
+  actorName   String
+  actorRole   String
+  action      String
+  entityType  String
+  entityId    String
+  summary     String
+  diffJson    String?
+  requestId   String?
+  occurredAt  DateTime @default(now())
 
   @@index([occurredAt])
   @@index([entityType, entityId])
 }
-

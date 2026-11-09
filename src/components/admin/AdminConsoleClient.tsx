@@ -139,7 +139,7 @@ export function AdminConsoleClient({
       ? "today"
       : currentUser.role === "CONTENT_EDITOR"
       ? "content"
-      : "overview";
+      : "analytics";
 
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -794,81 +794,61 @@ export function AdminConsoleClient({
               <>
                 <button
                   type="button"
-                  onClick={() => handleTabChange("overview")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "overview"
+                  onClick={() => handleTabChange("analytics")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "analytics" || activeTab === "overview" || activeTab === "reports"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Activity className={`w-4 h-4 shrink-0 ${activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
-                    <span>Hospital Overview</span>
+                    <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "analytics" || activeTab === "overview" ? "text-white" : "text-[#38bdf8]"}`} />
+                    <span>1. Executive Analytics</span>
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("appointments")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "appointments"
+                  onClick={() => handleTabChange("front-desk")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "front-desk" || activeTab === "appointments" || activeTab === "schedules" || activeTab === "calendar"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "appointments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Appointments</span>
-                  </span>
-                  {appointments.filter((a) => a.status === "REQUESTED").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#dc2626] text-white text-[10px] font-bold">
-                      {appointments.filter((a) => a.status === "REQUESTED").length}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("calendar")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "calendar"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <CalendarDays className={`w-4 h-4 shrink-0 ${activeTab === "calendar" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Appointment Calendar</span>
+                    <Calendar className={`w-4 h-4 shrink-0 ${activeTab === "front-desk" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>2. Front Desk &amp; Schedule</span>
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("patients")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "patients"
+                  onClick={() => handleTabChange("facebook-studio")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "facebook-studio"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <User className={`w-4 h-4 shrink-0 ${activeTab === "patients" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Patients Directory</span>
+                    <Sparkles className={`w-4 h-4 shrink-0 ${activeTab === "facebook-studio" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>3. Daily Facebook Studio</span>
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("specialists")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "specialists"
+                  onClick={() => handleTabChange("doctors-cms")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "doctors-cms" || activeTab === "specialists" || activeTab === "departments"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "specialists" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Specialists &amp; Doctors</span>
+                    <Stethoscope className={`w-4 h-4 shrink-0 ${activeTab === "doctors-cms" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>4. Doctors &amp; Depts CMS</span>
                   </span>
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
                     {doctors.length}
@@ -877,207 +857,31 @@ export function AdminConsoleClient({
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("departments")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "departments"
+                  onClick={() => handleTabChange("notices-cms")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "notices-cms"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Building2 className={`w-4 h-4 shrink-0 ${activeTab === "departments" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Departments</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {departments.length}
+                    <BookOpen className={`w-4 h-4 shrink-0 ${activeTab === "notices-cms" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>5. Website Notices CMS</span>
                   </span>
                 </button>
 
                 <button
                   type="button"
-                  onClick={() => handleTabChange("specialties")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "specialties"
+                  onClick={() => handleTabChange("feedback-moderation")}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
+                    activeTab === "feedback-moderation"
                       ? "bg-[#0057b8] text-white shadow font-bold"
                       : "text-[#e8f0f9] hover:bg-white/10"
                   }`}
                 >
                   <span className="flex items-center gap-2.5 truncate">
-                    <Layers className={`w-4 h-4 shrink-0 ${activeTab === "specialties" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Specialties</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("branches")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "branches"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <MapPin className={`w-4 h-4 shrink-0 ${activeTab === "branches" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Hospital Branches</span>
-                  </span>
-                  <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-bold">
-                    {initialBranches.length}
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("schedules")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "schedules"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Clock className={`w-4 h-4 shrink-0 ${activeTab === "schedules" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Doctor Schedules</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("leave")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "leave"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <UserX className={`w-4 h-4 shrink-0 ${activeTab === "leave" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Leave &amp; Availability</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("staff")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "staff"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Users className={`w-4 h-4 shrink-0 ${activeTab === "staff" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Staff &amp; Users</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("roles")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "roles"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <ShieldCheck className={`w-4 h-4 shrink-0 ${activeTab === "roles" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Roles &amp; Permissions</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("fees")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "fees"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <DollarSign className={`w-4 h-4 shrink-0 ${activeTab === "fees" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Consultation Fees</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("reports")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "reports"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <BarChart3 className={`w-4 h-4 shrink-0 ${activeTab === "reports" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Reports &amp; Analytics</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("notifications")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "notifications"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Bell className={`w-4 h-4 shrink-0 ${activeTab === "notifications" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Notifications</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("approvals")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "approvals"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <CheckSquare className={`w-4 h-4 shrink-0 ${activeTab === "approvals" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Approval Queue</span>
-                  </span>
-                  {approvals.filter((a) => a.status === "PENDING_APPROVAL").length > 0 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-[#d97706] text-white text-[10px] font-bold">
-                      {approvals.filter((a) => a.status === "PENDING_APPROVAL").length}
-                    </span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("audit")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "audit"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <History className={`w-4 h-4 shrink-0 ${activeTab === "audit" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Audit History</span>
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("settings")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center justify-between text-xs font-semibold ${
-                    activeTab === "settings"
-                      ? "bg-[#0057b8] text-white shadow font-bold"
-                      : "text-[#e8f0f9] hover:bg-white/10"
-                  }`}
-                >
-                  <span className="flex items-center gap-2.5 truncate">
-                    <Sliders className={`w-4 h-4 shrink-0 ${activeTab === "settings" ? "text-white" : "text-[#93c5fd]"}`} />
-                    <span>Hospital Settings</span>
+                    <MessageSquare className={`w-4 h-4 shrink-0 ${activeTab === "feedback-moderation" ? "text-white" : "text-[#93c5fd]"}`} />
+                    <span>6. Feedback Moderation</span>
                   </span>
                 </button>
               </>

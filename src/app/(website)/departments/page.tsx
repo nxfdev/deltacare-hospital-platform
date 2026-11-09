@@ -83,6 +83,27 @@ export default function DepartmentsPage() {
                       {dept.shortDescriptionBn}
                     </p>
 
+                    {dept.commonConditionsEn && dept.commonConditionsEn.length > 0 && (
+                      <div className="pt-2">
+                        <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8] mb-2">
+                          Common Conditions &amp; Clinics / সাধারণ রোগ ও ক্লিনিক:
+                        </p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {dept.commonConditionsEn.map((cond, idx) => (
+                            <span
+                              key={cond}
+                              className="px-2.5 py-1 bg-[#f0f7ff] border border-[#c5e2f9] text-xs font-semibold text-[#004181]"
+                            >
+                              {cond}
+                              {dept.commonConditionsBn?.[idx]
+                                ? ` • ${dept.commonConditionsBn[idx]}`
+                                : ""}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     {deptServices.length > 0 && (
                       <div className="pt-3">
                         <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mb-2">

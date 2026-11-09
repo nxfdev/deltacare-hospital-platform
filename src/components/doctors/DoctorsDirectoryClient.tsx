@@ -58,14 +58,22 @@ export function DoctorsDirectoryClient({
     }
     if (query.trim()) {
       const q = query.trim().toLowerCase();
+      const dept = departments.find((d) => d.id === doc.departmentId);
       const hay = [
         doc.nameEn,
         doc.nameBn,
         doc.designationEn,
         doc.designationBn,
         doc.qualificationsEn,
+        doc.qualificationsBn,
+        doc.workplaceEn ?? "",
+        doc.workplaceBn ?? "",
         doc.bmdcRegistrationNo,
+        ...(doc.symptomTags ?? []),
         ...doc.clinicalInterestsEn,
+        ...doc.clinicalInterestsBn,
+        dept?.nameEn ?? "",
+        dept?.nameBn ?? "",
       ]
         .join(" ")
         .toLowerCase();
@@ -73,6 +81,17 @@ export function DoctorsDirectoryClient({
     }
     return true;
   });
+
+  const QUICK_SYMPTOM_PILLS = [
+    { labelEn: "Dengue / ডেঙ্গু", query: "Dengue" },
+    { labelEn: "Chest Pain / বুক ব্যথা", query: "Chest Pain" },
+    { labelEn: "Gastric & Liver / গ্যাস্ট্রিক ও লিভার", query: "Fatty Liver" },
+    { labelEn: "Diabetes / ডায়াবেটিস", query: "Diabetes" },
+    { labelEn: "Child Fever / শিশুর জ্বর", query: "Child Fever" },
+    { labelEn: "Pregnancy / গর্ভকালীন পরিচর্যা", query: "Pregnancy" },
+    { labelEn: "DMC Professors", query: "DMC" },
+    { labelEn: "BSMMU Specialists", query: "BSMMU" },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -190,6 +209,27 @@ export function DoctorsDirectoryClient({
               <option value="English">English</option>
             </select>
           </div>
+
+          {/* Quick Symptom & Institution Search Pills */}
+          <div className="pt-2 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mr-1">
+              {locale === "bn" ? "দ্রুত অনুসন্ধান:" : "Quick Search:"}
+            </span>
+            {QUICK_SYMPTOM_PILLS.map((pill) => (
+              <button
+                key={pill.query}
+                type="button"
+                onClick={() => setQuery(query === pill.query ? "" : pill.query)}
+                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
+                  query.toLowerCase() === pill.query.toLowerCase()
+                    ? "bg-[#0057b8] text-white border-[#0057b8]"
+                    : "bg-[#f8f9fc] text-[#004181] border-[#d6d6d6] hover:border-[#0057b8]"
+                }`}
+              >
+                {pill.labelEn}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Results Count */}
@@ -269,7 +309,7 @@ export function DoctorsDirectoryClient({
                         : ""}
                     </p>
 
-                    <p className="text-sm text-[#6b7280]">
+                    <p className="text-sm font-medium text-[#374151]">
                       {locale === "bn"
                         ? doc.qualificationsBn
                         : doc.qualificationsEn}{" "}
@@ -277,43 +317,73 @@ export function DoctorsDirectoryClient({
                       {locale === "bn" ? "বছরের অভিজ্ঞতা" : "years experience"}
                     </p>
 
-                    <div className="flex flex-wrap gap-3 pt-1 text-sm text-[#4b5563]">
-                      {branchObj && (
-                        <span className="inline-flex items-center gap-1">
-                          <Building2 className="w-3.5 h-3.5 text-[#0057b8]" />
-                          {locale === "bn" ? branchObj.nameBn : branchObj.nameEn}{" "}
-                          ({primaryBranchAssign.roomNumber})
-                        </span>
-                      )}
-                      <span className="inline-flex items-center gap-1">
+                    {(doc.workplaceEn || doc.workplaceBn) && (
+                      <p className="text-xs font-semibold text-[#1f2937] bg-[#f8f9fc] px-2.5 py-1 border-l-2 border-[#0057b8]">
+                        {locale === "bn"
+                          ? doc.workplaceBn || doc.workplaceEn
+                          : doc.workplaceEn}
+                      </p>
+                    )}
+
+                    {/* Branch-by-Branch Chamber Schedule */}
+                    <div className="pt-1 space-y-1 text-xs text-[#4b5563]">
+                      {doc.branches.map((br) => {
+                        const bObj = branches.find((b) => b.id === br.branchId);
+                        const firstRule = br.scheduleRules[0];
+                        return (
+                          <div
+                            key={br.id}
+                            className="flex flex-wrap items-center gap-1.5"
+                          >
+                            <Building2 className="w-3.5 h-3.5 text-[#0057b8] shrink-0" />
+                            <span className="font-bold text-[#080808]">
+                              {bObj
+                                ? locale === "bn"
+                                  ? bObj.nameBn
+                                  : bObj.nameEn
+                                : br.branchId}
+                              :
+                            </span>
+                            <span>
+                              {firstRule
+                                ? `${
+                                    locale === "bn"
+                                      ? firstRule.weekdayLabelBn
+                                      : firstRule.weekdayLabelEn
+                                  } ${firstRule.startTime}–${firstRule.endTime}`
+                                : "By appointment"}{" "}
+                              · {br.roomNumber}
+                            </span>
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center gap-1 pt-0.5">
                         <Globe2 className="w-3.5 h-3.5 text-[#0057b8]" />
-                        {(locale === "bn"
-                          ? doc.languagesBn
-                          : doc.languagesEn
-                        ).join(", ")}
-                      </span>
+                        <span>
+                          {(locale === "bn"
+                            ? doc.languagesBn
+                            : doc.languagesEn
+                          ).join(", ")}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="pt-4 border-t border-[#f3f4f6] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="text-sm space-y-0.5">
-                    <p className="text-[#6b7280]">
-                      {scheduleRule
-                        ? `${
-                            locale === "bn"
-                              ? scheduleRule.weekdayLabelBn
-                              : scheduleRule.weekdayLabelEn
-                          } (${scheduleRule.startTime}–${scheduleRule.endTime})`
-                        : "Chamber by appointment"}
-                    </p>
                     <p className="font-bold text-base text-[#080808]">
                       {locale === "bn" ? "কনসালটেশন ফি:" : "Consultation Fee:"}{" "}
-                      BDT {doc.consultationFeeBdt}{" "}
+                      ৳{doc.consultationFeeBdt.toLocaleString()}{" "}
                       <span className="font-normal text-xs text-[#6b7280]">
-                        (Follow-up: BDT {doc.followupFeeBdt} • Effective{" "}
-                        {doc.feeEffectiveFrom})
+                        ({locale === "bn" ? "ফলো-আপ:" : "Follow-up:"} ৳
+                        {doc.followupFeeBdt.toLocaleString()})
                       </span>
+                    </p>
+                    <p className="text-xs text-[#0057b8] font-semibold">
+                      {scheduleRule
+                        ? `${scheduleRule.slotMinutes || 15}-min Fixed Time Slots Available`
+                        : "Fixed-Slot Chamber Booking"}
                     </p>
                   </div>
 

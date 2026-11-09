@@ -3,11 +3,47 @@ import { appointmentRequestSchema } from "@/lib/validation/schemas";
 import { createAppointmentRequest } from "@/server/services/appointmentService";
 import { getCurrentSession } from "@/server/auth/session";
 import { getDbState } from "@/server/db/store";
+import { getSmsLogsForAppointment } from "@/lib/sms/sms-service";
 import {
   buildRateLimitResponse,
   checkRateLimit,
   getClientIdentifier,
 } from "@/server/security/rateLimiter";
+
+function enrichAppointmentForPublic(apt: ReturnType<typeof getDbState>["appointments"][number]) {
+  const db = getDbState();
+  const doctor = db.doctors.find((d) => d.id === apt.doctorId);
+  const department = db.departments.find((d) => d.id === apt.departmentId);
+  const branch = db.branches.find((b) => b.id === apt.branchId);
+  const chamberSched = (db.chamberSchedules ?? []).find(
+    (s) => s.doctorId === apt.doctorId && s.branchId === apt.branchId && s.isActive
+  );
+  const smsLogs = getSmsLogsForAppointment(apt.id);
+
+  return {
+    ...apt,
+    doctorNameEn: doctor?.nameEn ?? apt.doctorId,
+    doctorNameBn: doctor?.nameBn ?? apt.doctorId,
+    doctorDesignationEn: doctor?.designationEn ?? "",
+    doctorDesignationBn: doctor?.designationBn ?? "",
+    doctorQualificationsEn: doctor?.qualificationsEn ?? "",
+    doctorQualificationsBn: doctor?.qualificationsBn ?? "",
+    doctorWorkplaceEn: doctor?.workplaceEn ?? "",
+    doctorWorkplaceBn: doctor?.workplaceBn ?? "",
+    doctorBmdcNumber: doctor?.bmdcRegistrationNo ?? "",
+    consultationFeeBdt: doctor?.consultationFeeBdt ?? 1000,
+    followupFeeBdt: doctor?.followupFeeBdt ?? 700,
+    chamberRoom: chamberSched?.chamberRoom ?? "Main Consultation Wing",
+    departmentNameEn: department?.nameEn ?? apt.departmentId,
+    departmentNameBn: department?.nameBn ?? apt.departmentId,
+    branchNameEn: branch?.nameEn ?? apt.branchId,
+    branchNameBn: branch?.nameBn ?? apt.branchId,
+    branchAddressEn: branch?.addressEn ?? "",
+    branchAddressBn: branch?.addressBn ?? "",
+    branchHotline: branch?.emergencyPhone ?? "10666",
+    smsLogs,
+  };
+}
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -56,21 +92,9 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  const doctor = db.doctors.find((d) => d.id === apt.doctorId);
-  const department = db.departments.find((d) => d.id === apt.departmentId);
-  const branch = db.branches.find((b) => b.id === apt.branchId);
-
   return NextResponse.json({
     ok: true,
-    appointment: {
-      ...apt,
-      doctorNameEn: doctor?.nameEn ?? apt.doctorId,
-      doctorNameBn: doctor?.nameBn ?? apt.doctorId,
-      departmentNameEn: department?.nameEn ?? apt.departmentId,
-      departmentNameBn: department?.nameBn ?? apt.departmentId,
-      branchNameEn: branch?.nameEn ?? apt.branchId,
-      branchNameBn: branch?.nameBn ?? apt.branchId,
-    },
+    appointment: enrichAppointmentForPublic(apt),
   });
 }
 
@@ -112,7 +136,7 @@ export async function POST(request: NextRequest) {
         ok: true,
         notice:
           "Request Received (Pending Front-Desk Confirmation). This request is NOT a confirmed appointment until verified by DeltaCare staff.",
-        appointment: result.appointment,
+        appointment: enrichAppointmentForPublic(result.appointment),
       },
       { status: 201 }
     );
@@ -123,4 +147,5 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
 

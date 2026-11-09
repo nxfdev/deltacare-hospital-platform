@@ -113,8 +113,13 @@ export default async function DepartmentDetailPage({
                       <p className="text-sm text-[#4b5563]">
                         {doc.qualificationsEn}
                       </p>
+                      {doc.workplaceEn && (
+                        <p className="text-xs font-medium text-[#374151]">
+                          {doc.workplaceEn}
+                        </p>
+                      )}
                       <p className="text-base font-bold text-[#080808] pt-1">
-                        Consultation Fee: BDT {doc.consultationFeeBdt}
+                        Consultation: ৳{doc.consultationFeeBdt.toLocaleString()} (Follow-up: ৳{doc.followupFeeBdt.toLocaleString()})
                       </p>
                     </div>
                   </div>
@@ -128,6 +133,51 @@ export default async function DepartmentDetailPage({
               ))}
             </div>
           </section>
+
+          {/* Department Core Services & Common Conditions (Bilingual EN/BN) */}
+          {(dept.servicesEn?.length || dept.commonConditionsEn?.length) && (
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              {dept.servicesEn && dept.servicesEn.length > 0 && (
+                <div className="space-y-4">
+                  <div className="pb-3 border-b-2 border-[#080808]">
+                    <h2 className="mc-serif text-2xl sm:text-3xl text-[#080808]">
+                      Specialized Services / বিশেষায়িত সেবাসমূহ
+                    </h2>
+                  </div>
+                  <ul className="divide-y divide-[#e5e7eb]">
+                    {dept.servicesEn.map((item, idx) => (
+                      <li key={item} className="py-3.5 space-y-0.5">
+                        <p className="font-bold text-base text-[#080808]">{item}</p>
+                        {dept.servicesBn?.[idx] && (
+                          <p className="text-sm text-[#004181]">{dept.servicesBn[idx]}</p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {dept.commonConditionsEn && dept.commonConditionsEn.length > 0 && (
+                <div className="space-y-4">
+                  <div className="pb-3 border-b-2 border-[#080808]">
+                    <h2 className="mc-serif text-2xl sm:text-3xl text-[#080808]">
+                      Common Conditions Treated / সাধারণ রোগ ও চিকিৎসা
+                    </h2>
+                  </div>
+                  <ul className="divide-y divide-[#e5e7eb]">
+                    {dept.commonConditionsEn.map((item, idx) => (
+                      <li key={item} className="py-3.5 space-y-0.5">
+                        <p className="font-bold text-base text-[#080808]">{item}</p>
+                        {dept.commonConditionsBn?.[idx] && (
+                          <p className="text-sm text-[#004181]">{dept.commonConditionsBn[idx]}</p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Published Diagnostic Services & Transparent Fees */}
           {services.length > 0 && (

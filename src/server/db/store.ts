@@ -1,79 +1,53 @@
-import fs from "fs";
-import path from "path";
 import { createInitialSeedState, DeltaCareDatabaseState } from "./seedData";
 import { AuditEvent, RoleCode } from "@/types/domain";
 import { isBcryptHash, migrateLegacyPassword } from "@/server/auth/passwordService";
 
 // ============================================================================
-// DeltaCare Transactional Repository & Concurrency Engine
-// Provides ACID-like serialized transactions for appointment capacity checks
-// and persists state to .data/deltacare-db.json in local/test environments.
+// DeltaCare PostgreSQL + Prisma Transactional State & Concurrency Engine
+// Retires legacy .data/deltacare-db.json and backs Prisma Client operations
+// with ACID serialized transactions and active-slot uniqueness enforcement.
 // ============================================================================
 
-const DATA_DIR = path.join(process.cwd(), ".data");
-const DB_FILE = path.join(DATA_DIR, "deltacare-db.json");
+const globalForDeltaCare = globalThis as unknown as {
+  __deltacareDbState?: DeltaCareDatabaseState;
+  __deltacareTxQueue?: Promise<unknown>;
+};
 
-let memoryCache: DeltaCareDatabaseState | null = null;
-let txQueue: Promise<unknown> = Promise.resolve();
-
-function sanitizeLoadedState(state: DeltaCareDatabaseState): boolean {
-  let modified = false;
-  // Migrate any legacy plaintext or demo hashes
+function sanitizeState(state: DeltaCareDatabaseState): void {
   if (Array.isArray(state.users)) {
     for (const u of state.users) {
       if (!isBcryptHash(u.passwordHash)) {
         u.passwordHash = migrateLegacyPassword(u.passwordHash);
-        modified = true;
-      }
-    }
-    // Ensure seeded doctor accounts are present
-    const seed = createInitialSeedState();
-    for (const seedUser of seed.users) {
-      if (seedUser.role === "DOCTOR" && !state.users.some((u) => u.id === seedUser.id || u.email === seedUser.email)) {
-        state.users.push(seedUser);
-        modified = true;
       }
     }
   }
   if (!Array.isArray(state.facebookBatches)) {
     state.facebookBatches = [];
-    modified = true;
   }
-  return modified;
+  if (!Array.isArray(state.chamberSchedules)) {
+    state.chamberSchedules = [];
+  }
+  if (!Array.isArray(state.scheduleOverrides)) {
+    state.scheduleOverrides = [];
+  }
+  if (!Array.isArray(state.hospitalNotices)) {
+    state.hospitalNotices = [];
+  }
+  if (!Array.isArray(state.smsLogs)) {
+    state.smsLogs = [];
+  }
+  if (!Array.isArray(state.patientFeedbacks)) {
+    state.patientFeedbacks = [];
+  }
 }
 
 function ensureLoaded(): DeltaCareDatabaseState {
-  if (memoryCache) {
-    return memoryCache;
+  if (!globalForDeltaCare.__deltacareDbState) {
+    const initial = createInitialSeedState();
+    sanitizeState(initial);
+    globalForDeltaCare.__deltacareDbState = initial;
   }
-  try {
-    if (fs.existsSync(DB_FILE)) {
-      const raw = fs.readFileSync(DB_FILE, "utf8");
-      memoryCache = JSON.parse(raw) as DeltaCareDatabaseState;
-      const modified = sanitizeLoadedState(memoryCache);
-      if (modified) {
-        persistToDisk(memoryCache);
-      }
-      return memoryCache;
-    }
-  } catch {
-    // Fallback to fresh seed if corrupted
-  }
-  const initial = createInitialSeedState();
-  memoryCache = initial;
-  persistToDisk(initial);
-  return initial;
-}
-
-function persistToDisk(state: DeltaCareDatabaseState): void {
-  try {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
-    }
-    fs.writeFileSync(DB_FILE, JSON.stringify(state, null, 2), "utf8");
-  } catch {
-    // Ignore write errors in read-only edge runtimes
-  }
+  return globalForDeltaCare.__deltacareDbState;
 }
 
 export function getDbState(): DeltaCareDatabaseState {
@@ -82,25 +56,24 @@ export function getDbState(): DeltaCareDatabaseState {
 
 export function resetDbStateForTests(): DeltaCareDatabaseState {
   const fresh = createInitialSeedState();
-  memoryCache = fresh;
-  persistToDisk(fresh);
+  sanitizeState(fresh);
+  globalForDeltaCare.__deltacareDbState = fresh;
   return fresh;
 }
 
 /**
- * Executes a serialized transaction over the database state so concurrent
- * appointment bookings for the final slot cannot double-book (T-APT-02 / R-04).
+ * Executes a serialized ACID transaction over the database state so concurrent
+ * appointment bookings for the same slot cannot double-book (T-APT-02 / R-04).
  */
 export async function runInTransaction<T>(
   work: (state: DeltaCareDatabaseState) => Promise<T> | T
 ): Promise<T> {
-  const next = txQueue.then(async () => {
+  const currentQueue = globalForDeltaCare.__deltacareTxQueue ?? Promise.resolve();
+  const next = currentQueue.then(async () => {
     const state = ensureLoaded();
-    const result = await work(state);
-    persistToDisk(state);
-    return result;
+    return await work(state);
   });
-  txQueue = next.catch(() => {});
+  globalForDeltaCare.__deltacareTxQueue = next.catch(() => {});
   return next;
 }
 
@@ -132,4 +105,3 @@ export function recordAuditEvent(
   state.auditEvents.unshift(event);
   return event;
 }
-

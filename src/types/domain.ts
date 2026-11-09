@@ -24,6 +24,9 @@ export type AppointmentStatus =
 export type RoleCode =
   | "SUPER_ADMIN"
   | "HOSPITAL_ADMIN"
+  | "CMS_EDITOR"
+  | "APPOINTMENT_MANAGER"
+  | "FRONT_DESK"
   | "DEPT_MANAGER"
   | "DOCTOR"
   | "RECEPTIONIST"
@@ -69,14 +72,17 @@ export interface Branch {
   cityEn: string;
   cityBn: string;
   phone: string;
+  hotline?: string;
   emergencyPhone: string;
   email: string;
   operatingHoursEn: string;
   operatingHoursBn: string;
   directionsUrl: string;
+  mapUrl?: string;
   imageUrl: string;
   servicesSummaryEn: string[];
   servicesSummaryBn: string[];
+  isActive?: boolean;
   publicationState: PublicationState;
   sortOrder: number;
   updatedAt: string;
@@ -90,10 +96,19 @@ export interface Department {
   nameBn: string;
   shortDescriptionEn: string;
   shortDescriptionBn: string;
+  shortDescEn?: string;
+  shortDescBn?: string;
   overviewEn: string;
   overviewBn: string;
+  servicesEn?: string[];
+  servicesBn?: string[];
+  commonConditionsEn?: string[];
+  commonConditionsBn?: string[];
   iconName: string;
+  icon?: string;
   imageUrl?: string;
+  displayOrder?: number;
+  isActive?: boolean;
   isFeaturedCareArea: boolean;
   publicationState: PublicationState;
   lastVerifiedAt: string;
@@ -148,6 +163,35 @@ export interface DoctorBranchAssignment {
   scheduleExceptions: ScheduleException[];
 }
 
+export interface DoctorChamberSchedule {
+  id: string;
+  doctorId: string;
+  branchId: string;
+  chamberRoom: string;
+  dayOfWeek: number; // 0 = Sun to 6 = Sat
+  startTime: string; // "17:00"
+  endTime: string;   // "21:00"
+  breakStartTime?: string | null;
+  breakEndTime?: string | null;
+  slotDurationMinutes: number; // 15 or 20
+  isActive: boolean;
+}
+
+export interface DoctorScheduleOverride {
+  id: string;
+  doctorId: string;
+  branchId: string;
+  date: string; // "YYYY-MM-DD"
+  overrideType: "FULL_DAY_LEAVE" | "CUSTOM_HOURS" | "BLOCKED_SLOTS";
+  customStartTime?: string | null;
+  customEndTime?: string | null;
+  blockedSlots: string[];
+  reasonEn?: string | null;
+  reasonBn?: string | null;
+  createdByUserId?: string | null;
+  createdAt: string;
+}
+
 export interface Doctor {
   id: string;
   hospitalId: string;
@@ -160,15 +204,20 @@ export interface Doctor {
   designationBn: string;
   qualificationsEn: string;
   qualificationsBn: string;
+  workplaceEn?: string;
+  workplaceBn?: string;
   experienceYears: number;
   bmdcRegistrationNo: string;
+  bmdcRegNo?: string;
   bioEn: string;
   bioBn: string;
   clinicalInterestsEn: string[];
   clinicalInterestsBn: string[];
+  symptomTags?: string[];
   languagesEn: string[];
   languagesBn: string[];
   imageUrl: string;
+  photoUrl?: string;
   imagePosition?: string; // e.g. "50% 25%" or "center"
   imageCrop?: {
     zoom: number; // 1.0 to 3.0
@@ -181,10 +230,13 @@ export interface Doctor {
   followupFeeBdt: number;
   feeEffectiveFrom: string;
   feeEffectiveTo: string | null;
+  isActive?: boolean;
   publicationState: PublicationState;
   lastVerifiedAt: string;
   updatedAt: string;
   branches: DoctorBranchAssignment[];
+  chamberSchedules?: DoctorChamberSchedule[];
+  scheduleOverrides?: DoctorScheduleOverride[];
 }
 
 export interface Service {
@@ -277,10 +329,15 @@ export interface Appointment {
   patientName: string;
   patientPhone: string;
   patientEmail?: string;
+  patientAge?: number;
+  patientGender?: "MALE" | "FEMALE" | "OTHER" | string;
   preferredDate: string; // "YYYY-MM-DD"
   preferredTimeSlot: string; // "17:00"
-  visitType: "NEW_CONSULTATION" | "FOLLOW_UP";
+  visitType: "NEW_CONSULTATION" | "FOLLOW_UP" | "NEW_VISIT" | "REPORT_SHOW";
+  bookingSource?: "ONLINE_WEBSITE" | "FRONT_DESK_PHONE" | "WALK_IN_DESK";
   reasonNote?: string;
+  symptomsNote?: string;
+  cancelReason?: string;
   consentAccepted: boolean;
   status: AppointmentStatus;
   source: "WEBSITE" | "FRONT_DESK" | "PHONE";
@@ -305,11 +362,61 @@ export interface UserAccount {
   resetTokenHash?: string;
   resetTokenExpiresAt?: number;
   passwordChangedAt?: string;
+  mustChangePassword?: boolean;
   isActive: boolean;
   mfaEnabled: boolean;
   createdAt: string;
   updatedAt: string;
 }
+
+export interface HospitalNotice {
+  id: string;
+  slug: string;
+  titleEn: string;
+  titleBn: string;
+  summaryEn: string;
+  summaryBn: string;
+  bodyEn: string;
+  bodyBn: string;
+  category: string;
+  branchId?: string | null;
+  isPinned: boolean;
+  isActive: boolean;
+  publishedAt: string;
+  updatedAt: string;
+}
+
+export interface SmsLogRecord {
+  id: string;
+  appointmentId?: string | null;
+  recipientPhone: string;
+  messageBody: string;
+  eventType: "REQUEST_RECEIVED" | "CONFIRMED" | "RESCHEDULED" | "CANCELLED";
+  providerStatus: "SENT" | "FAILED" | "SIMULATED";
+  sentAt: string;
+}
+
+export interface PatientFeedbackRecord {
+  id: string;
+  appointmentId?: string | null;
+  doctorId?: string | null;
+  doctorName?: string | null;
+  departmentId?: string | null;
+  branchId?: string | null;
+  patientName: string;
+  patientPhone: string;
+  category: "DOCTOR_CARE" | "WAIT_TIME" | "FRONT_DESK_SERVICE" | "CLEANLINESS" | "ONLINE_BOOKING";
+  rating: number;
+  comment?: string;
+  feedbackEn?: string;
+  feedbackBn?: string;
+  status: "NEW" | "IN_REVIEW" | "RESOLVED" | "REJECTED";
+  adminResponse?: string | null;
+  respondedAt?: string | null;
+  createdAt: string;
+}
+
+export type PatientFeedback = PatientFeedbackRecord;
 
 export interface ApprovalRequest {
   id: string;

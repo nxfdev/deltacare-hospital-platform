@@ -5,6 +5,7 @@ import {
   DiseaseCondition,
   Doctor,
   HospitalConfiguration,
+  HospitalNotice,
   Locale,
   MedicalProcedure,
   PublicationState,
@@ -164,6 +165,12 @@ export function getPublishedDoctors(filters?: DoctorFilterParams): Doctor[] {
     const q = filters.query.trim().toLowerCase();
     list = list.filter((d) => {
       const dept = db.departments.find((dep) => dep.id === d.departmentId);
+      const branchNames = d.branches
+        .map((b) => {
+          const br = db.branches.find((item) => item.id === b.branchId);
+          return br ? `${br.nameEn} ${br.nameBn}` : "";
+        })
+        .join(" ");
       const haystack = [
         d.nameEn,
         d.nameBn,
@@ -171,11 +178,15 @@ export function getPublishedDoctors(filters?: DoctorFilterParams): Doctor[] {
         d.designationBn,
         d.qualificationsEn,
         d.qualificationsBn,
+        d.workplaceEn ?? "",
+        d.workplaceBn ?? "",
         d.bmdcRegistrationNo,
+        ...(d.symptomTags ?? []),
         ...d.clinicalInterestsEn,
         ...d.clinicalInterestsBn,
         dept?.nameEn ?? "",
         dept?.nameBn ?? "",
+        branchNames,
       ]
         .join(" ")
         .toLowerCase();
@@ -413,6 +424,10 @@ export function executeGlobalSearch(
         dept.nameBn,
         dept.shortDescriptionEn,
         dept.shortDescriptionBn,
+        ...(dept.servicesEn ?? []),
+        ...(dept.servicesBn ?? []),
+        ...(dept.commonConditionsEn ?? []),
+        ...(dept.commonConditionsBn ?? []),
       ]
         .join(" ")
         .toLowerCase();
@@ -471,3 +486,9 @@ export function executeGlobalSearch(
 
   return results.slice(0, 20);
 }
+
+export function getPublishedHospitalNotices(): HospitalNotice[] {
+  const db = getDbState();
+  return (db.hospitalNotices || []).filter((n) => n.isActive);
+}
+

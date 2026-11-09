@@ -16,7 +16,12 @@ export const appointmentRequestSchema = z.object({
   preferredTimeSlot: z
     .string()
     .regex(/^\d{2}:\d{2}$/, "Please select a preferred time slot"),
-  visitType: z.enum(["NEW_CONSULTATION", "FOLLOW_UP"]).default("NEW_CONSULTATION"),
+  visitType: z
+    .enum(["NEW_CONSULTATION", "FOLLOW_UP", "NEW_VISIT", "REPORT_SHOW"])
+    .default("NEW_CONSULTATION"),
+  bookingSource: z
+    .enum(["ONLINE_WEBSITE", "FRONT_DESK_PHONE", "WALK_IN_DESK"])
+    .optional(),
   patientName: z
     .string()
     .trim()
@@ -29,6 +34,8 @@ export const appointmentRequestSchema = z.object({
       bangladeshPhoneRegex,
       "Enter a valid Bangladesh mobile number (e.g. 01711223344 or +8801711223344)"
     ),
+  patientAge: z.coerce.number().int().min(0).max(120).optional(),
+  patientGender: z.enum(["MALE", "FEMALE", "OTHER"]).optional().or(z.literal("")),
   patientEmail: z
     .string()
     .trim()
@@ -39,6 +46,11 @@ export const appointmentRequestSchema = z.object({
     .string()
     .trim()
     .max(500, "Brief note must be under 500 characters (do not include sensitive clinical records)")
+    .optional(),
+  symptomsNote: z
+    .string()
+    .trim()
+    .max(500)
     .optional(),
   consentAccepted: z.literal(true, {
     errorMap: () => ({
