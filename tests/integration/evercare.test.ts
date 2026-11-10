@@ -75,7 +75,7 @@ import {
 
 const superAdminSession: SessionPayload = {
   userId: "user-super-0",
-  email: "superadmin@deltacare.bd",
+  email: "superadmin@evercare.bd",
   fullName: "System Director",
   role: "SUPER_ADMIN",
   exp: Date.now() + 3600000,
@@ -83,7 +83,7 @@ const superAdminSession: SessionPayload = {
 
 const adminSession: SessionPayload = {
   userId: "user-superadmin-1",
-  email: "admin@deltacare.bd",
+  email: "admin@evercare.bd",
   fullName: "Nafisa Chowdhury",
   role: "HOSPITAL_ADMIN",
   scopedBranchId: "branch-dhanmondi",
@@ -92,7 +92,7 @@ const adminSession: SessionPayload = {
 
 const receptionistSession: SessionPayload = {
   userId: "user-reception-1",
-  email: "frontdesk@deltacare.bd",
+  email: "frontdesk@evercare.bd",
   fullName: "Kamrul Hasan",
   role: "RECEPTIONIST",
   scopedBranchId: "branch-dhanmondi",
@@ -101,7 +101,7 @@ const receptionistSession: SessionPayload = {
 
 const editorSession: SessionPayload = {
   userId: "user-editor-1",
-  email: "editor@deltacare.bd",
+  email: "editor@evercare.bd",
   fullName: "Sadia Islam",
   role: "CONTENT_EDITOR",
   exp: Date.now() + 3600000,
@@ -109,7 +109,7 @@ const editorSession: SessionPayload = {
 
 const patientSession: SessionPayload = {
   userId: "user-patient-1",
-  email: "patient@deltacare.bd",
+  email: "patient@evercare.bd",
   fullName: "Tanvir Ahmed",
   role: "PATIENT",
   exp: Date.now() + 3600000,
@@ -117,7 +117,7 @@ const patientSession: SessionPayload = {
 
 const doctor1Session: SessionPayload = {
   userId: "user-doctor-1",
-  email: "doctor@deltacare.bd",
+  email: "doctor@evercare.bd",
   fullName: "Prof. Dr. Anisur Rahman",
   role: "DOCTOR",
   doctorProfileId: "doc-1",
@@ -127,7 +127,7 @@ const doctor1Session: SessionPayload = {
 
 const doctor2Session: SessionPayload = {
   userId: "user-doctor-2",
-  email: "doctor2@deltacare.bd",
+  email: "doctor2@evercare.bd",
   fullName: "Dr. Nusrat Jahan",
   role: "DOCTOR",
   doctorProfileId: "doc-2",
@@ -137,7 +137,7 @@ const doctor2Session: SessionPayload = {
 
 const deptManagerSession: SessionPayload = {
   userId: "user-dept-1",
-  email: "deptmanager@deltacare.bd",
+  email: "deptmanager@evercare.bd",
   fullName: "Dr. Dept Manager",
   role: "DEPT_MANAGER",
   scopedBranchId: "branch-dhanmondi",
@@ -146,7 +146,7 @@ const deptManagerSession: SessionPayload = {
 
 const unscopedAdminSession: SessionPayload = {
   userId: "user-admin-unscoped",
-  email: "unscoped@deltacare.bd",
+  email: "unscoped@evercare.bd",
   fullName: "Unscoped Admin",
   role: "HOSPITAL_ADMIN",
   exp: Date.now() + 3600000,
@@ -154,14 +154,14 @@ const unscopedAdminSession: SessionPayload = {
 
 const otherBranchAdminSession: SessionPayload = {
   userId: "user-admin-gulshan",
-  email: "gulshanadmin@deltacare.bd",
+  email: "gulshanadmin@evercare.bd",
   fullName: "Gulshan Admin",
   role: "HOSPITAL_ADMIN",
   scopedBranchId: "branch-gulshan",
   exp: Date.now() + 3600000,
 };
 
-describe("DeltaCare Hospital Platform — Core Functional & Safety Verification Suite", () => {
+describe("Evercare Hospital Platform — Core Functional & Safety Verification Suite", () => {
   beforeEach(() => {
     resetDbStateForTests();
   });
@@ -247,7 +247,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
   // ==========================================================================
   // T-APT-01..04: Appointment Request Honesty, Concurrency & Exceptions
   // ==========================================================================
-  it("T-APT-01: Submitting an appointment request creates a REQUESTED record (never CONFIRMED) and enqueues notification", async () => {
+  it("T-APT-01: Online booking is confirmed instantly and enqueues a confirmation SMS", async () => {
     const result = await createAppointmentRequest({
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
@@ -264,9 +264,9 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.appointment.status).toBe("REQUESTED");
-      expect(result.appointment.reference).toMatch(/^DC-2026-\d{4}$/);
-      expect(result.appointment.events[0]?.toStatus).toBe("REQUESTED");
+      expect(result.appointment.status).toBe("CONFIRMED");
+      expect(result.appointment.reference).toMatch(/^EC-2026-\d{4}$/);
+      expect(result.appointment.events[0]?.toStatus).toBe("CONFIRMED");
     }
   });
 
@@ -327,9 +327,9 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
   });
 
   it("T-APT-03 & T-APT-04: Staff status transitions and chamber date blocking flag affected appointments", async () => {
-    // Confirm an existing REQUESTED appointment (DC-2026-1042)
+    // Confirm an existing REQUESTED appointment (EC-2026-1042)
     const trans = await transitionAppointmentStatus({
-      appointmentId: "DC-2026-1042",
+      appointmentId: "EC-2026-1042",
       toStatus: "CONFIRMED",
       actorUserId: adminSession.userId,
       actorName: adminSession.fullName,
@@ -341,7 +341,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       expect(trans.appointment.status).toBe("CONFIRMED");
     }
 
-    // Block chamber date 2026-11-07 where DC-2026-1041 is scheduled at db-doc1-dhanmondi
+    // Block chamber date 2026-11-07 where EC-2026-1041 is scheduled at db-doc1-dhanmondi
     const blockRes = await blockDoctorChamberDate({
       doctorBranchId: "db-doc1-dhanmondi",
       dateStr: "2026-11-07",
@@ -371,7 +371,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
   });
 
   // ==========================================================================
-  // T-AI-01..06: DeltaCare Assistant Grounding, Clinical Refusal & Abstention
+  // T-AI-01..06: Evercare Assistant Grounding, Clinical Refusal & Abstention
   // ==========================================================================
   it("T-AI-01 & T-AI-05: Grounded doctor/fee lookup in English and Bangla returns only published records with citations", async () => {
     const enReply = await processPatientAssistantQuery({
@@ -419,7 +419,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
   it("T-AI-06: Assistant never claims an unconfirmed REQUESTED appointment is confirmed", async () => {
     const statusReply = await processPatientAssistantQuery({
-      message: "Is my appointment DC-2026-1042 confirmed?",
+      message: "Is my appointment EC-2026-1042 confirmed?",
       locale: "en",
     });
     expect(statusReply.intentCategory).toBe("APPOINTMENT_INFO");
@@ -492,8 +492,8 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
     expect(booking.ok).toBe(true);
     if (booking.ok) {
-      expect(booking.appointment.status).toBe("REQUESTED");
-      expect(booking.appointment.reference).toMatch(/^DC-2026-\d{4}$/);
+      expect(booking.appointment.status).toBe("CONFIRMED");
+      expect(booking.appointment.reference).toMatch(/^EC-2026-\d{4}$/);
 
       // 3. Tracking verification for /track-appointment page
       const state = getDbState();
@@ -505,7 +505,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       expect(tracked).toBeDefined();
       expect(tracked?.patientName).toBe("Sumaiya Rahman");
       expect(tracked?.events.length).toBeGreaterThanOrEqual(1);
-      expect(tracked?.events[0].toStatus).toBe("REQUESTED");
+      expect(tracked?.events[0].toStatus).toBe("CONFIRMED");
     }
   });
 
@@ -733,12 +733,12 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
   it("T-SEC-02: Doctor account association & cross-doctor access prevention", async () => {
     const db = getDbState();
     // Verify doctor accounts are seeded with proper profile linkage
-    const docUser1 = db.users.find((u) => u.email === "doctor@deltacare.bd");
+    const docUser1 = db.users.find((u) => u.email === "doctor@evercare.bd");
     expect(docUser1).toBeDefined();
     expect(docUser1?.role).toBe("DOCTOR");
     expect(docUser1?.doctorProfileId).toBe("doc-1");
 
-    const docUser2 = db.users.find((u) => u.email === "doctor2@deltacare.bd");
+    const docUser2 = db.users.find((u) => u.email === "doctor2@evercare.bd");
     expect(docUser2).toBeDefined();
     expect(docUser2?.role).toBe("DOCTOR");
     expect(docUser2?.doctorProfileId).toBe("doc-2");
@@ -800,13 +800,13 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     for (const u of db.users) {
       expect(isBcryptHash(u.passwordHash)).toBe(true);
       expect(u.passwordHash).not.toContain("demo-hash:");
-      expect(u.passwordHash).not.toBe("DeltaCare#2026");
+      expect(u.passwordHash).not.toBe("Evercare#2026");
     }
 
     // 2. Correct password verifies successfully
-    const adminUser = db.users.find((u) => u.email === "admin@deltacare.bd");
+    const adminUser = db.users.find((u) => u.email === "admin@evercare.bd");
     expect(adminUser).toBeDefined();
-    const correctPasswordValid = await verifyPassword("DeltaCare#2026", adminUser?.passwordHash);
+    const correctPasswordValid = await verifyPassword("Evercare#2026", adminUser?.passwordHash);
     expect(correctPasswordValid).toBe(true);
 
     // 3. Incorrect password strictly rejected
@@ -814,10 +814,10 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     expect(incorrectPasswordValid).toBe(false);
 
     // 4. Insecure legacy format (plaintext or demo-hash:) is strictly rejected by verifyPassword
-    const legacyPlaintextValid = await verifyPassword("DeltaCare#2026", "DeltaCare#2026");
+    const legacyPlaintextValid = await verifyPassword("Evercare#2026", "Evercare#2026");
     expect(legacyPlaintextValid).toBe(false);
 
-    const legacyDemoHashValid = await verifyPassword("DeltaCare#2026", "demo-hash:DeltaCare#2026");
+    const legacyDemoHashValid = await verifyPassword("Evercare#2026", "demo-hash:Evercare#2026");
     expect(legacyDemoHashValid).toBe(false);
 
     // 5. New password hashing enforces length and produces bcrypt output
@@ -830,13 +830,13 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
   it("T-SEC-05: Session token signing, expiration, and user invalidation", async () => {
     const db = getDbState();
-    const adminUser = db.users.find((u) => u.email === "admin@deltacare.bd")!;
+    const adminUser = db.users.find((u) => u.email === "admin@evercare.bd")!;
 
     // 1. Valid token verifies and returns session payload
     const validToken = createSessionToken(adminUser);
     const verified = verifySessionToken(validToken);
     expect(verified).not.toBeNull();
-    expect(verified?.email).toBe("admin@deltacare.bd");
+    expect(verified?.email).toBe("admin@evercare.bd");
     expect(verified?.role).toBe("HOSPITAL_ADMIN");
 
     // 2. Tampered signature is strictly rejected
@@ -856,7 +856,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     // Sign it with valid secret
     const crypto = await import("crypto");
     const sig = crypto
-      .createHmac("sha256", process.env.AUTH_SECRET || "deltacare-dev-secret-key-at-least-32-bytes-long")
+      .createHmac("sha256", process.env.AUTH_SECRET || "evercare-dev-secret-key-at-least-32-bytes-long")
       .update(expiredData)
       .digest("base64url");
     const expiredToken = `${expiredData}.${sig}`;
@@ -874,9 +874,9 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
   it("T-REL1.1-01: Password migration, non-rehashing, recovery workflow, and session invalidation", async () => {
     // 1. Plaintext migration to valid bcrypt
-    const migrated = migrateLegacyPassword("DeltaCare#2026");
+    const migrated = migrateLegacyPassword("Evercare#2026");
     expect(isBcryptHash(migrated)).toBe(true);
-    expect(await verifyPassword("DeltaCare#2026", migrated)).toBe(true);
+    expect(await verifyPassword("Evercare#2026", migrated)).toBe(true);
 
     // 2. Already-hashed passwords must NOT be rehashed
     const existingBcrypt = migrated;
@@ -889,9 +889,9 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     expect(await verifyPassword("unrecognized-plaintext-credentials", forcedResetMarker)).toBe(false);
 
     // 4. Password Recovery Workflow (requestPasswordReset + completePasswordReset)
-    const resetReq = await requestPasswordReset("patient@deltacare.bd");
+    const resetReq = await requestPasswordReset("patient@evercare.bd");
     expect(resetReq.ok).toBe(true);
-    expect(resetReq.notice).toContain("If an active DeltaCare account matches");
+    expect(resetReq.notice).toContain("If an active Evercare account matches");
     expect(resetReq.rawTokenForDev).toBeDefined();
 
     const rawToken = resetReq.rawTokenForDev!;
@@ -909,10 +909,10 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     expect(validResetRes.ok).toBe(true);
 
     const db = getDbState();
-    const patientUser = db.users.find((u) => u.email === "patient@deltacare.bd")!;
+    const patientUser = db.users.find((u) => u.email === "patient@evercare.bd")!;
     expect(isBcryptHash(patientUser.passwordHash)).toBe(true);
     expect(await verifyPassword("NewSecurePassword#2026", patientUser.passwordHash)).toBe(true);
-    expect(await verifyPassword("DeltaCare#2026", patientUser.passwordHash)).toBe(false);
+    expect(await verifyPassword("Evercare#2026", patientUser.passwordHash)).toBe(false);
     expect(patientUser.passwordChangedAt).toBeDefined();
 
     // 5. Existing sessions issued BEFORE password reset are immediately revoked
@@ -924,7 +924,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     const oldPayloadData = Buffer.from(JSON.stringify(decodedPayload), "utf8").toString("base64url");
     const crypto = await import("crypto");
     const oldSig = crypto
-      .createHmac("sha256", process.env.AUTH_SECRET || "deltacare-dev-secret-key-at-least-32-bytes-long")
+      .createHmac("sha256", process.env.AUTH_SECRET || "evercare-dev-secret-key-at-least-32-bytes-long")
       .update(oldPayloadData)
       .digest("base64url");
     const staleToken = `${oldPayloadData}.${oldSig}`;
@@ -1195,8 +1195,8 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     const doc1Card = wednesdayResult.eligibleDoctors.find((d) => d.doctorId === "doc-1");
     expect(doc1Card).toBeDefined();
     if (doc1Card) {
-      expect(doc1Card.nameEn).toBe("Prof. Dr. Anisur Rahman (Synthetic)");
-      expect(doc1Card.branchNameEn).toBe("DeltaCare in Dhanmondi");
+      expect(doc1Card.nameEn).toBe("Prof. Dr. Anisur Rahman");
+      expect(doc1Card.branchNameEn).toBe("Evercare in Dhanmondi");
       expect(doc1Card.consultationHours).toBe("04:00 PM – 08:00 PM");
       expect(doc1Card.totalAvailableSlots).toBeGreaterThan(0);
     }
@@ -1206,7 +1206,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     const doc1ThuCard = thursdayResult.eligibleDoctors.find((d) => d.doctorId === "doc-1");
     expect(doc1ThuCard).toBeDefined();
     if (doc1ThuCard) {
-      expect(doc1ThuCard.branchNameEn).toBe("DeltaCare in Gulshan");
+      expect(doc1ThuCard.branchNameEn).toBe("Evercare in Gulshan");
       expect(doc1ThuCard.consultationHours).toBe("05:00 PM – 08:30 PM");
     }
   });
@@ -1249,7 +1249,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
     const batch = await facebookPublisher.saveBatch({
       id: batchId,
       targetDate: "2026-11-18",
-      caption: "Available doctors today at DeltaCare",
+      caption: "Available doctors today at Evercare",
       status: "DRAFT",
       items: [
         {
@@ -1363,7 +1363,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
 
       expect(result.ok).toBe(true);
       if (result.ok) {
-        expect(result.appointment.reference).toMatch(/^DC-2026-/);
+        expect(result.appointment.reference).toMatch(/^EC-2026-/);
         expect(result.appointment.patientName).toBe("Front Desk Walkin Patient");
 
         // Front desk confirms appointment
@@ -1582,7 +1582,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       }
     });
 
-    it("T-PH2-02: End-to-end appointment lifecycle dispatches REQUEST_RECEIVED, CONFIRMED, RESCHEDULED, and CANCELLED SMS logs", async () => {
+    it("T-PH2-02: End-to-end appointment lifecycle dispatches CONFIRMED, RESCHEDULED, and CANCELLED SMS logs", async () => {
       // 1. Public booking on Wednesday 2026-12-02 at 16:20 for doc-1 at branch-dhanmondi
       const reqRes = await createAppointmentRequest({
         departmentId: "dept-cardiology",
@@ -1601,24 +1601,13 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       if (!reqRes.ok) return;
 
       const aptId = reqRes.appointment.id;
+      // Online booking is auto-confirmed and sends the CONFIRMED SMS immediately
+      expect(reqRes.appointment.status).toBe("CONFIRMED");
       let logs = getSmsLogsForAppointment(aptId);
-      expect(logs.some((l) => l.eventType === "REQUEST_RECEIVED")).toBe(true);
-
-      // 2. Front Desk confirms the booking -> CONFIRMED SMS log recorded
-      const confirmRes = await transitionAppointmentStatus({
-        appointmentId: aptId,
-        toStatus: "CONFIRMED",
-        actorUserId: receptionistSession.userId,
-        actorName: receptionistSession.fullName,
-        actorRole: receptionistSession.role,
-        reason: "Verified by Front Desk",
-      });
-      expect(confirmRes.ok).toBe(true);
-      logs = getSmsLogsForAppointment(aptId);
       expect(logs.some((l) => l.eventType === "CONFIRMED")).toBe(true);
       const confirmSms = logs.find((l) => l.eventType === "CONFIRMED")!;
       expect(confirmSms.messageBody).toContain(reqRes.appointment.reference);
-      expect(confirmSms.messageBody).toContain("১৫ মিনিট পূর্বে");
+      expect(confirmSms.messageBody).toContain("15 min");
 
       // 3. Front Desk reschedules to 16:40 -> RESCHEDULED SMS log recorded & 16:20 released
       const reschedRes = await transitionAppointmentStatus({
@@ -1783,7 +1772,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
         expect(doc1Spotlight.visitingHoursBn).toBeDefined();
         expect(doc1Spotlight.caption).toContain("10666");
         expect(doc1Spotlight.caption).toContain("Dr.");
-        expect(doc1Spotlight.caption).toContain("https://deltacare.bd/appointments");
+        expect(doc1Spotlight.caption).toContain("https://evercare.bd/appointments");
       }
 
       // 2. Add FULL_DAY_LEAVE exception for doc-1 and verify exclusion
@@ -1837,7 +1826,7 @@ describe("DeltaCare Hospital Platform — Core Functional & Safety Verification 
       const resolveRes = await updatePatientFeedback(adminSession, {
         feedbackId: feedback.id,
         status: "RESOLVED",
-        adminResponse: "Thank you Tasneem. DeltaCare priority patient mobility assistance is always on standby.",
+        adminResponse: "Thank you Tasneem. Evercare priority patient mobility assistance is always on standby.",
       });
       expect(resolveRes.ok).toBe(true);
       if (resolveRes.ok) {

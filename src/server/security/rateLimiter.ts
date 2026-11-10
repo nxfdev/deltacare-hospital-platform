@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // ============================================================================
-// DeltaCare Server-Side Rate Limiter & Abuse Prevention Guard
+// Evercare Server-Side Rate Limiter & Abuse Prevention Guard
 //
 // ARCHITECTURAL LIMITATION & SCALE-OUT BOUNDARY:
 // This implementation uses an in-memory sliding window counter suitable for

@@ -2,7 +2,7 @@ import { getDbState } from "@/server/db/store";
 import { getCalendarWeekday } from "@/server/services/appointmentService";
 
 // ============================================================================
-// DeltaCare Phase 3 — Healthcare Data Analytics & Clinical Operations Engine
+// Evercare Phase 3 — Healthcare Data Analytics & Clinical Operations Engine
 // Powers executive KPIs, 6 interactive Recharts datasets, and CSV exports
 // ============================================================================
 

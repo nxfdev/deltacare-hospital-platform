@@ -15,7 +15,7 @@ import {
 } from "@/lib/sms/sms-service";
 
 // ============================================================================
-// DeltaCare Appointment Scheduling & Concurrency Service
+// Evercare Appointment Scheduling & Concurrency Service
 // Enforces FR-APT-01..12: Slot calculation, transactional capacity check,
 // status history, unconfirmed request honesty, and exception blocking.
 // ============================================================================
@@ -323,11 +323,11 @@ export async function createAppointmentRequest(
     }
 
     const seq = 1040 + state.appointments.length + 1;
-    const reference = `DC-2026-${seq}`;
+    const reference = `EC-2026-${seq}`;
     const nowIso = new Date().toISOString();
     const branchObj = state.branches.find((b) => b.id === input.branchId);
 
-    // FR-APT-10: Never label a request CONFIRMED upon submission; starts as REQUESTED
+    // Online bookings are validated against live slot capacity above, so they are confirmed instantly.
     const newAppointment: Appointment = {
       id: `apt-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       reference,
@@ -348,7 +348,7 @@ export async function createAppointmentRequest(
       reasonNote: input.reasonNote || input.symptomsNote || undefined,
       symptomsNote: input.symptomsNote || input.reasonNote || undefined,
       consentAccepted: true,
-      status: "REQUESTED",
+      status: "CONFIRMED",
       source: "WEBSITE",
       createdAt: nowIso,
       updatedAt: nowIso,
@@ -357,10 +357,10 @@ export async function createAppointmentRequest(
           id: `ev-${Date.now()}`,
           appointmentId: reference,
           fromStatus: null,
-          toStatus: "REQUESTED",
+          toStatus: "CONFIRMED",
           actorUserId: patientUserId,
           actorName: `${input.patientName} (Visitor/Patient)`,
-          reason: "Online appointment request submitted (Pending Front-Desk Confirmation)",
+          reason: "Online appointment booked and automatically confirmed",
           createdAt: nowIso,
         },
       ],
@@ -380,7 +380,7 @@ export async function createAppointmentRequest(
       chamberRoom: dbAssign.roomNumber,
       appointmentDate: input.preferredDate,
       slotTime: input.preferredTimeSlot,
-      eventType: "REQUEST_RECEIVED",
+      eventType: "CONFIRMED",
     });
 
     recordAuditEvent(state, {
@@ -390,7 +390,7 @@ export async function createAppointmentRequest(
       action: "APPOINTMENT_REQUEST_CREATED",
       entityType: "Appointment",
       entityId: newAppointment.id,
-      summary: `Created appointment request ${reference} (${input.preferredDate} ${input.preferredTimeSlot}) in REQUESTED state.`,
+      summary: `Created appointment request ${reference} (${input.preferredDate} ${input.preferredTimeSlot}) (auto-confirmed).`,
     });
 
     return { ok: true, appointment: newAppointment };
@@ -564,8 +564,8 @@ export async function transitionAppointmentStatus(params: {
         channel: "SMS",
         recipient: apt.patientPhone,
         templateCode: `APT_STATUS_${params.toStatus}`,
-        subject: `DeltaCare Appointment ${params.toStatus} (${apt.reference})`,
-        bodyPreview: `DeltaCare: Appointment ${apt.reference} status updated to ${params.toStatus} for ${apt.preferredDate} at ${apt.preferredTimeSlot}. Note: ${params.reason}`,
+        subject: `Evercare Appointment ${params.toStatus} (${apt.reference})`,
+        bodyPreview: `Evercare: Appointment ${apt.reference} status updated to ${params.toStatus} for ${apt.preferredDate} at ${apt.preferredTimeSlot}. Note: ${params.reason}`,
         status: "DELIVERED",
         relatedEntityType: "APPOINTMENT",
         relatedEntityId: apt.id,
@@ -686,7 +686,7 @@ export async function createFrontDeskAppointment(params: {
     }
 
     const seq = 1040 + state.appointments.length + 1;
-    const reference = `DC-2026-${seq}`;
+    const reference = `EC-2026-${seq}`;
     const nowIso = new Date().toISOString();
     const normalizedPhone = normalizeBangladeshPhone(params.patientPhone);
     const branchObj = state.branches.find((b) => b.id === params.branchId);

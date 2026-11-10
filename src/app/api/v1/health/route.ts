@@ -5,7 +5,7 @@ export async function GET() {
   const db = getDbState();
   return NextResponse.json({
     ok: true,
-    platform: "DeltaCare Hospital Platform",
+    platform: "Evercare Hospital Platform",
     status: db.hospital.status,
     timestamp: new Date().toISOString(),
     metrics: {

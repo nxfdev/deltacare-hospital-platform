@@ -1,5 +1,5 @@
 // ============================================================================
-// DeltaCare Hospital Platform — Strict TypeScript Domain Types
+// Evercare Hospital Platform — Strict TypeScript Domain Types
 // Aligns with Prisma schema and 02-SRS.md / 04-SDD-architecture.md
 // ============================================================================
 
@@ -274,8 +274,8 @@ export interface DiseaseCondition {
   causesBn: string;
   diagnosisOverviewEn: string;
   diagnosisOverviewBn: string;
-  careAtDeltaCareEn: string;
-  careAtDeltaCareBn: string;
+  careAtEvercareEn: string;
+  careAtEvercareBn: string;
   isFeaturedCareArea: boolean;
   reviewedByEn: string;
   reviewedByBn: string;
@@ -540,7 +540,7 @@ export interface AuditEvent {
 }
 
 // ============================================================================
-// DeltaCare Facebook Daily Doctor Availability & Promotional Publishing Types
+// Evercare Facebook Daily Doctor Availability & Promotional Publishing Types
 // ============================================================================
 
 export type FacebookPublishStatus =
@@ -583,7 +583,7 @@ export interface FacebookPostBatch {
 }
 
 // ============================================================================
-// DeltaCare Master Dashboard, Role Architecture & Operational Insights Types
+// Evercare Master Dashboard, Role Architecture & Operational Insights Types
 // ============================================================================
 
 export type InsightSeverity = "CRITICAL" | "WARNING" | "INFO";

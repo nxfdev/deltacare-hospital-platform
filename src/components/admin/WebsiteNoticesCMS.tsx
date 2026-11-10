@@ -199,7 +199,7 @@ export function WebsiteNoticesCMS({ initialNotices = [] }: WebsiteNoticesCMSProp
             Website Notices &amp; Public Circulars
           </h2>
           <p className="text-xs text-[#c5daf7] mt-1 max-w-2xl font-light">
-            Publish clinical updates, tender circulars, academic notices, and holiday announcements across all DeltaCare public portals with bilingual support.
+            Publish clinical updates, tender circulars, academic notices, and holiday announcements across all Evercare public portals with bilingual support.
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -359,7 +359,7 @@ export function WebsiteNoticesCMS({ initialNotices = [] }: WebsiteNoticesCMSProp
                     </td>
                     <td className="py-3.5 px-4 text-right whitespace-nowrap space-x-2">
                       <a
-                        href={`/notices/${n.slug}`}
+                        href={`/notices#${n.slug}`}
                         target="_blank"
                         rel="noreferrer"
                         className="p-1.5 text-[#0057b8] hover:bg-[#e8f0f9] transition-colors inline-flex items-center"

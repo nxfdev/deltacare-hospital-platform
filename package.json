@@ -1,8 +1,8 @@
 {
-  "name": "deltacare-hospital-platform",
+  "name": "evercare-hospital-platform",
   "version": "1.0.0",
   "private": true,
-  "description": "DeltaCare Hospital Digital Operations Platform — Bilingual Healthcare Website, Appointment Management, CMS Approval Workflow, and Grounded AI Patient Assistant",
+  "description": "Evercare Hospital Digital Operations Platform — Bilingual Healthcare Website, Appointment Management, CMS Approval Workflow, and Grounded AI Patient Assistant",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

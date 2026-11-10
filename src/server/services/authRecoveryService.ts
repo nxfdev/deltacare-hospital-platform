@@ -6,7 +6,7 @@ import {
 } from "@/server/auth/passwordService";
 
 // ============================================================================
-// DeltaCare Account Recovery & Password Reset Service
+// Evercare Account Recovery & Password Reset Service
 // Provides end-to-end recovery for FORCE_PASSWORD_RESET and forgot-password.
 // Avoids account enumeration by returning uniform timing-safe responses.
 // ============================================================================
@@ -42,7 +42,7 @@ export async function requestPasswordReset(email: string): Promise<{
         channel: "EMAIL",
         recipient: user.email,
         templateCode: "PASSWORD_RESET_LINK",
-        subject: "DeltaCare Account Recovery Instructions",
+        subject: "Evercare Account Recovery Instructions",
         bodyPreview: `A password reset was requested for ${user.email}. Use recovery token within 15 minutes to establish new credentials.`,
         status: "SENT",
         relatedEntityType: "USER_ACCOUNT",
@@ -64,7 +64,7 @@ export async function requestPasswordReset(email: string): Promise<{
     return {
       ok: true,
       notice:
-        "If an active DeltaCare account matches that email address, password reset instructions have been dispatched.",
+        "If an active Evercare account matches that email address, password reset instructions have been dispatched.",
       rawTokenForDev,
     };
   });

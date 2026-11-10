@@ -59,8 +59,8 @@ export default function RegisterPage() {
         <div className="text-center space-y-2">
           <Link href="/" className="inline-block">
             <img
-              src="/images/deltacare-logo.svg"
-              alt="DeltaCare Home"
+              src="/images/evercare-logo.svg"
+              alt="Evercare Home"
               className="h-12 w-auto mx-auto"
             />
           </Link>
@@ -68,7 +68,7 @@ export default function RegisterPage() {
             Create Patient Account
           </h1>
           <p className="text-sm text-[#686868]">
-            Track appointment requests and manage your DeltaCare visits
+            Track appointment requests and manage your Evercare visits
           </p>
         </div>
 
@@ -162,7 +162,7 @@ export default function RegisterPage() {
                 className="mt-0.5 accent-[#0057b8]"
               />
               <span>
-                I agree to DeltaCare&apos;s Privacy Notice and Terms of Use.
+                I agree to Evercare&apos;s Privacy Notice and Terms of Use.
               </span>
             </label>
 

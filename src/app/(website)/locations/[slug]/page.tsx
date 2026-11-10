@@ -1,225 +1,142 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  Calendar,
-  Clock,
-  MapPin,
-  Phone,
-  Award,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
 import {
   getPublishedBranchBySlug,
   getPublishedDepartments,
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
+import { getServerLocale } from "@/lib/i18n/server";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
-export default async function LocationDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function LocationDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const branch = getPublishedBranchBySlug(slug);
-  if (!branch) {
-    notFound();
-  }
+  if (!branch) notFound();
 
+  const bn = (await getServerLocale()) === "bn";
+  const L = (en?: string, b?: string) => (bn ? b || en : en) || "";
   const doctors = getPublishedDoctors({ branchId: branch.id });
   const departments = getPublishedDepartments(branch.id);
+  const services = bn ? branch.servicesSummaryBn : branch.servicesSummaryEn;
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Dark Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
-          <Link
-            href="/locations"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#93c5fd] hover:underline mb-2"
-          >
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <Link href="/locations" className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white">
             <ArrowLeft className="w-4 h-4" />
-            <span>All Locations &amp; Branches / সকল শাখা</span>
+            {bn ? "সকল শাখা" : "All locations"}
           </Link>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#93c5fd]">
-            <span>{branch.cityEn}</span>
-            <span>•</span>
-            <span>{branch.cityBn}</span>
-          </div>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            {branch.nameEn}
+          <h1 className="mc-serif mt-6 text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {L(branch.nameEn, branch.nameBn)}
           </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            {branch.nameBn} — {branch.subtitleEn}
-          </p>
-          <div className="pt-2 flex flex-wrap gap-4">
+          <p className="mt-4 text-lg text-white/80">{L(branch.subtitleEn, branch.subtitleBn)}</p>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
             <Link
-              href={`/request-appointment?branchId=${encodeURIComponent(branch.id)}`}
-              className="mc-btn-primary inline-flex items-center gap-2 text-sm !py-2.5 !px-5"
+              href={`/appointments?branch=${encodeURIComponent(branch.slug)}`}
+              className="mc-btn-primary inline-flex items-center gap-2 !py-3 !px-6"
             >
-              <Calendar className="w-4 h-4" />
-              <span>Request Appointment at {branch.nameEn}</span>
+              {bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an appointment"}
+              <ArrowRight className="w-4 h-4" />
             </Link>
             <a
               href={branch.directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="mc-btn-secondary-inverse text-sm !py-2.5 !px-5 inline-flex items-center gap-2"
+              className="inline-flex items-center gap-1.5 text-white/80 hover:text-white"
             >
-              <span>Directions &amp; Map</span>
-              <ExternalLink className="w-4 h-4" />
+              {bn ? "দিকনির্দেশনা" : "Directions"} <ExternalLink className="w-4 h-4" />
             </a>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body - Unboxed Editorial */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-16">
-          {/* Campus Overview: 4:3 Uncurved Photo + Details */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-[#e5e7eb] items-start">
-            <div className="lg:col-span-5 aspect-[4/3] w-full overflow-hidden bg-slate-100">
-              <img
-                src={branch.imageUrl}
-                alt={branch.nameEn}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="lg:col-span-7 space-y-4">
-              <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
-                Campus Operations &amp; Contacts
-              </h2>
-              <div className="space-y-3 text-base text-[#374151] pt-2">
-                <p className="flex items-start gap-2.5">
-                  <MapPin className="w-5 h-5 text-[#0057b8] shrink-0 mt-0.5" />
-                  <span>
-                    {branch.addressEn} ({branch.addressBn})
-                  </span>
-                </p>
-                <p className="flex items-center gap-2.5">
-                  <Clock className="w-5 h-5 text-[#0057b8] shrink-0" />
-                  <span>
-                    {branch.operatingHoursEn} / {branch.operatingHoursBn}
-                  </span>
-                </p>
-                <p className="flex items-center gap-2.5">
-                  <Phone className="w-5 h-5 text-[#0057b8] shrink-0" />
-                  <span>
-                    Main Phone: <strong>{branch.phone}</strong> • Emergency:{" "}
-                    <strong className="text-[#dc2626]">
-                      {branch.emergencyPhone}
-                    </strong>
-                  </span>
-                </p>
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 space-y-24">
+        <section className="grid gap-12 lg:grid-cols-2 items-start">
+          <Reveal className="aspect-[4/3] overflow-hidden bg-[#eef2f6]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={branch.imageUrl} alt={L(branch.nameEn, branch.nameBn)} className="h-full w-full object-cover" />
+          </Reveal>
+          <Reveal delay={0.08} className="space-y-8">
+            {[
+              [bn ? "ঠিকানা" : "Address", L(branch.addressEn, branch.addressBn)],
+              [bn ? "সময়" : "Hours", L(branch.operatingHoursEn, branch.operatingHoursBn)],
+              [bn ? "ফোন" : "Phone", branch.phone],
+              [bn ? "জরুরি" : "Emergency", branch.emergencyPhone],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <p className="text-sm text-[#6b7280]">{k}</p>
+                <p className="mt-1 text-lg text-[#0b1b33]">{v}</p>
               </div>
-
-              <div className="pt-3">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mb-2">
-                  Campus Capabilities:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {branch.servicesSummaryEn.map((srv, idx) => (
-                    <span
-                      key={srv}
-                      className="px-3 py-1 bg-[#f3f4f6] text-[#374151] text-xs font-medium"
-                    >
-                      {srv}
-                      {branch.servicesSummaryBn[idx]
-                        ? ` (${branch.servicesSummaryBn[idx]})`
-                        : ""}
-                    </span>
+            ))}
+            {services.length > 0 && (
+              <div>
+                <p className="text-sm text-[#6b7280]">{bn ? "সেবাসমূহ" : "Services"}</p>
+                <ul className="mt-2 grid sm:grid-cols-2 gap-x-8">
+                  {services.map((s) => (
+                    <li key={s} className="py-2 border-b border-[#eef0f3] text-[#374151]">
+                      {s}
+                    </li>
                   ))}
-                </div>
+                </ul>
               </div>
-            </div>
-          </div>
+            )}
+          </Reveal>
+        </section>
 
-          {/* Specialists with Active Chambers at this Branch */}
-          <section className="space-y-6">
-            <div className="pb-4 border-b-2 border-[#080808]">
-              <h2 className="mc-serif text-3xl text-[#080808]">
-                Verified Consultants Practicing at {branch.nameEn} ({doctors.length})
+        {doctors.length > 0 && (
+          <section className="space-y-10">
+            <Reveal>
+              <h2 className="mc-serif text-3xl sm:text-4xl text-[#0b1b33]">
+                {bn ? "এই শাখার বিশেষজ্ঞ" : "Specialists at this branch"}
               </h2>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {doctors.map((doc) => {
-                const assign = doc.branches.find((b) => b.branchId === branch.id);
-                const rule = assign?.scheduleRules[0];
-                return (
-                  <div
-                    key={doc.id}
-                    className="pb-6 border-b border-[#e5e7eb] flex items-start justify-between gap-4"
-                  >
-                    <div className="flex items-start gap-4">
-                      <img
-                        src={doc.imageUrl}
-                        alt={doc.nameEn}
-                        className="w-16 h-16 rounded-full object-cover border border-[#0057b8] shrink-0"
-                      />
-                      <div className="space-y-1">
-                        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#004181]">
-                          <Award className="w-3.5 h-3.5 text-[#0057b8]" />
-                          BMDC {doc.bmdcRegistrationNo} • {assign?.roomNumber}
-                        </span>
-                        <h3 className="font-bold text-lg text-[#080808]">
-                          <Link
-                            href={`/doctors/${doc.slug}`}
-                            className="hover:text-[#0057b8] hover:underline"
-                          >
-                            {doc.nameEn}
-                          </Link>
-                        </h3>
-                        <p className="text-xs text-[#6b7280]">
-                          {doc.designationEn}
-                        </p>
-                        {rule && (
-                          <p className="text-xs text-[#004181] font-medium">
-                            {rule.weekdayLabelEn}: {rule.startTime}–{rule.endTime}
-                          </p>
-                        )}
-                        <p className="text-xs font-bold text-[#080808]">
-                          Fee: BDT {doc.consultationFeeBdt}
-                        </p>
-                      </div>
+            </Reveal>
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {doctors.map((doc, i) => (
+                <Reveal key={doc.id} delay={(i % 3) * 0.06} className="group">
+                  <Link href={`/doctors/${doc.slug}`} className="flex items-center gap-5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={doc.imageUrl}
+                      alt=""
+                      className="w-20 h-20 rounded-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#0b1b33] group-hover:text-[#0057b8] transition-colors">
+                        {L(doc.nameEn, doc.nameBn)}
+                      </h3>
+                      <p className="text-sm text-[#6b7280]">{L(doc.designationEn, doc.designationBn)}</p>
                     </div>
-                    <Link
-                      href={`/request-appointment?doctorId=${encodeURIComponent(
-                        doc.id
-                      )}&branchId=${encodeURIComponent(branch.id)}`}
-                      className="mc-btn-primary !py-2 !px-4 text-xs shrink-0"
-                    >
-                      Book
-                    </Link>
-                  </div>
-                );
-              })}
+                  </Link>
+                </Reveal>
+              ))}
             </div>
           </section>
+        )}
 
-          {departments.length > 0 && (
-            <section className="space-y-6">
-              <div className="pb-4 border-b-2 border-[#080808]">
-                <h2 className="mc-serif text-3xl text-[#080808]">
-                  Clinical Departments anchored at this Campus
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {departments.map((d) => (
-                  <Link
-                    key={d.id}
-                    href={`/departments/${d.slug}`}
-                    className="py-3 px-4 border border-[#e5e7eb] hover:border-[#0057b8] font-semibold text-base text-[#004181] hover:text-[#0057b8] transition-colors"
-                  >
-                    {d.nameEn} ({d.nameBn})
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+        {departments.length > 0 && (
+          <section>
+            <Reveal>
+              <h2 className="mc-serif text-3xl text-[#0b1b33]">{bn ? "বিভাগসমূহ" : "Departments"}</h2>
+            </Reveal>
+            <div className="mt-6 grid gap-x-12 sm:grid-cols-2 lg:grid-cols-3">
+              {departments.map((d) => (
+                <Link
+                  key={d.id}
+                  href={`/departments/${d.slug}`}
+                  className="group flex items-center justify-between py-4 border-b border-[#eef0f3] text-lg text-[#1f2937] hover:text-[#0057b8]"
+                >
+                  {L(d.nameEn, d.nameBn)}
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

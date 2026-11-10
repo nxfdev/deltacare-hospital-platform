@@ -11,7 +11,7 @@ import {
 import { SessionPayload } from "@/server/auth/session";
 
 // ============================================================================
-// DeltaCare Assistant (AI Patient Information Assistant) & Staff AI Update Service
+// Evercare Assistant (AI Patient Information Assistant) & Staff AI Update Service
 // Enforces FR-AI-01..11 & FR-UPD-01..06:
 // - Strictly grounds answers in PUBLISHED hospital sources (never DRAFT/unpublished)
 // - Refuses clinical diagnosis, prescriptions, treatment plans, or symptom triage
@@ -56,8 +56,8 @@ export async function processPatientAssistantQuery(params: {
   const isBangla = params.locale === "bn" || /[\u0980-\u09FF]/.test(q);
 
   const disclosure = isBangla
-    ? "স্বয়ংক্রিয় সহায়ক (DeltaCare Assistant) — শুধুমাত্র ডেল্টাকেয়ারের অনুমোদিত ও প্রকাশিত তথ্যের ভিত্তিতে উত্তর প্রদান করে। এটি কোনো চিকিৎসা পরামর্শ বা প্রেসক্রিপশন প্রদান করে না।"
-    : "Automated Assistant (DeltaCare Assistant) — Answers strictly from approved, published DeltaCare hospital information. Does not provide medical diagnosis or clinical advice.";
+    ? "স্বয়ংক্রিয় সহায়ক (Evercare Assistant) — শুধুমাত্র এভারকেয়ারের অনুমোদিত ও প্রকাশিত তথ্যের ভিত্তিতে উত্তর প্রদান করে। এটি কোনো চিকিৎসা পরামর্শ বা প্রেসক্রিপশন প্রদান করে না।"
+    : "Automated Assistant (Evercare Assistant) — Answers strictly from approved, published Evercare hospital information. Does not provide medical diagnosis or clinical advice.";
 
   // 1. Strict Clinical Safety Refusal Check (FR-AI-07 / T-AI-03)
   if (CLINICAL_RISK_PATTERNS.some((rx) => rx.test(q))) {
@@ -77,8 +77,8 @@ export async function processPatientAssistantQuery(params: {
 
     return {
       answer: isBangla
-        ? `আমি ডেল্টাকেয়ারের একজন স্বয়ংক্রিয় তথ্য সহায়ক। আপনার নিরাপত্তার স্বার্থে আমি কোনো রোগ নির্ণয়, লক্ষণ যাচাই (triage), বা ওষুধের পরামর্শ দিতে পারি না। জরুরি শারীরিক সমস্যায় অনুগ্রহ করে অবিলম্বে আমাদের ২৪/৭ জরুরি নম্বরে (${db.hospital.emergencyPhone} / হেল্পলাইন ${db.hospital.helplinePhone}) যোগাযোগ করুন অথবা একজন বিশেষজ্ঞ চিকিৎসকের অ্যাপয়েন্টমেন্ট নিন।`
-        : `I am DeltaCare's automated administrative assistant. For your safety, I cannot diagnose symptoms, recommend medications, or provide clinical treatment advice. If you are experiencing urgent medical symptoms, please call our 24/7 Emergency Helpline immediately at ${db.hospital.emergencyPhone} (Helpline: ${db.hospital.helplinePhone}) or request a consultation with a verified specialist.`,
+        ? `আমি এভারকেয়ারের একজন স্বয়ংক্রিয় তথ্য সহায়ক। আপনার নিরাপত্তার স্বার্থে আমি কোনো রোগ নির্ণয়, লক্ষণ যাচাই (triage), বা ওষুধের পরামর্শ দিতে পারি না। জরুরি শারীরিক সমস্যায় অনুগ্রহ করে অবিলম্বে আমাদের ২৪/৭ জরুরি নম্বরে (${db.hospital.emergencyPhone} / হেল্পলাইন ${db.hospital.helplinePhone}) যোগাযোগ করুন অথবা একজন বিশেষজ্ঞ চিকিৎসকের অ্যাপয়েন্টমেন্ট নিন।`
+        : `I am Evercare's automated administrative assistant. For your safety, I cannot diagnose symptoms, recommend medications, or provide clinical treatment advice. If you are experiencing urgent medical symptoms, please call our 24/7 Emergency Helpline immediately at ${db.hospital.emergencyPhone} (Helpline: ${db.hospital.helplinePhone}) or request a consultation with a verified specialist.`,
       disclosure,
       intentCategory: "CLINICAL_REFUSAL",
       wasClinicalRefusal: true,
@@ -100,7 +100,7 @@ export async function processPatientAssistantQuery(params: {
   }
 
   // 2. Appointment Status / Confirmation Honesty Check (FR-AI-08 / T-AI-06)
-  const refMatch = q.match(/DC-\d{4}-\d{4}/i);
+  const refMatch = q.match(/(?:EC|DC)-\d{4}-\d{4}/i);
   if (
     refMatch ||
     /\b(appointment\s+confirm|is\s+my\s+appointment\s+booked|amar\s+appointment|অ্যাপয়েন্টমেন্ট\s*কি\s*নিশ্চিত)\b/i.test(
@@ -137,8 +137,8 @@ export async function processPatientAssistantQuery(params: {
             }`
           : `Appointment reference **${foundApt.reference}** currently has status: **${foundApt.status}** (Preferred slot: ${foundApt.preferredDate} at ${foundApt.preferredTimeSlot}). ${
               isConfirmed
-                ? "This booking has been verified and confirmed by DeltaCare front-desk staff."
-                : "Important: This request is NOT yet a confirmed appointment. It remains pending until DeltaCare front-desk staff verify capacity and confirm it."
+                ? "This booking has been verified and confirmed by Evercare front-desk staff."
+                : "Important: This request is NOT yet a confirmed appointment. It remains pending until Evercare front-desk staff verify capacity and confirm it."
             }`,
         disclosure,
         intentCategory: "APPOINTMENT_INFO",
@@ -162,8 +162,8 @@ export async function processPatientAssistantQuery(params: {
 
     return {
       answer: isBangla
-        ? `ডেল্টাকেয়ারে অনলাইনে ফর্ম জমা দিলে একটি অ্যাপয়েন্টমেন্ট অনুরোধ (REQUESTED) তৈরি হয় এবং রেফারেন্স কোড প্রদান করা হয়। আমাদের ফ্রন্ট-ডেস্ক স্টাফ স্লট যাচাই করে নিশ্চিত না করা পর্যন্ত কোনো অনুরোধ চূড়ান্ত (Confirmed) হিসেবে গণ্য হয় না। আপনার রেফারেন্স কোড (যেমন: DC-2026-1042) দিয়ে স্ট্যাটাস যাচাই করতে পারেন।`
-        : `Submitting an online form at DeltaCare creates an **Appointment Request (REQUESTED)** with a unique tracking reference. An appointment is never considered confirmed until our front-desk team verifies slot capacity and marks it **CONFIRMED**. You can check any request using your reference code (e.g., DC-2026-1042).`,
+        ? `/appointments পেজে ডাক্তার, তারিখ ও সময় বেছে অনলাইনে বুক করলে অ্যাপয়েন্টমেন্ট সঙ্গে সঙ্গে নিশ্চিত হয় এবং রেফারেন্স কোডসহ এসএমএস পাঠানো হয়। /track-appointment পেজে রেফারেন্স কোড দিয়ে স্ট্যাটাস দেখতে পারেন।`
+        : `Book online at /appointments: pick a doctor, date and time slot and your appointment is confirmed instantly, with an SMS containing your reference code. You can check the status anytime at /track-appointment.`,
       disclosure,
       intentCategory: "APPOINTMENT_INFO",
       wasClinicalRefusal: false,
@@ -171,7 +171,7 @@ export async function processPatientAssistantQuery(params: {
       citations: [
         {
           id: "apt-policy",
-          title: "DeltaCare Appointment Policy",
+          title: "Evercare Appointment Policy",
           href: "/appointments",
         },
       ],
@@ -266,8 +266,8 @@ export async function processPatientAssistantQuery(params: {
 
     return {
       answer: isBangla
-        ? `অনুমোদিত তথ্য অনুযায়ী **${topDoc.nameBn}** (${topDoc.designationBn}, যোগ্যতা: ${topDoc.qualificationsBn}) ডেল্টাকেয়ারে রোগী দেখেন। \n• **নতুন কনসালটেশন ফি:** ${topDoc.consultationFeeBdt} টাকা (ফলো-আপ: ${topDoc.followupFeeBdt} টাকা, কার্যকর তারিখ: ${topDoc.feeEffectiveFrom.slice(0, 10)}) \n• **চেম্বার ও সময়সূচী:** ${scheduleSummary}`
-        : `Based on DeltaCare's published directory, **${topDoc.nameEn}** (${topDoc.designationEn}, ${topDoc.qualificationsEn}) practices at DeltaCare.\n• **Published Consultation Fee:** ${topDoc.consultationFeeBdt} BDT (Follow-up: ${topDoc.followupFeeBdt} BDT, effective from ${topDoc.feeEffectiveFrom.slice(0, 10)})\n• **Verified Chamber Schedule:** ${scheduleSummary}`,
+        ? `অনুমোদিত তথ্য অনুযায়ী **${topDoc.nameBn}** (${topDoc.designationBn}, যোগ্যতা: ${topDoc.qualificationsBn}) এভারকেয়ারে রোগী দেখেন। \n• **নতুন কনসালটেশন ফি:** ${topDoc.consultationFeeBdt} টাকা (ফলো-আপ: ${topDoc.followupFeeBdt} টাকা, কার্যকর তারিখ: ${topDoc.feeEffectiveFrom.slice(0, 10)}) \n• **চেম্বার ও সময়সূচী:** ${scheduleSummary}`
+        : `Based on Evercare's published directory, **${topDoc.nameEn}** (${topDoc.designationEn}, ${topDoc.qualificationsEn}) practices at Evercare.\n• **Published Consultation Fee:** ${topDoc.consultationFeeBdt} BDT (Follow-up: ${topDoc.followupFeeBdt} BDT, effective from ${topDoc.feeEffectiveFrom.slice(0, 10)})\n• **Verified Chamber Schedule:** ${scheduleSummary}`,
       disclosure,
       intentCategory: "DOCTOR_LOOKUP",
       wasClinicalRefusal: false,
@@ -374,8 +374,8 @@ export async function processPatientAssistantQuery(params: {
 
     return {
       answer: isBangla
-        ? `ডেল্টাকেয়ারের অনুমোদিত শাখা ও কার্যসময়ের তথ্য নিচে দেওয়া হলো (২৪/৭ হেল্পলাইন: **${db.hospital.helplinePhone}**, জরুরি: **${db.hospital.emergencyPhone}**):\n${branchLines}`
-        : `Here are DeltaCare's published branch locations and operating hours (24/7 Helpline: **${db.hospital.helplinePhone}**, Emergency: **${db.hospital.emergencyPhone}**):\n${branchLines}`,
+        ? `এভারকেয়ারের অনুমোদিত শাখা ও কার্যসময়ের তথ্য নিচে দেওয়া হলো (২৪/৭ হেল্পলাইন: **${db.hospital.helplinePhone}**, জরুরি: **${db.hospital.emergencyPhone}**):\n${branchLines}`
+        : `Here are Evercare's published branch locations and operating hours (24/7 Helpline: **${db.hospital.helplinePhone}**, Emergency: **${db.hospital.emergencyPhone}**):\n${branchLines}`,
       disclosure,
       intentCategory: "HOURS_LOCATION",
       wasClinicalRefusal: false,
@@ -409,8 +409,8 @@ export async function processPatientAssistantQuery(params: {
 
   return {
     answer: isBangla
-      ? `দুঃখিত, আপনার প্রশ্নের বিষয়ে ডেল্টাকেয়ারের অনুমোদিত ও প্রকাশিত তথ্যে নির্দিষ্ট কোনো রেকর্ড পাওয়া যায়নি। ভুল বা অনুমাননির্ভর তথ্য না দেওয়ার নীতির কারণে আমি এই প্রশ্নের উত্তর দেওয়া থেকে বিরত থাকছি (Abstained)। অনুগ্রহ করে আমাদের হেল্পলাইন **${db.hospital.helplinePhone}** (${db.hospital.emergencyPhone}) নম্বরে কল করুন অথবা একটি কলব্যাক অনুরোধ জমা দিন।`
-      : `I do not have verified, published hospital information matching that specific query. In accordance with DeltaCare's safety policy, I abstain from guessing fees, unpublished schedules, or unverified services. Please contact our Patient Desk at **${db.hospital.helplinePhone}** (${db.hospital.emergencyPhone}) or submit a callback request so our staff can assist you directly.`,
+      ? `দুঃখিত, আপনার প্রশ্নের বিষয়ে এভারকেয়ারের অনুমোদিত ও প্রকাশিত তথ্যে নির্দিষ্ট কোনো রেকর্ড পাওয়া যায়নি। ভুল বা অনুমাননির্ভর তথ্য না দেওয়ার নীতির কারণে আমি এই প্রশ্নের উত্তর দেওয়া থেকে বিরত থাকছি (Abstained)। অনুগ্রহ করে আমাদের হেল্পলাইন **${db.hospital.helplinePhone}** (${db.hospital.emergencyPhone}) নম্বরে কল করুন অথবা একটি কলব্যাক অনুরোধ জমা দিন।`
+      : `I do not have verified, published hospital information matching that specific query. In accordance with Evercare's safety policy, I abstain from guessing fees, unpublished schedules, or unverified services. Please contact our Patient Desk at **${db.hospital.helplinePhone}** (${db.hospital.emergencyPhone}) or submit a callback request so our staff can assist you directly.`,
     disclosure,
     intentCategory: "UNKNOWN_ABSTAIN",
     wasClinicalRefusal: false,

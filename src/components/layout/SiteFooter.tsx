@@ -30,11 +30,7 @@ export function SiteFooter() {
   const { locale, setLocale, t } = useLocale();
 
   const socialLinks = [
-    { label: "X (Twitter)", href: "/contact", icon: XIcon },
-    { label: "YouTube", href: "/contact", icon: Youtube },
-    { label: "Facebook", href: "/contact", icon: Facebook },
-    { label: "LinkedIn", href: "/contact", icon: Linkedin },
-    { label: "Instagram", href: "/contact", icon: Instagram },
+    { label: "Facebook", href: "https://www.facebook.com/1347816171758212", icon: Facebook },
   ];
 
   return (
@@ -46,8 +42,8 @@ export function SiteFooter() {
           <div className="lg:col-span-5 space-y-5">
             <div>
               <img
-                src="/images/deltacare-logo-inverse.svg"
-                alt="DeltaCare"
+                src="/images/evercare-logo-inverse.svg"
+                alt="Evercare"
                 className="h-10 w-auto"
               />
             </div>
@@ -60,17 +56,17 @@ export function SiteFooter() {
 
             <div className="pt-2 text-sm text-[#e8f0f9]">
               <a
-                href="tel:10678"
+                href="tel:10666"
                 className="inline-flex items-center gap-2 hover:underline text-[#e8f0f9] transition-colors"
               >
                 <PhoneCall className="w-4 h-4 text-[#c5e2f9] shrink-0" />
                 <span className="font-bold text-white">
                   {locale === "bn"
-                    ? "২৪/৭ হেল্পলাইন: ১০৬৭৮"
-                    : "24/7 Helpline: 10678"}
+                    ? "২৪/৭ হেল্পলাইন: ১০৬৬৬"
+                    : "24/7 Helpline: 10666"}
                 </span>
                 <span className="text-sm text-[#c5e2f9]">
-                  (+880 9612-310678)
+                  (+880 9612-310666)
                 </span>
               </a>
             </div>
@@ -84,7 +80,7 @@ export function SiteFooter() {
             <ul className="space-y-3 text-sm text-[#e8f0f9]">
               <li>
                 <Link
-                  href="/request-appointment"
+                  href="/appointments"
                   className="hover:text-white hover:underline transition-colors flex items-center gap-1.5"
                 >
                   <span>
@@ -158,8 +154,8 @@ export function SiteFooter() {
                 >
                   <span>
                     {locale === "bn"
-                      ? "ডেল্টাকেয়ার সম্পর্কে"
-                      : "About DeltaCare"}
+                      ? "এভারকেয়ার সম্পর্কে"
+                      : "About Evercare"}
                   </span>
                 </Link>
               </li>
@@ -244,7 +240,7 @@ export function SiteFooter() {
             </Link>
           </div>
           <p className="text-white/60 text-center md:text-right">
-            © {new Date().getFullYear()} DeltaCare Hospital Platform. All rights reserved.
+            © {new Date().getFullYear()} Evercare Hospital Platform. All rights reserved.
           </p>
         </div>
       </div>

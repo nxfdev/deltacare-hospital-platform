@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": `attachment; filename="deltacare-doctor-popularity-${range}.csv"`,
+        "Content-Disposition": `attachment; filename="evercare-doctor-popularity-${range}.csv"`,
       },
     });
   }
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="deltacare-patient-feedback-sentiment.csv"',
+        "Content-Disposition": 'attachment; filename="evercare-patient-feedback-sentiment.csv"',
       },
     });
   }
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
-        "Content-Disposition": 'attachment; filename="deltacare-appointments-report.csv"',
+        "Content-Disposition": 'attachment; filename="evercare-appointments-report.csv"',
       },
     });
   }

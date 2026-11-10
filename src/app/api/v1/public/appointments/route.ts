@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(
       {
         ok: false,
-        error: "Both reference code (e.g. DC-2026-1041) and registered phone number are required.",
+        error: "Both reference code (e.g. EC-2026-1041) and registered phone number are required.",
       },
       { status: 400 }
     );
@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
       {
         ok: true,
         notice:
-          "Request Received (Pending Front-Desk Confirmation). This request is NOT a confirmed appointment until verified by DeltaCare staff.",
+          "Appointment confirmed. A confirmation SMS has been sent to your phone.",
         appointment: enrichAppointmentForPublic(result.appointment),
       },
       { status: 201 }

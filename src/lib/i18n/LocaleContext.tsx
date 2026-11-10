@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Locale } from "@/types/domain";
 import { dictionaries, getDictionary } from "./dictionaries";
 
@@ -13,7 +14,7 @@ interface LocaleContextValue {
 
 const LocaleContext = createContext<LocaleContextValue | undefined>(undefined);
 
-const STORAGE_KEY = "deltacare_locale";
+const STORAGE_KEY = "evercare_locale";
 
 export function LocaleProvider({
   children,
@@ -22,28 +23,23 @@ export function LocaleProvider({
   children: React.ReactNode;
   initialLocale?: Locale;
 }) {
+  const router = useRouter();
   const [locale, setLocaleState] = useState<Locale>(initialLocale);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY) as Locale | null;
-      if (saved === "en" || saved === "bn") {
-        setLocaleState(saved);
-        document.documentElement.lang = saved;
-      }
-    } catch {
-      // Ignore storage errors in restricted environments
-    }
-  }, []);
+    document.documentElement.lang = locale;
+  }, [locale]);
 
   const setLocale = (next: Locale) => {
     setLocaleState(next);
     try {
+      // Cookie lets server-rendered pages render in the same single language.
+      document.cookie = `${STORAGE_KEY}=${next}; path=/; max-age=31536000; samesite=lax`;
       window.localStorage.setItem(STORAGE_KEY, next);
-      document.documentElement.lang = next;
     } catch {
-      // Ignore
+      // Ignore storage errors in restricted environments
     }
+    router.refresh();
   };
 
   const toggleLocale = () => {

@@ -12,7 +12,7 @@ import { doctorUpsertSchema } from "@/lib/validation/schemas";
 import { z } from "zod";
 
 // ============================================================================
-// DeltaCare CMS, Editorial Approval & Publishing Service
+// Evercare CMS, Editorial Approval & Publishing Service
 // Enforces FR-CMS-01..09: Draft/Pending Approval/Approved/Published workflow,
 // server-side role checks, and full audit history.
 // ============================================================================
@@ -523,8 +523,8 @@ export async function upsertConditionRecord(
     causesBn: string;
     diagnosisOverviewEn: string;
     diagnosisOverviewBn: string;
-    careAtDeltaCareEn: string;
-    careAtDeltaCareBn: string;
+    careAtEvercareEn: string;
+    careAtEvercareBn: string;
     isFeaturedCareArea: boolean;
     reviewedByEn: string;
     reviewedByBn: string;

@@ -26,11 +26,11 @@ import {
 import { hashPasswordSync } from "@/server/auth/passwordService";
 
 // ============================================================================
-// DeltaCare Hospital Platform — Synthetic Development Seed Dataset
+// Evercare Hospital Platform — Synthetic Development Seed Dataset
 // Strictly marked synthetic data per Master Prompt Section 19 & 26 Rule 4-5.
 // ============================================================================
 
-export interface DeltaCareDatabaseState {
+export interface EvercareDatabaseState {
   hospital: HospitalConfiguration;
   branches: Branch[];
   departments: Department[];
@@ -56,31 +56,31 @@ export interface DeltaCareDatabaseState {
   facebookBatches: FacebookPostBatch[];
 }
 
-export function createInitialSeedState(): DeltaCareDatabaseState {
-  const hospitalId = "hosp-deltacare-bd-01";
+export function createInitialSeedState(): EvercareDatabaseState {
+  const hospitalId = "hosp-evercare-bd-01";
   const nowIso = "2026-11-01T09:00:00.000Z";
   const effectiveFromIso = "2026-01-01T00:00:00.000Z";
 
   const hospital: HospitalConfiguration = {
     id: hospitalId,
-    code: "DELTACARE-BD-MAIN",
-    nameEn: "DeltaCare",
-    nameBn: "ডেল্টাকেয়ার (DeltaCare)",
-    taglineEn: "Care at DeltaCare",
-    taglineBn: "ডেল্টাকেয়ারে সেবা",
+    code: "EVERCARE-BD-MAIN",
+    nameEn: "Evercare",
+    nameBn: "এভারকেয়ার (Evercare)",
+    taglineEn: "Care at Evercare",
+    taglineBn: "এভারকেয়ারে সেবা",
     timezone: "Asia/Dhaka",
     defaultLocale: "en",
     emergencyPhone: "+8809612310666",
     helplinePhone: "10666",
-    generalEmail: "info@deltacare.bd",
+    generalEmail: "info@evercare.bd",
     cancellationPolicyEn:
       "Appointment requests may be rescheduled or cancelled up to 4 hours prior to the scheduled chamber slot without penalty. Unconfirmed requests hold provisional slot capacity for 12 hours pending staff verification.",
     cancellationPolicyBn:
       "নির্ধারিত চেম্বার সময়ের অন্তত ৪ ঘণ্টা আগে অ্যাপয়েন্টমেন্ট অনুরোধ পরিবর্তন বা বাতিল করা যাবে। অ-নিশ্চিতকৃত অনুরোধগুলো স্টাফ যাচাইয়ের জন্য ১২ ঘণ্টা সংরক্ষিত থাকে।",
     privacyNoticeEn:
-      "DeltaCare collects only minimum necessary contact details (name, phone number, preferred slot, and optional email/note) to coordinate your appointment or callback. Do not submit national ID numbers or sensitive clinical records through public forms.",
+      "Evercare collects only minimum necessary contact details (name, phone number, preferred slot, and optional email/note) to coordinate your appointment or callback. Do not submit national ID numbers or sensitive clinical records through public forms.",
     privacyNoticeBn:
-      "ডেল্টাকেয়ার আপনার অ্যাপয়েন্টমেন্ট বা কলব্যাক সমন্বয়ের জন্য শুধুমাত্র ন্যূনতম প্রয়োজনীয় যোগাযোগের তথ্য (নাম, ফোন নম্বর, পছন্দের সময়) সংগ্রহ করে। পাবলিক ফর্মে জাতীয় পরিচয়পত্র বা সংবেদনশীল চিকিৎসা রেকর্ড জমা দেবেন না।",
+      "এভারকেয়ার আপনার অ্যাপয়েন্টমেন্ট বা কলব্যাক সমন্বয়ের জন্য শুধুমাত্র ন্যূনতম প্রয়োজনীয় যোগাযোগের তথ্য (নাম, ফোন নম্বর, পছন্দের সময়) সংগ্রহ করে। পাবলিক ফর্মে জাতীয় পরিচয়পত্র বা সংবেদনশীল চিকিৎসা রেকর্ড জমা দেবেন না।",
     status: "ACTIVE",
     updatedAt: nowIso,
   };
@@ -90,17 +90,17 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-dhanmondi",
       hospitalId,
       slug: "dhanmondi-flagship",
-      nameEn: "DeltaCare in Dhanmondi",
-      nameBn: "ডেল্টাকেয়ার ধানমন্ডি শাখা",
-      subtitleEn: "Dhaka Flagship Campus (Synthetic)",
-      subtitleBn: "ঢাকা ফ্ল্যাগশিপ ক্যাম্পাস (সিনথেটিক)",
+      nameEn: "Evercare in Dhanmondi",
+      nameBn: "এভারকেয়ার ধানমন্ডি শাখা",
+      subtitleEn: "Dhaka Flagship Campus",
+      subtitleBn: "ঢাকা ফ্ল্যাগশিপ ক্যাম্পাস",
       addressEn: "House 42, Road 27 (Old), Dhanmondi, Dhaka 1209",
       addressBn: "বাড়ি ৪২, রোড ২৭ (পুরাতন), ধানমন্ডি, ঢাকা ১২০৯",
       cityEn: "Dhaka",
       cityBn: "ঢাকা",
       phone: "+88029612301",
       emergencyPhone: "+8809612310666",
-      email: "dhanmondi@deltacare.bd",
+      email: "dhanmondi@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 8:00 AM – 10:00 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৮:০০ – রাত ১০:০০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Dhanmondi+Dhaka",
@@ -125,17 +125,17 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-gulshan",
       hospitalId,
       slug: "gulshan-specialized",
-      nameEn: "DeltaCare in Gulshan",
-      nameBn: "ডেল্টাকেয়ার গুলশান শাখা",
-      subtitleEn: "Gulshan Avenue Specialized Center (Synthetic)",
-      subtitleBn: "গুলশান অ্যাভিনিউ স্পেশালাইজড সেন্টার (সিনথেটিক)",
+      nameEn: "Evercare in Gulshan",
+      nameBn: "এভারকেয়ার গুলশান শাখা",
+      subtitleEn: "Gulshan Avenue Specialized Center",
+      subtitleBn: "গুলশান অ্যাভিনিউ স্পেশালাইজড সেন্টার",
       addressEn: "Plot 18, Gulshan Avenue, Gulshan-2, Dhaka 1212",
       addressBn: "প্লট ১৮, গুলশান অ্যাভিনিউ, গুলশান-২, ঢাকা ১২১২",
       cityEn: "Dhaka",
       cityBn: "ঢাকা",
       phone: "+88029612302",
       emergencyPhone: "+8809612310666",
-      email: "gulshan@deltacare.bd",
+      email: "gulshan@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 9:30 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৯:৩০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Gulshan+2+Dhaka",
@@ -160,17 +160,17 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-uttara",
       hospitalId,
       slug: "uttara-medical-campus",
-      nameEn: "DeltaCare in Uttara",
-      nameBn: "ডেল্টাকেয়ার উত্তরা শাখা",
-      subtitleEn: "Sector 7 North Dhaka Campus (Synthetic)",
-      subtitleBn: "সেক্টর ৭ উত্তর ঢাকা ক্যাম্পাস (সিনথেটিক)",
+      nameEn: "Evercare in Uttara",
+      nameBn: "এভারকেয়ার উত্তরা শাখা",
+      subtitleEn: "Sector 7 North Dhaka Campus",
+      subtitleBn: "সেক্টর ৭ উত্তর ঢাকা ক্যাম্পাস",
       addressEn: "House 14, Sonargaon Janapath, Sector 7, Uttara, Dhaka 1230",
       addressBn: "বাড়ি ১৪, সোনারগাঁও জনপথ, সেক্টর ৭, উত্তরা, ঢাকা ১২৩০",
       cityEn: "Dhaka",
       cityBn: "ঢাকা",
       phone: "+88029612303",
       emergencyPhone: "+8809612310666",
-      email: "uttara@deltacare.bd",
+      email: "uttara@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 8:30 AM – 9:30 PM | Emergency: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৮:৩০ – রাত ৯:৩০ | জরুরি বিভাগ: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Uttara+Sector+7+Dhaka",
@@ -195,17 +195,17 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-chattogram",
       hospitalId,
       slug: "chattogram-regional",
-      nameEn: "DeltaCare Health Network",
-      nameBn: "ডেল্টাকেয়ার চট্টগ্রাম আঞ্চলিক কেন্দ্র",
-      subtitleEn: "Panchlaish, Chattogram (Synthetic)",
-      subtitleBn: "পাঁচলাইশ, চট্টগ্রাম (সিনথেটিক)",
+      nameEn: "Evercare Health Network",
+      nameBn: "এভারকেয়ার চট্টগ্রাম আঞ্চলিক কেন্দ্র",
+      subtitleEn: "Panchlaish, Chattogram",
+      subtitleBn: "পাঁচলাইশ, চট্টগ্রাম",
       addressEn: "108 O.R. Nizam Road, Panchlaish, Chattogram 4203",
       addressBn: "১০৮ ও.আর. নিজাম রোড, পাঁচলাইশ, চট্টগ্রাম ৪২০৩",
       cityEn: "Chattogram",
       cityBn: "চট্টগ্রাম",
       phone: "+88031651200",
       emergencyPhone: "+8809612310666",
-      email: "chattogram@deltacare.bd",
+      email: "chattogram@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 9:00 PM | Urgent Care: 24/7",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৯:০০ | জরুরি সেবা: ২৪/৭",
       directionsUrl: "https://maps.google.com/?q=Panchlaish+Chattogram",
@@ -228,17 +228,17 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-sylhet",
       hospitalId,
       slug: "sylhet-consultation-center",
-      nameEn: "DeltaCare Healthcare",
-      nameBn: "ডেল্টাকেয়ার সিলেট পরামর্শ কেন্দ্র",
-      subtitleEn: "Zindabazar, Sylhet (Synthetic)",
-      subtitleBn: "জিন্দাবাজার, সিলেট (সিনথেটিক)",
+      nameEn: "Evercare Healthcare",
+      nameBn: "এভারকেয়ার সিলেট পরামর্শ কেন্দ্র",
+      subtitleEn: "Zindabazar, Sylhet",
+      subtitleBn: "জিন্দাবাজার, সিলেট",
       addressEn: "24 Stadium Market Road, Subhanighat, Sylhet 3100",
       addressBn: "২৪ স্টেডিয়াম মার্কেট রোড, সুবহানীঘাট, সিলেট ৩১০০",
       cityEn: "Sylhet",
       cityBn: "সিলেট",
       phone: "+880821719000",
       emergencyPhone: "+8809612310666",
-      email: "sylhet@deltacare.bd",
+      email: "sylhet@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 9:00 AM – 8:30 PM (Sat–Thu)",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৯:০০ – রাত ৮:৩০ (শনি–বৃহস্পতি)",
       directionsUrl: "https://maps.google.com/?q=Sylhet+Bangladesh",
@@ -264,8 +264,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       id: "branch-mirpur",
       hospitalId,
       slug: "mirpur-diagnostic-specialist",
-      nameEn: "DeltaCare in Mirpur",
-      nameBn: "ডেল্টাকেয়ার মিরপুর ডায়াগনস্টিক ও স্পেশালিস্ট সেন্টার",
+      nameEn: "Evercare in Mirpur",
+      nameBn: "এভারকেয়ার মিরপুর ডায়াগনস্টিক ও স্পেশালিস্ট সেন্টার",
       subtitleEn: "Mirpur-10 Diagnostic & Specialist Center",
       subtitleBn: "মিরপুর-১০ ডায়াগনস্টিক ও স্পেশালিস্ট সেন্টার",
       addressEn: "Plot 7, Begum Rokeya Sarani, Mirpur-10, Dhaka 1216",
@@ -275,7 +275,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       phone: "+88029612304",
       hotline: "10666",
       emergencyPhone: "+8809612310666",
-      email: "mirpur@deltacare.bd",
+      email: "mirpur@evercare.bd",
       operatingHoursEn: "Outpatient Chambers: 8:00 AM – 10:00 PM | Diagnostics: 7:00 AM – 11:00 PM",
       operatingHoursBn: "আউটপেশেন্ট চেম্বার: সকাল ৮:০০ – রাত ১০:০০ | ডায়াগনস্টিকস: সকাল ৭:০০ – রাত ১১:০০",
       directionsUrl: "https://maps.google.com/?q=Mirpur+10+Dhaka",
@@ -365,9 +365,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       shortDescBn:
         "করোনারি আর্টারি ডিজিজ, বুক ব্যথা, হার্ট অ্যারিথমিয়া, ভালভের সমস্যা এবং উচ্চ রক্তচাপের সমন্বিত মূল্যায়ন ও চিকিৎসা।",
       overviewEn:
-        "The DeltaCare Department of Cardiology & CCU provides non-invasive cardiac diagnostics, 2D/4D Color Doppler Echocardiography, ETT, 24-hour Holter monitoring, and senior NICVD/DMC/BSMMU specialist consultations.",
+        "The Evercare Department of Cardiology & CCU provides non-invasive cardiac diagnostics, 2D/4D Color Doppler Echocardiography, ETT, 24-hour Holter monitoring, and senior NICVD/DMC/BSMMU specialist consultations.",
       overviewBn:
-        "ডেল্টাকেয়ার হৃদরোগ ও সিসিইউ বিভাগ ইকোকার্ডিওগ্রাফি, ইটিটি, হল্টার মনিটরিং এবং জটিল হৃদরোগের জন্য বিশেষজ্ঞ পরামর্শ সেবা প্রদান করে।",
+        "এভারকেয়ার হৃদরোগ ও সিসিইউ বিভাগ ইকোকার্ডিওগ্রাফি, ইটিটি, হল্টার মনিটরিং এবং জটিল হৃদরোগের জন্য বিশেষজ্ঞ পরামর্শ সেবা প্রদান করে।",
       servicesEn: [
         "2D & Color Doppler Echocardiography",
         "24-Hour Holter ECG & Ambulatory BP Monitoring",
@@ -570,9 +570,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       shortDescBn:
         "হাঁটু ও কোমর ব্যথা, বাত-ব্যথা, জয়েন্ট রিপ্লেসমেন্ট পরামর্শ, স্পোর্টস ইনজুরি এবং হাড়ের ফ্র্যাকচার চিকিৎসা।",
       overviewEn:
-        "DeltaCare Orthopedics specializes in knee and hip arthroplasty assessment, arthroscopic ACL/meniscus sports medicine, cervical/lumbar spondylosis, and fracture rehabilitation.",
+        "Evercare Orthopedics specializes in knee and hip arthroplasty assessment, arthroscopic ACL/meniscus sports medicine, cervical/lumbar spondylosis, and fracture rehabilitation.",
       overviewBn:
-        "ডেল্টাকেয়ার অর্থোপেডিকস হাঁটু ও হিপ প্রতিস্থাপন মূল্যায়ন, স্পোর্টস লিগামেন্ট ইনজুরি, কোমর ও ঘাড়ের ডিস্ক প্রলাপ্স এবং হাড় ভাঙার চিকিৎসায় বিশেষজ্ঞ সেবা প্রদান করে।",
+        "এভারকেয়ার অর্থোপেডিকস হাঁটু ও হিপ প্রতিস্থাপন মূল্যায়ন, স্পোর্টস লিগামেন্ট ইনজুরি, কোমর ও ঘাড়ের ডিস্ক প্রলাপ্স এবং হাড় ভাঙার চিকিৎসায় বিশেষজ্ঞ সেবা প্রদান করে।",
       servicesEn: [
         "Knee & Hip Joint Replacement Evaluation",
         "Back Pain, PLID & Cervical Spondylosis Clinic",
@@ -848,7 +848,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Acne Vulgaris & Alopecia (Hair Fall)",
       ],
       commonConditionsBn: [
-        "ছত্রাক সংক্রমণ বা দাদ (Fungal Infection)",
+        "ছত্রাক সংক্রমণ বা দাদ",
         "একজিমা ও ত্বকের অ্যালার্জি (আমবাত)",
         "সোরিয়াসিস ও খুশকিজনিত চর্মরোগ",
         "ব্রণ ও অতিরিক্ত চুল পড়া",
@@ -877,9 +877,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       shortDescBn:
         "ক্যান্সার পরামর্শ, মেডিকেল অনকোলজি, হেমাটোলজি এবং বোন ম্যারো ট্রান্সপ্লান্ট মূল্যায়ন সেবা।",
       overviewEn:
-        "DeltaCare's Oncology & Hematology team delivers tumor-board-guided consultations for breast cancer, colon cancer, lymphoma, sarcoma, and hematologic malignancies.",
+        "Evercare's Oncology & Hematology team delivers tumor-board-guided consultations for breast cancer, colon cancer, lymphoma, sarcoma, and hematologic malignancies.",
       overviewBn:
-        "ডেল্টাকেয়ারের অনকোলজি ও হেমাটোলজি টিম ব্রেস্ট ক্যান্সার, কোলন ক্যান্সার, লিম্ফোমা এবং রক্তের ক্যান্সারের জন্য সমন্বিত বিশেষজ্ঞ পরামর্শ প্রদান করে।",
+        "এভারকেয়ারের অনকোলজি ও হেমাটোলজি টিম ব্রেস্ট ক্যান্সার, কোলন ক্যান্সার, লিম্ফোমা এবং রক্তের ক্যান্সারের জন্য সমন্বিত বিশেষজ্ঞ পরামর্শ প্রদান করে।",
       servicesEn: [
         "Medical Oncology & Systemic Therapy Planning",
         "Hematology & Bone Marrow Evaluation",
@@ -1016,8 +1016,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-cardiology",
       specialtyIds: ["spec-interventional-cardiology"],
       slug: "prof-dr-anisur-rahman-cardiology",
-      nameEn: "Prof. Dr. Anisur Rahman (Synthetic)",
-      nameBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক)",
+      nameEn: "Prof. Dr. Anisur Rahman",
+      nameBn: "অধ্যাপক ডা. আনিসুর রহমান",
       designationEn: "Senior Consultant & Chair, Department of Cardiology",
       designationBn: "সিনিয়র কনসালট্যান্ট ও বিভাগীয় প্রধান, কার্ডিওলজি",
       qualificationsEn: "MBBS (DMC), FCPS (Medicine), MD (Cardiology - NICVD), FRCP (Edin), FACC",
@@ -1028,9 +1028,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 22,
       bmdcRegistrationNo: "BMDC-SYN-24101",
       bioEn:
-        "Synthetic verified profile for platform demonstration. Prof. Dr. Anisur Rahman specializes in complex coronary artery disease, heart valve disease evaluation, and heart arrhythmia management at DeltaCare Dhanmondi and Gulshan.",
+        "Prof. Dr. Anisur Rahman is a senior interventional cardiologist with 22 years of experience, including training at the National Institute of Cardiovascular Diseases (NICVD), Dhaka. He performs coronary angiograms, angioplasty and stenting in our biplane cath lab and runs a dedicated clinic for high blood pressure, heart failure and rhythm problems at Evercare Dhanmondi and Gulshan.",
       bioBn:
-        "প্ল্যাটফর্ম যাচাইয়ের জন্য সিনথেটিক প্রোফাইল। অধ্যাপক ডা. আনিসুর রহমান জটিল করোনারি আর্টারি ডিজিজ, হার্ট ভালভ রোগ এবং হার্ট অ্যারিথমিয়া চিকিৎসায় ২২ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "অধ্যাপক ডা. আনিসুর রহমান ২২ বছরের অভিজ্ঞ একজন ইন্টারভেনশনাল কার্ডিওলজিস্ট, যিনি জাতীয় হৃদরোগ ইনস্টিটিউট (এনআইসিভিডি), ঢাকায় প্রশিক্ষণ নিয়েছেন। আমাদের বাইপ্লেন ক্যাথ ল্যাবে তিনি এনজিওগ্রাম, এনজিওপ্লাস্টি ও রিং পরানো করেন এবং এভারকেয়ার ধানমন্ডি ও গুলশানে উচ্চ রক্তচাপ, হার্ট ফেইলিউর ও হৃদস্পন্দনের সমস্যার জন্য বিশেষ ক্লিনিক পরিচালনা করেন।",
       clinicalInterestsEn: [
         "Heart Valve Disease",
         "Heart Arrhythmia & Atrial Fibrillation",
@@ -1217,8 +1217,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-neurology",
       specialtyIds: ["spec-clinical-neurology"],
       slug: "dr-farhana-karim-neurology",
-      nameEn: "Prof. Dr. Farhana Karim (Synthetic)",
-      nameBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক)",
+      nameEn: "Prof. Dr. Farhana Karim",
+      nameBn: "অধ্যাপক ডা. ফারহানা করিম",
       designationEn: "Senior Consultant, Neurology & Stroke Program",
       designationBn: "সিনিয়র কনসালট্যান্ট, নিউরোলজি ও স্ট্রোক প্রোগ্রাম",
       qualificationsEn: "MBBS (DMC), FCPS (Medicine), MD (Neurology - BSMMU), FRCP",
@@ -1229,9 +1229,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 18,
       bmdcRegistrationNo: "BMDC-SYN-28412",
       bioEn:
-        "Synthetic verified profile. Prof. Dr. Farhana Karim leads cerebrovascular stroke assessment, epilepsy clinics, and neuro-diagnostic evaluations at DeltaCare Dhanmondi.",
+        "Prof. Dr. Farhana Karim is a neurologist with 18 years of experience in stroke, epilepsy and migraine care. She leads Evercare's acute stroke pathway — from rapid CT and 3T MRI to clot-dissolving treatment within the golden hour — and runs an epilepsy clinic with video EEG at Dhanmondi.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। অধ্যাপক ডা. ফারহানা করিম স্ট্রোক, মৃগীরোগ, মাইগ্রেন এবং স্নায়বিক রোগ নির্ণয়ে ১৮ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "অধ্যাপক ডা. ফারহানা করিম ১৮ বছরের অভিজ্ঞ একজন নিউরোলজিস্ট — স্ট্রোক, মৃগীরোগ ও মাইগ্রেন তাঁর বিশেষ ক্ষেত্র। দ্রুত সিটি ও ৩ টেসলা এমআরআই থেকে শুরু করে গোল্ডেন আওয়ারের মধ্যে রক্তজমাট গলানোর চিকিৎসা পর্যন্ত এভারকেয়ারের স্ট্রোক সেবা তিনি পরিচালনা করেন এবং ধানমন্ডিতে ভিডিও ইইজি-সহ মৃগীরোগ ক্লিনিক চালান।",
       clinicalInterestsEn: [
         "Brain Aneurysm & Stroke Care",
         "Epilepsy & Seizure Disorders",
@@ -1286,8 +1286,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-oncology",
       specialtyIds: ["spec-medical-oncology"],
       slug: "dr-mahmudul-hasan-oncology",
-      nameEn: "Dr. Mahmudul Hasan (Synthetic)",
-      nameBn: "ডা. মাহমুদুল হাসান (সিনথেটিক)",
+      nameEn: "Dr. Mahmudul Hasan",
+      nameBn: "ডা. মাহমুদুল হাসান",
       designationEn: "Consultant, Medical Oncology & Hematology",
       designationBn: "কনসালট্যান্ট, মেডিকেল অনকোলজি ও হেমাটোলজি",
       qualificationsEn: "MBBS (DMC), FCPS (Hematology), MD (Medical Oncology - BSMMU)",
@@ -1298,9 +1298,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 15,
       bmdcRegistrationNo: "BMDC-SYN-31904",
       bioEn:
-        "Synthetic verified profile. Dr. Mahmudul Hasan coordinates multidisciplinary oncology consultations, chemotherapy planning, and bone marrow transplant eligibility assessments.",
+        "Dr. Mahmudul Hasan is a medical oncologist who leads Evercare's weekly tumour board, bringing surgeons, radiologists and radiation oncologists together to plan each patient's treatment. His focus areas include breast, colorectal and lung cancer, lymphoma and day-care chemotherapy.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। ডা. মাহমুদুল হাসান ব্রেস্ট ক্যান্সার, কোলন ক্যান্সার, লিম্ফোমা এবং বোন ম্যারো ট্রান্সপ্লান্ট পরামর্শে বিশেষজ্ঞ।",
+        "ডা. মাহমুদুল হাসান একজন মেডিকেল অনকোলজিস্ট, যিনি এভারকেয়ারের সাপ্তাহিক টিউমার বোর্ড পরিচালনা করেন — যেখানে সার্জন, রেডিওলজিস্ট ও রেডিয়েশন অনকোলজিস্ট মিলে প্রতিটি রোগীর চিকিৎসা পরিকল্পনা করেন। স্তন, কোলন ও ফুসফুসের ক্যানসার, লিম্ফোমা এবং ডে-কেয়ার কেমোথেরাপি তাঁর বিশেষ ক্ষেত্র।",
       clinicalInterestsEn: [
         "Breast Cancer & Colon Cancer",
         "Bone Marrow Transplant Evaluation",
@@ -1355,8 +1355,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-orthopedics",
       specialtyIds: ["spec-orthopedic-surgery"],
       slug: "dr-shafiqul-islam-orthopedics",
-      nameEn: "Prof. Dr. Shafiqul Islam (Synthetic)",
-      nameBn: "অধ্যাপক ডা. শফিকুল ইসলাম (সিনথেটিক)",
+      nameEn: "Prof. Dr. Shafiqul Islam",
+      nameBn: "অধ্যাপক ডা. শফিকুল ইসলাম",
       designationEn: "Senior Consultant, Orthopedics & Joint Replacement",
       designationBn: "সিনিয়র কনসালট্যান্ট, অর্থোপেডিকস ও জয়েন্ট রিপ্লেসমেন্ট",
       qualificationsEn: "MBBS (DMC), MS (Orthopedics - NITOR), FACS",
@@ -1367,9 +1367,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 20,
       bmdcRegistrationNo: "BMDC-SYN-26710",
       bioEn:
-        "Synthetic verified profile. Specializes in knee and hip joint replacement evaluations, ligament reconstruction, and spinal disc prolapse management at Gulshan and Chattogram.",
+        "Prof. Dr. Shafiqul Islam is an orthopaedic and joint-replacement surgeon with 20 years of experience. He performs knee and hip replacements in laminar-airflow operating theatres, arthroscopic ligament repair for sports injuries, and treats back pain and slipped discs at Gulshan and Chattogram.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। হাঁটু ও হিপ জয়েন্ট প্রতিস্থাপন, লিগামেন্ট ইনজুরি এবং মেরুদণ্ডের চিকিৎসায় ২০ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "অধ্যাপক ডা. শফিকুল ইসলাম ২০ বছরের অভিজ্ঞ একজন অর্থোপেডিক ও জয়েন্ট রিপ্লেসমেন্ট সার্জন। ল্যামিনার এয়ারফ্লো অপারেশন থিয়েটারে তিনি হাঁটু ও হিপ প্রতিস্থাপন, খেলাধুলাজনিত লিগামেন্ট ইনজুরিতে আর্থ্রোস্কপি এবং গুলশান ও চট্টগ্রামে কোমর ব্যথা ও ডিস্ক প্রল্যাপ্সের চিকিৎসা করেন।",
       clinicalInterestsEn: [
         "Total Knee & Hip Replacement",
         "Sports Ligament Injury (ACL/Meniscus)",
@@ -1449,8 +1449,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-gastroenterology",
       specialtyIds: ["spec-hepatology-gastro"],
       slug: "dr-taslima-nasrin-gastroenterology",
-      nameEn: "Dr. Taslima Akter (Synthetic)",
-      nameBn: "ডা. তাসলিমা আক্তার (সিনথেটিক)",
+      nameEn: "Dr. Taslima Akter",
+      nameBn: "ডা. তাসলিমা আক্তার",
       designationEn: "Consultant, Gastroenterology & Hepatology",
       designationBn: "কনসালট্যান্ট, গ্যাস্ট্রোএন্টারোলজি ও হেপাটোলজি",
       qualificationsEn: "MBBS (DMC), FCPS (Medicine), MD (Gastroenterology - BSMMU)",
@@ -1461,9 +1461,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 14,
       bmdcRegistrationNo: "BMDC-SYN-35221",
       bioEn:
-        "Synthetic verified profile. Dr. Taslima Akter specializes in fatty liver disease, viral hepatitis B & C, inflammatory bowel disease, and diagnostic endoscopy at Gulshan.",
+        "Dr. Taslima Akter is a gastroenterologist and hepatologist who treats fatty liver, hepatitis B and C, ulcers and irritable bowel problems. She performs sedation endoscopy and colonoscopy, and uses FibroScan to monitor liver health without a biopsy at Evercare Gulshan.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। ডা. তাসলিমা আক্তার ফ্যাটি লিভার, হেপাটাইটিস, পেপটিক আলসার এবং এন্ডোস্কোপি সেবায় বিশেষজ্ঞ।",
+        "ডা. তাসলিমা আক্তার একজন গ্যাস্ট্রোএন্টারোলজিস্ট ও হেপাটোলজিস্ট — ফ্যাটি লিভার, হেপাটাইটিস বি ও সি, আলসার এবং পেটের দীর্ঘমেয়াদি সমস্যার চিকিৎসা করেন। এভারকেয়ার গুলশানে তিনি ঘুমের ওষুধ দিয়ে এন্ডোস্কপি ও কোলোনোস্কপি করেন এবং বায়োপসি ছাড়াই ফাইব্রোস্ক্যানে লিভারের অবস্থা পর্যবেক্ষণ করেন।",
       clinicalInterestsEn: [
         "Fatty Liver & Cirrhosis",
         "Peptic Ulcer & GERD",
@@ -1518,8 +1518,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-nephrology",
       specialtyIds: ["spec-clinical-nephrology"],
       slug: "dr-zahidul-haque-nephrology",
-      nameEn: "Dr. Zahidul Haque (Synthetic)",
-      nameBn: "ডা. জাহিদুল হক (সিনথেটিক)",
+      nameEn: "Dr. Zahidul Haque",
+      nameBn: "ডা. জাহিদুল হক",
       designationEn: "Senior Consultant, Nephrology & Renal Care",
       designationBn: "সিনিয়র কনসালট্যান্ট, নেফ্রোলজি ও কিডনি কেয়ার",
       qualificationsEn: "MBBS (DMC), MD (Nephrology - BSMMU), FASN (USA)",
@@ -1530,9 +1530,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 16,
       bmdcRegistrationNo: "BMDC-SYN-33109",
       bioEn:
-        "Synthetic verified profile. Dr. Zahidul Haque manages chronic kidney disease, diabetic nephropathy, dialysis preparation, and living-donor transplant evaluation at Uttara.",
+        "Dr. Zahidul Haque is a nephrologist with 16 years of experience caring for patients with chronic kidney disease, diabetic kidney damage, kidney stones and recurrent urine infections. He supervises Evercare Uttara's haemodialysis unit and prepares patients for kidney transplantation.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। ডা. জাহিদুল হক দীর্ঘমেয়াদী কিডনি রোগ, ডায়াবেটিক নেফ্রোপ্যাথি ও কিডনি ট্রান্সপ্লান্ট মূল্যায়নে ১৬ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "ডা. জাহিদুল হক ১৬ বছরের অভিজ্ঞ একজন নেফ্রোলজিস্ট — দীর্ঘমেয়াদি কিডনি রোগ, ডায়াবেটিসজনিত কিডনি সমস্যা, কিডনিতে পাথর ও বারবার প্রস্রাবের সংক্রমণের চিকিৎসা করেন। তিনি এভারকেয়ার উত্তরার হিমোডায়ালাইসিস ইউনিট তত্ত্বাবধান করেন এবং কিডনি প্রতিস্থাপনের জন্য রোগীদের প্রস্তুত করেন।",
       clinicalInterestsEn: [
         "Chronic Kidney Disease (CKD)",
         "Living-Donor Kidney Transplant Evaluation",
@@ -1587,21 +1587,21 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-internal-medicine",
       specialtyIds: ["spec-endocrinology-medicine"],
       slug: "dr-rubina-yasmin-endocrinology",
-      nameEn: "Dr. Rubina Yasmin (Synthetic)",
-      nameBn: "ডা. রুবিনা ইয়াসমিন (সিনথেটিক)",
+      nameEn: "Dr. Rubina Yasmin",
+      nameBn: "ডা. রুবিনা ইয়াসমিন",
       designationEn: "Consultant, Internal Medicine, Diabetes & Endocrinology",
       designationBn: "কনসালট্যান্ট, ইন্টারনাল মেডিসিন, ডায়াবেটিস ও হরমোন বিভাগ",
       qualificationsEn: "MBBS (DMC), FCPS (Medicine), DEM (BIRDEM), MD (Endocrinology - BSMMU)",
       qualificationsBn: "এমবিবিএস (ডিএমসি), এফসিপিএস (মেডিসিন), ডিইএম (বারডেম), এমডি (এন্ডোক্রাইনোলজি)",
       workplaceEn: "Associate Professor, Dept. of Endocrinology & Diabetes, BIRDEM General Hospital",
-      workplaceBn: "সহযোগী অধ্যাপক, ডায়াবেটিস ও হরমোন বিভাগ, বারডেম জেনারেল হাসপাতাল (BIRDEM)",
+      workplaceBn: "সহযোগী অধ্যাপক, ডায়াবেটিস ও হরমোন বিভাগ, বারডেম জেনারেল হাসপাতাল",
       symptomTags: ["Diabetes", "ডায়াবেটিস", "Thyroid", "থাইরয়েড", "Hormone", "হরমোন", "BIRDEM", "DMC", "BSMMU"],
       experienceYears: 12,
       bmdcRegistrationNo: "BMDC-SYN-39815",
       bioEn:
-        "Synthetic verified profile. Provides comprehensive adult medicine, Type 1 & Type 2 diabetes management, thyroid clinics, and metabolic syndrome care at Uttara and Sylhet.",
+        "Dr. Rubina Yasmin is an endocrinologist trained at BIRDEM, Dhaka, with 12 years of experience in type 1 and type 2 diabetes, thyroid disorders, PCOS and hormone imbalance. She runs insulin-education and diabetic-foot clinics at Evercare Uttara and Sylhet.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। ডায়াবেটিস, থাইরয়েড হরমোন এবং প্রাপ্তবয়স্কদের মেডিসিন চিকিৎসায় ১২ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "ডা. রুবিনা ইয়াসমিন ঢাকার বারডেমে প্রশিক্ষিত একজন এন্ডোক্রিনোলজিস্ট — টাইপ ১ ও টাইপ ২ ডায়াবেটিস, থাইরয়েড, পিসিওএস ও হরমোনজনিত সমস্যায় তাঁর ১২ বছরের অভিজ্ঞতা রয়েছে। এভারকেয়ার উত্তরা ও সিলেটে তিনি ইনসুলিন শিক্ষা ও ডায়াবেটিক ফুট ক্লিনিক পরিচালনা করেন।",
       clinicalInterestsEn: [
         "Type 1 & Type 2 Diabetes Mellitus",
         "Hypothyroidism & Hyperthyroidism",
@@ -1681,8 +1681,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       departmentId: "dept-critical-care",
       specialtyIds: ["spec-pulmonology"],
       slug: "dr-syed-arman-pulmonology",
-      nameEn: "Dr. Syed Arman Hossain (Synthetic)",
-      nameBn: "ডা. সৈয়দ আরমান হোসেন (সিনথেটিক)",
+      nameEn: "Dr. Syed Arman Hossain",
+      nameBn: "ডা. সৈয়দ আরমান হোসেন",
       designationEn: "Consultant, Pulmonology & Respiratory Medicine",
       designationBn: "কনসালট্যান্ট, পালমোনোলজি ও বক্ষব্যাধি বিভাগ",
       qualificationsEn: "MBBS (DMC), MD (Chest Diseases - NIDCH), FCCP (USA)",
@@ -1693,9 +1693,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 13,
       bmdcRegistrationNo: "BMDC-SYN-37402",
       bioEn:
-        "Synthetic verified profile. Specializes in bronchial asthma, COPD, interstitial lung disease, sleep-disordered breathing, and post-infection pulmonary rehabilitation.",
+        "Dr. Syed Arman Hossain is a respiratory physician with 13 years of experience in asthma, COPD, post-tuberculosis lung damage and sleep apnoea — common problems in Dhaka's polluted winter months. He offers lung-function testing and pulmonary rehabilitation programmes.",
       bioBn:
-        "সিনথেটিক প্রোফাইল। অ্যাজমা, সিওপিডি, ফুসফুসের সংক্রমণ এবং স্লিপ অ্যাপনিয়া চিকিৎসায় ১৩ বছরের অভিজ্ঞতাসম্পন্ন।",
+        "ডা. সৈয়দ আরমান হোসেন ১৩ বছরের অভিজ্ঞ একজন বক্ষব্যাধি বিশেষজ্ঞ — অ্যাজমা, সিওপিডি, যক্ষ্মা-পরবর্তী ফুসফুসের ক্ষতি ও স্লিপ অ্যাপনিয়ার চিকিৎসা করেন, যা ঢাকার দূষিত শীতকালে বেশি দেখা যায়। তিনি ফুসফুসের কার্যক্ষমতা পরীক্ষা ও পালমোনারি রিহ্যাবিলিটেশন সেবা দেন।",
       clinicalInterestsEn: [
         "Bronchial Asthma & Allergy",
         "Chronic Obstructive Pulmonary Disease (COPD)",
@@ -1762,7 +1762,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       experienceYears: 24,
       bmdcRegistrationNo: "BMDC-SYN-21045",
       bioEn:
-        "Prof. Dr. M. Rafiqul Islam is a senior internal medicine and infectious fever specialist with 24 years of clinical and academic leadership at Dhaka Medical College. He leads DeltaCare's Dengue Fever & Complex Pyrexia Clinic at Dhanmondi and Mirpur.",
+        "Prof. Dr. M. Rafiqul Islam is a senior internal medicine and infectious fever specialist with 24 years of clinical and academic leadership at Dhaka Medical College. He leads Evercare's Dengue Fever & Complex Pyrexia Clinic at Dhanmondi and Mirpur.",
       bioBn:
         "অধ্যাপক ডা. এম. রফিকুল ইসলাম ঢাকা মেডিকেল কলেজের প্রাক্তন বিভাগীয় প্রধান এবং ডেঙ্গু জ্বর, দীর্ঘমেয়াদী জটিল জ্বর ও মেডিসিন চিকিৎসায় ২৪ বছরের অভিজ্ঞতাসম্পন্ন।",
       clinicalInterestsEn: [
@@ -2265,13 +2265,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Evaluated by a cardiologist using resting 12-lead ECG, 24-hour Holter monitoring, and echocardiography.",
       diagnosisOverviewBn:
         "কার্ডিওলজিস্টের পরামর্শে ১২-লিড ইসিজি, ২৪-ঘণ্টা হল্টার মনিটরিং এবং ইকোকার্ডিওগ্রামের মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
-        "DeltaCare's Cardiology department at Dhanmondi and Gulshan provides dedicated rhythm evaluation and specialist consultations.",
-      careAtDeltaCareBn:
-        "ডেল্টাকেয়ারের ধানমন্ডি ও গুলশান শাখায় কার্ডিওলজি বিভাগে অনিয়মিত হৃদস্পন্দনের বিশেষজ্ঞ পরামর্শ ও হল্টার পরীক্ষা করা হয়।",
+      careAtEvercareEn:
+        "Evercare's Cardiology department at Dhanmondi and Gulshan provides dedicated rhythm evaluation and specialist consultations.",
+      careAtEvercareBn:
+        "এভারকেয়ারের ধানমন্ডি ও গুলশান শাখায় কার্ডিওলজি বিভাগে অনিয়মিত হৃদস্পন্দনের বিশেষজ্ঞ পরামর্শ ও হল্টার পরীক্ষা করা হয়।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Anisur Rahman (Synthetic Reviewer), Dept. of Cardiology",
-      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক রিভিউয়ার), কার্ডিওলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Anisur Rahman, Dept. of Cardiology",
+      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান, কার্ডিওলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2306,13 +2306,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Diagnosed via 2D Color Doppler Echocardiography, chest imaging, and clinical cardiology evaluation.",
       diagnosisOverviewBn:
         "২ডি কালার ডপলার ইকোকার্ডিওগ্রাফি এবং বিশেষজ্ঞ কার্ডিওলজিস্টের পরীক্ষার মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
-        "DeltaCare provides comprehensive echocardiographic assessment and longitudinal valve clinic follow-up.",
-      careAtDeltaCareBn:
-        "ডেল্টাকেয়ারে উন্নত ইকোকার্ডিওগ্রাফি এবং ভালভ রোগীদের দীর্ঘমেয়াদী ফলো-আপ সেবা প্রদান করা হয়।",
+      careAtEvercareEn:
+        "Evercare provides comprehensive echocardiographic assessment and longitudinal valve clinic follow-up.",
+      careAtEvercareBn:
+        "এভারকেয়ারে উন্নত ইকোকার্ডিওগ্রাফি এবং ভালভ রোগীদের দীর্ঘমেয়াদী ফলো-আপ সেবা প্রদান করা হয়।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Anisur Rahman (Synthetic Reviewer), Dept. of Cardiology",
-      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক রিভিউয়ার), কার্ডিওলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Anisur Rahman, Dept. of Cardiology",
+      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান, কার্ডিওলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2323,7 +2323,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       slug: "congenital-heart-disease",
       firstLetter: "C",
       nameEn: "Congenital heart disease",
-      nameBn: "জন্মগত হৃদরোগ (Congenital Heart Disease)",
+      nameBn: "জন্মগত হৃদরোগ",
       summaryEn:
         "One or more structural issues with the heart present since birth that can affect blood flow through the heart chambers and vessels.",
       summaryBn:
@@ -2343,13 +2343,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       diagnosisOverviewEn:
         "Evaluated through Doppler echocardiography, ECG, and cardiac imaging.",
       diagnosisOverviewBn: "ডপলার ইকোকার্ডিওগ্রাফি এবং ইসিজি পরীক্ষার মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
+      careAtEvercareEn:
         "Our cardiology consultants provide specialized adult and adolescent congenital heart evaluation.",
-      careAtDeltaCareBn:
+      careAtEvercareBn:
         "আমাদের কার্ডিওলজি কনসালট্যান্টগণ জন্মগত হৃদরোগের বিশেষজ্ঞ মূল্যায়ন ও পরামর্শ প্রদান করেন।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Anisur Rahman (Synthetic Reviewer), Dept. of Cardiology",
-      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক রিভিউয়ার), কার্ডিওলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Anisur Rahman, Dept. of Cardiology",
+      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান, কার্ডিওলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2384,13 +2384,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Evaluated via CT angiography, MR angiography, and urgent neurological consultation.",
       diagnosisOverviewBn:
         "সিটি এনজিওগ্রাফি, এমআর এনজিওগ্রাফি এবং জরুরি নিউরোলজি পরামর্শের মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
-        "DeltaCare Neurology & Neurosurgery coordinates cerebrovascular evaluation and emergency referral pathways.",
-      careAtDeltaCareBn:
-        "ডেল্টাকেয়ার নিউরোলজি ও নিউরোসার্জারি বিভাগ মস্তিষ্কের রক্তনালীর সমস্যায় দ্রুত বিশেষজ্ঞ পরামর্শ প্রদান করে।",
+      careAtEvercareEn:
+        "Evercare Neurology & Neurosurgery coordinates cerebrovascular evaluation and emergency referral pathways.",
+      careAtEvercareBn:
+        "এভারকেয়ার নিউরোলজি ও নিউরোসার্জারি বিভাগ মস্তিষ্কের রক্তনালীর সমস্যায় দ্রুত বিশেষজ্ঞ পরামর্শ প্রদান করে।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Farhana Karim (Synthetic Reviewer), Dept. of Neurology",
-      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক রিভিউয়ার), নিউরোলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Farhana Karim, Dept. of Neurology",
+      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম, নিউরোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2424,13 +2424,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Contrast-enhanced Brain MRI, neurological examination, and multidisciplinary tumor board review.",
       diagnosisOverviewBn:
         "কনট্রাস্ট এমআরআই, স্নায়বিক পরীক্ষা এবং মাল্টিডিসিপ্লিনারি টিউমার বোর্ড রিভিউ।",
-      careAtDeltaCareEn:
-        "DeltaCare's Neurology and Oncology consultants provide coordinated diagnostic evaluation and treatment planning.",
-      careAtDeltaCareBn:
-        "ডেল্টাকেয়ারের নিউরোলজি ও অনকোলজি বিশেষজ্ঞরা সমন্বিত রোগ নির্ণয় ও চিকিৎসা পরিকল্পনা প্রদান করেন।",
+      careAtEvercareEn:
+        "Evercare's Neurology and Oncology consultants provide coordinated diagnostic evaluation and treatment planning.",
+      careAtEvercareBn:
+        "এভারকেয়ারের নিউরোলজি ও অনকোলজি বিশেষজ্ঞরা সমন্বিত রোগ নির্ণয় ও চিকিৎসা পরিকল্পনা প্রদান করেন।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Farhana Karim (Synthetic Reviewer), Dept. of Neurology",
-      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক রিভিউয়ার), নিউরোলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Farhana Karim, Dept. of Neurology",
+      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম, নিউরোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2462,13 +2462,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "Diagnostic mammography, breast ultrasound, core needle biopsy, and receptor pathology.",
       diagnosisOverviewBn:
         "ম্যামোগ্রাফি, ব্রেস্ট আল্ট্রাসাউন্ড এবং কোর নিডল বায়োপসির মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
-        "DeltaCare Oncology provides comprehensive staging evaluation, systemic therapy planning, and supportive care.",
-      careAtDeltaCareBn:
-        "ডেল্টাকেয়ার অনকোলজি বিভাগ ব্রেস্ট ক্যান্সারের স্টেজিং, কেমোথেরাপি পরিকল্পনা এবং ফলো-আপ পরামর্শ প্রদান করে।",
+      careAtEvercareEn:
+        "Evercare Oncology provides comprehensive staging evaluation, systemic therapy planning, and supportive care.",
+      careAtEvercareBn:
+        "এভারকেয়ার অনকোলজি বিভাগ ব্রেস্ট ক্যান্সারের স্টেজিং, কেমোথেরাপি পরিকল্পনা এবং ফলো-আপ পরামর্শ প্রদান করে।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2499,13 +2499,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       diagnosisOverviewEn:
         "Diagnosed via colonoscopy with biopsy and staging CT imaging.",
       diagnosisOverviewBn: "কোলনোস্কোপি, বায়োপসি এবং সিটি স্ক্যানের মাধ্যমে নির্ণয় করা হয়।",
-      careAtDeltaCareEn:
+      careAtEvercareEn:
         "Coordinated endoscopic screening and medical oncology consultations at Dhanmondi and Gulshan.",
-      careAtDeltaCareBn:
+      careAtEvercareBn:
         "ধানমন্ডি ও গুলশান শাখায় কোলনোস্কোপি স্ক্রিনিং এবং মেডিকেল অনকোলজি পরামর্শ প্রদান করা হয়।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2516,7 +2516,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       slug: "glioma",
       firstLetter: "G",
       nameEn: "Glioma",
-      nameBn: "গ্লায়োমা (Glioma)",
+      nameBn: "গ্লায়োমা (মস্তিষ্কের টিউমার)",
       summaryEn:
         "A type of tumor that starts in the glial cells of the brain or spinal cord.",
       summaryBn: "মস্তিষ্ক বা সুষুম্নাকাণ্ডের গ্লায়াল কোষ থেকে উৎপন্ন টিউমার।",
@@ -2526,11 +2526,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "গ্লায়াল কোষের জিনগত পরিবর্তন।",
       diagnosisOverviewEn: "Neurological evaluation and contrast MRI neuroimaging.",
       diagnosisOverviewBn: "স্নায়ুরোগ বিশেষজ্ঞের পরীক্ষা এবং কনট্রাস্ট এমআরআই।",
-      careAtDeltaCareEn: "Joint neurology and oncology consultation pathway at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডি শাখায় নিউরোলজি ও অনকোলজি বিভাগের যৌথ পরামর্শ সেবা।",
+      careAtEvercareEn: "Joint neurology and oncology consultation pathway at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডি শাখায় নিউরোলজি ও অনকোলজি বিভাগের যৌথ পরামর্শ সেবা।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Farhana Karim (Synthetic Reviewer), Dept. of Neurology",
-      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক রিভিউয়ার), নিউরোলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Farhana Karim, Dept. of Neurology",
+      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম, নিউরোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2551,11 +2551,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "সংযোজক টিস্যুর কোষের অস্বাভাবিক পরিবর্তন।",
       diagnosisOverviewEn: "MRI/CT imaging, image-guided biopsy, and orthopedic-oncology review.",
       diagnosisOverviewBn: "এমআরআই/সিটি ইমেজিং, বায়োপসি এবং অর্থোপেডিক-অনকোলজি মূল্যায়ন।",
-      careAtDeltaCareEn: "Multidisciplinary orthopedic and oncology evaluation at DeltaCare.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ারে অর্থোপেডিকস ও অনকোলজি বিভাগের সমন্বিত মূল্যায়ন।",
+      careAtEvercareEn: "Multidisciplinary orthopedic and oncology evaluation at Evercare.",
+      careAtEvercareBn: "এভারকেয়ারে অর্থোপেডিকস ও অনকোলজি বিভাগের সমন্বিত মূল্যায়ন।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2577,11 +2577,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "জার্ম কোষের পরিবর্তন।",
       diagnosisOverviewEn: "High-resolution ultrasound, serum tumor markers, and oncology staging.",
       diagnosisOverviewBn: "আল্ট্রাসাউন্ড, রক্তের টিউমার মার্কার এবং অনকোলজি স্টেজিং।",
-      careAtDeltaCareEn: "Confidential, evidence-based oncology consultations at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডি শাখায় গোপনীয়তা রক্ষা করে বিশেষজ্ঞ অনকোলজি পরামর্শ।",
+      careAtEvercareEn: "Confidential, evidence-based oncology consultations at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডি শাখায় গোপনীয়তা রক্ষা করে বিশেষজ্ঞ অনকোলজি পরামর্শ।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2603,11 +2603,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "ধুলাবালি, অ্যালার্জেন, ভাইরাস সংক্রমণ বা ঠান্ডা বাতাসে শ্বাসনালীর সংবেদনশীলতা।",
       diagnosisOverviewEn: "Spirometry (Pulmonary Function Test) with bronchodilator reversibility assessment.",
       diagnosisOverviewBn: "স্পাইরোমেট্রি (PFT) পরীক্ষার মাধ্যমে ফুসফুসের কার্যক্ষমতা যাচাই।",
-      careAtDeltaCareEn: "Pulmonology consultations and spirometry testing at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডি শাখায় বক্ষব্যাধি বিশেষজ্ঞ পরামর্শ ও স্পাইরোমেট্রি সেবা।",
+      careAtEvercareEn: "Pulmonology consultations and spirometry testing at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডি শাখায় বক্ষব্যাধি বিশেষজ্ঞ পরামর্শ ও স্পাইরোমেট্রি সেবা।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Dr. Syed Arman Hossain (Synthetic Reviewer), Dept. of Pulmonology",
-      reviewedByBn: "ডা. সৈয়দ আরমান হোসেন (সিনথেটিক রিভিউয়ার), বক্ষব্যাধি বিভাগ",
+      reviewedByEn: "Dr. Syed Arman Hossain, Dept. of Pulmonology",
+      reviewedByBn: "ডা. সৈয়দ আরমান হোসেন, বক্ষব্যাধি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2629,11 +2629,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "ইনসুলিন রেজিস্ট্যান্স বা অগ্ন্যাশয় থেকে পর্যাপ্ত ইনসুলিন নিঃসরণ না হওয়া।",
       diagnosisOverviewEn: "Fasting plasma glucose, HbA1c, and oral glucose tolerance test (OGTT).",
       diagnosisOverviewBn: "ফাস্টিং ব্লাড সুগার, HbA1c এবং OGTT পরীক্ষা।",
-      careAtDeltaCareEn: "Dedicated Endocrinology & Diabetes chambers at Uttara, Dhanmondi, and Sylhet.",
-      careAtDeltaCareBn: "উত্তরা, ধানমন্ডি ও সিলেট শাখায় ডায়াবেটিস ও হরমোন বিশেষজ্ঞ চেম্বার।",
+      careAtEvercareEn: "Dedicated Endocrinology & Diabetes chambers at Uttara, Dhanmondi, and Sylhet.",
+      careAtEvercareBn: "উত্তরা, ধানমন্ডি ও সিলেট শাখায় ডায়াবেটিস ও হরমোন বিশেষজ্ঞ চেম্বার।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Dr. Rubina Yasmin (Synthetic Reviewer), Dept. of Endocrinology",
-      reviewedByBn: "ডা. রুবিনা ইয়াসমিন (সিনথেটিক রিভিউয়ার), হরমোন ও ডায়াবেটিস বিভাগ",
+      reviewedByEn: "Dr. Rubina Yasmin, Dept. of Endocrinology",
+      reviewedByBn: "ডা. রুবিনা ইয়াসমিন, হরমোন ও ডায়াবেটিস বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2644,7 +2644,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       slug: "epilepsy",
       firstLetter: "E",
       nameEn: "Epilepsy",
-      nameBn: "মৃগীরোগ (Epilepsy)",
+      nameBn: "মৃগীরোগ",
       summaryEn: "A neurological disorder in which brain activity becomes abnormal, causing seizures.",
       summaryBn: "মস্তিষ্কের অস্বাভাবিক বৈদ্যুতিক তরঙ্গের ফলে বারবার খিঁচুনি হওয়ার স্নায়বিক রোগ।",
       symptomsEn: ["Temporary confusion", "Staring spells", "Uncontrollable jerking movements"],
@@ -2653,11 +2653,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "জিনগত কারণ, মাথায় আঘাত, স্ট্রোক বা মস্তিষ্কের সংক্রমণ।",
       diagnosisOverviewEn: "Digital Video EEG and brain MRI.",
       diagnosisOverviewBn: "ডিজিটাল ভিডিও ইইজি (EEG) এবং ব্রেইন এমআরআই।",
-      careAtDeltaCareEn: "Specialist epilepsy clinic and Video EEG diagnostics at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডি শাখায় বিশেষজ্ঞ এপিলেপসি ক্লিনিক ও ভিডিও ইইজি সেবা।",
+      careAtEvercareEn: "Specialist epilepsy clinic and Video EEG diagnostics at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডি শাখায় বিশেষজ্ঞ এপিলেপসি ক্লিনিক ও ভিডিও ইইজি সেবা।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Prof. Dr. Farhana Karim (Synthetic Reviewer), Dept. of Neurology",
-      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক রিভিউয়ার), নিউরোলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Farhana Karim, Dept. of Neurology",
+      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম, নিউরোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2677,11 +2677,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "মেটাবলিক সিনড্রোম, ইনসুলিন রেজিস্ট্যান্স ও জীবনযাত্রা।",
       diagnosisOverviewEn: "Liver function panel, hepatobiliary ultrasound, and FibroScan elastography.",
       diagnosisOverviewBn: "লিভার ফাংশন টেস্ট, আল্ট্রাসাউন্ড এবং ফাইব্রোস্ক্যান পরীক্ষা।",
-      careAtDeltaCareEn: "Hepatology & Gastroenterology consultations at DeltaCare Gulshan.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার গুলশান শাখায় হেপাটোলজি ও গ্যাস্ট্রোএন্টারোলজি বিশেষজ্ঞ পরামর্শ।",
+      careAtEvercareEn: "Hepatology & Gastroenterology consultations at Evercare Gulshan.",
+      careAtEvercareBn: "এভারকেয়ার গুলশান শাখায় হেপাটোলজি ও গ্যাস্ট্রোএন্টারোলজি বিশেষজ্ঞ পরামর্শ।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Dr. Taslima Akter (Synthetic Reviewer), Dept. of Gastroenterology",
-      reviewedByBn: "ডা. তাসলিমা আক্তার (সিনথেটিক রিভিউয়ার), গ্যাস্ট্রোএন্টারোলজি বিভাগ",
+      reviewedByEn: "Dr. Taslima Akter, Dept. of Gastroenterology",
+      reviewedByBn: "ডা. তাসলিমা আক্তার, গ্যাস্ট্রোএন্টারোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2701,11 +2701,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "দীর্ঘমেয়াদী ডায়াবেটিস, উচ্চ রক্তচাপ এবং গ্লোমেরুলোনেফ্রাইটিস।",
       diagnosisOverviewEn: "Serum creatinine, eGFR, urine albumin-to-creatinine ratio (ACR), and renal ultrasound.",
       diagnosisOverviewBn: "সিরাম ক্রিয়েটিনিন, eGFR, ইউরিন ACR এবং কিডনির আল্ট্রাসাউন্ড।",
-      careAtDeltaCareEn: "Nephrology consultations and renal care planning at DeltaCare Uttara.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার উত্তরা শাখায় নেফ্রোলজি বিশেষজ্ঞ পরামর্শ ও কিডনি কেয়ার সেবা।",
+      careAtEvercareEn: "Nephrology consultations and renal care planning at Evercare Uttara.",
+      careAtEvercareBn: "এভারকেয়ার উত্তরা শাখায় নেফ্রোলজি বিশেষজ্ঞ পরামর্শ ও কিডনি কেয়ার সেবা।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Dr. Zahidul Haque (Synthetic Reviewer), Dept. of Nephrology",
-      reviewedByBn: "ডা. জাহিদুল হক (সিনথেটিক রিভিউয়ার), নেফ্রোলজি বিভাগ",
+      reviewedByEn: "Dr. Zahidul Haque, Dept. of Nephrology",
+      reviewedByBn: "ডা. জাহিদুল হক, নেফ্রোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2725,11 +2725,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "বয়সজনিত তরুণাস্থি ক্ষয় বা পূর্ববর্তী জয়েন্ট ইনজুরি।",
       diagnosisOverviewEn: "Weight-bearing joint radiographs (X-ray) and orthopedic clinical examination.",
       diagnosisOverviewBn: "এক্স-রে এবং অর্থোপেডিক বিশেষজ্ঞের শারীরিক পরীক্ষা।",
-      careAtDeltaCareEn: "Orthopedic & Joint Replacement consultations at Gulshan and Chattogram.",
-      careAtDeltaCareBn: "গুলশান ও চট্টগ্রাম শাখায় অর্থোপেডিক ও জয়েন্ট রিপ্লেসমেন্ট পরামর্শ।",
+      careAtEvercareEn: "Orthopedic & Joint Replacement consultations at Gulshan and Chattogram.",
+      careAtEvercareBn: "গুলশান ও চট্টগ্রাম শাখায় অর্থোপেডিক ও জয়েন্ট রিপ্লেসমেন্ট পরামর্শ।",
       isFeaturedCareArea: false,
-      reviewedByEn: "Prof. Dr. Shafiqul Islam (Synthetic Reviewer), Dept. of Orthopedics",
-      reviewedByBn: "অধ্যাপক ডা. শফিকুল ইসলাম (সিনথেটিক রিভিউয়ার), অর্থোপেডিকস বিভাগ",
+      reviewedByEn: "Prof. Dr. Shafiqul Islam, Dept. of Orthopedics",
+      reviewedByBn: "অধ্যাপক ডা. শফিকুল ইসলাম, অর্থোপেডিকস বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2750,12 +2750,12 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "লিউকেমিয়া, লিম্ফোমা, অ্যাপ্লাস্টিক অ্যানিমিয়া এবং মাল্টিপল মায়লোমা।",
       diagnosisOverviewEn: "Bone marrow aspiration, biopsy, cytogenetic analysis, and HLA matching.",
       diagnosisOverviewBn: "বোন ম্যারো বায়োপসি, সাইটোজেনেটিক বিশ্লেষণ এবং এইচএলএ ম্যাচিং।",
-      careAtDeltaCareEn:
-        "Comprehensive hemato-oncology consultation and transplant coordination unit at DeltaCare Flagship.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ফ্ল্যাগশিপ হাসপাতালে বিশেষায়িত হেমাটো-অনকোলজি পরামর্শ ও ট্রান্সপ্ল্যান্ট সমন্বয়।",
+      careAtEvercareEn:
+        "Comprehensive hemato-oncology consultation and transplant coordination unit at Evercare Flagship.",
+      careAtEvercareBn: "এভারকেয়ার ফ্ল্যাগশিপ হাসপাতালে বিশেষায়িত হেমাটো-অনকোলজি পরামর্শ ও ট্রান্সপ্ল্যান্ট সমন্বয়।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2776,11 +2776,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "ডায়াবেটিসজনিত কিডনি রোগ, গ্লোমেরুলোনেফ্রাইটিস বা দীর্ঘমেয়াদী উচ্চ রক্তচাপ।",
       diagnosisOverviewEn: "Donor and recipient crossmatch, HLA typing, renal panel, and renal angiography.",
       diagnosisOverviewBn: "এইচএলএ টাইপিং, ক্রস-ম্যাচিং এবং রেনাল অ্যাঞ্জিওগ্রাফি পরীক্ষা।",
-      careAtDeltaCareEn: "Advanced nephrology and transplant care unit at DeltaCare Uttara and Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার উত্তরা ও ধানমন্ডি ক্যাম্পাসে অ্যাডভান্সড নেফ্রোলজি সেবা।",
+      careAtEvercareEn: "Advanced nephrology and transplant care unit at Evercare Uttara and Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার উত্তরা ও ধানমন্ডি ক্যাম্পাসে অ্যাডভান্সড নেফ্রোলজি সেবা।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Nazmul Huda (Synthetic Reviewer), Dept. of Nephrology",
-      reviewedByBn: "ডা. নাজমুল হুদা (সিনথেটিক রিভিউয়ার), নেফ্রোলজি বিভাগ",
+      reviewedByEn: "Dr. Nazmul Huda, Dept. of Nephrology",
+      reviewedByBn: "ডা. নাজমুল হুদা, নেফ্রোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2809,11 +2809,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "মস্তিষ্কের রক্তনালীতে রক্ত জমাট বাঁধা বা রক্তক্ষরণ।",
       diagnosisOverviewEn: "Emergency Non-contrast Brain CT, MRI Diffusion imaging, and CT Angiography.",
       diagnosisOverviewBn: "জরুরি ব্রেইন সিটি স্ক্যান, ডিফিউশন এমআরআই এবং সিটি এনজিওগ্রাম।",
-      careAtDeltaCareEn: "24/7 Acute Stroke Care Unit and thrombolysis pathway at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডি শাখায় ২৪/৭ বিশেষায়িত স্ট্রোক কেয়ার ইউনিট।",
+      careAtEvercareEn: "24/7 Acute Stroke Care Unit and thrombolysis pathway at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডি শাখায় ২৪/৭ বিশেষায়িত স্ট্রোক কেয়ার ইউনিট।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Farhana Karim (Synthetic Reviewer), Dept. of Neurology",
-      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম (সিনথেটিক রিভিউয়ার), নিউরোলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Farhana Karim, Dept. of Neurology",
+      reviewedByBn: "অধ্যাপক ডা. ফারহানা করিম, নিউরোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2839,11 +2839,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       diagnosisOverviewEn:
         "Coronary CT Angiography, digital cardiac catheterization, and exercise stress ECG (ETT).",
       diagnosisOverviewBn: "সিটি করোনারি এনজিওগ্রাম, ক্যাথল্যাব এনজিওগ্রাম এবং ইটিটি পরীক্ষা।",
-      careAtDeltaCareEn: "Full-service digital cath-lab, angioplasty, and cardiac rehab at Dhanmondi and Gulshan.",
-      careAtDeltaCareBn: "ধানমন্ডি ও গুলশান শাখায় আধুনিক ক্যাথল্যাব ও এনজিওপ্লাস্টি সেবা।",
+      careAtEvercareEn: "Full-service digital cath-lab, angioplasty, and cardiac rehab at Dhanmondi and Gulshan.",
+      careAtEvercareBn: "ধানমন্ডি ও গুলশান শাখায় আধুনিক ক্যাথল্যাব ও এনজিওপ্লাস্টি সেবা।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Prof. Dr. Anisur Rahman (Synthetic Reviewer), Dept. of Cardiology",
-      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক রিভিউয়ার), কার্ডিওলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Anisur Rahman, Dept. of Cardiology",
+      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান, কার্ডিওলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2868,11 +2868,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "ধূমপান, দূষণ এবং পরিবেশগত ক্ষতিকর উপাদান।",
       diagnosisOverviewEn: "High-resolution Low-dose Chest CT, bronchoscopy with EBUS biopsy, and PET-CT.",
       diagnosisOverviewBn: "চেস্ট সিটি স্ক্যান, ব্রঙ্কোস্কোপি বায়োপসি এবং পেট-সিটি স্ক্যান।",
-      careAtDeltaCareEn: "Thoracic oncology board and precision systemic therapy at DeltaCare Dhanmondi.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ার ধানমন্ডিতে থোরাসিক টিউমার বোর্ড ও অনকোলজি সেবা।",
+      careAtEvercareEn: "Thoracic oncology board and precision systemic therapy at Evercare Dhanmondi.",
+      careAtEvercareBn: "এভারকেয়ার ধানমন্ডিতে থোরাসিক টিউমার বোর্ড ও অনকোলজি সেবা।",
       isFeaturedCareArea: true,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -2902,8 +2902,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "এডিস মশার মাধ্যমে সংক্রমিত ডেঙ্গু ভাইরাস।",
       diagnosisOverviewEn: "NS1 Antigen (Days 1–5), Dengue IgM/IgG, and serial Complete Blood Count (CBC with Hematocrit & Platelet).",
       diagnosisOverviewBn: "ডেঙ্গু এনএস১ অ্যান্টিজেন (জ্বরের ১–৫ দিন), আইজিএম/আইজিজি এবং ধারাবাহিক সিবিসি (CBC) পরীক্ষা।",
-      careAtDeltaCareEn: "Dedicated Dengue Fever & Platelet Monitoring Clinic across Dhanmondi, Uttara, and Mirpur.",
-      careAtDeltaCareBn: "ডেল্টাকেয়ারের ধানমন্ডি, উত্তরা ও মিরপুর শাখায় বিশেষায়িত ডেঙ্গু ফিভার ক্লিনিক ও জরুরি পর্যবেক্ষণ সেবা।",
+      careAtEvercareEn: "Dedicated Dengue Fever & Platelet Monitoring Clinic across Dhanmondi, Uttara, and Mirpur.",
+      careAtEvercareBn: "এভারকেয়ারের ধানমন্ডি, উত্তরা ও মিরপুর শাখায় বিশেষায়িত ডেঙ্গু ফিভার ক্লিনিক ও জরুরি পর্যবেক্ষণ সেবা।",
       isFeaturedCareArea: true,
       reviewedByEn: "Prof. Dr. M. Rafiqul Islam, Dept. of Medicine & Dengue Care",
       reviewedByBn: "অধ্যাপক ডা. এম. রফিকুল ইসলাম, মেডিসিন ও ডেঙ্গু ক্লিনিক",
@@ -2936,8 +2936,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "মা ও গর্ভস্থ শিশুর সুস্থতা নিশ্চিতকরণে প্রসূতি বিশেষজ্ঞের নিয়মিত তত্ত্বাবধান।",
       diagnosisOverviewEn: "Antenatal profile, Anomaly Scan (18–22 weeks), Color Doppler Ultrasound, and OGTT.",
       diagnosisOverviewBn: "অ্যান্টেনাটাল প্রোফাইল, অ্যানোমালি স্ক্যান, কালার ডপলার আল্ট্রাসাউন্ড এবং ওজিটিটি পরীক্ষা।",
-      careAtDeltaCareEn: "Female FCPS/MS Gynecology & Obstetrics consultants at Dhanmondi and Mirpur.",
-      careAtDeltaCareBn: "ধানমন্ডি ও মিরপুর শাখায় অভিজ্ঞ নারী গাইনী ও প্রসূতি বিশেষজ্ঞদের চেম্বার সেবা।",
+      careAtEvercareEn: "Female FCPS/MS Gynecology & Obstetrics consultants at Dhanmondi and Mirpur.",
+      careAtEvercareBn: "ধানমন্ডি ও মিরপুর শাখায় অভিজ্ঞ নারী গাইনী ও প্রসূতি বিশেষজ্ঞদের চেম্বার সেবা।",
       isFeaturedCareArea: true,
       reviewedByEn: "Prof. Dr. Nusrat Jahan, Dept. of Gynecology & Obstetrics",
       reviewedByBn: "অধ্যাপক ডা. নুসরাত জাহান, গাইনী ও প্রসূতি বিভাগ",
@@ -2970,8 +2970,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       causesBn: "ভাইরাস বা ব্যাকটেরিয়াজনিত শ্বাসতন্ত্রের সংক্রমণ ও ডেঙ্গু জ্বর।",
       diagnosisOverviewEn: "Pediatric clinical evaluation, pulse oximetry, CBC, and chest radiograph when indicated.",
       diagnosisOverviewBn: "শিশু বিশেষজ্ঞের পরীক্ষা, অক্সিজেন মাত্রা যাচাই এবং সিবিসি পরীক্ষা।",
-      careAtDeltaCareEn: "Pediatrics & Neonatology chambers at Uttara and Mirpur.",
-      careAtDeltaCareBn: "উত্তরা ও মিরপুর শাখায় শিশু ও নবজাতক বিশেষজ্ঞদের চেম্বার সেবা।",
+      careAtEvercareEn: "Pediatrics & Neonatology chambers at Uttara and Mirpur.",
+      careAtEvercareBn: "উত্তরা ও মিরপুর শাখায় শিশু ও নবজাতক বিশেষজ্ঞদের চেম্বার সেবা।",
       isFeaturedCareArea: true,
       reviewedByEn: "Prof. Dr. A.K.M. Kamrul Hasan, Dept. of Pediatrics",
       reviewedByBn: "অধ্যাপক ডা. এ.কে.এম. কামরুল হাসান, শিশু ও নবজাতক বিভাগ",
@@ -3004,8 +3004,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "রোগের বর্তমান অবস্থা এবং ডোনার ম্যাচিং বিকল্পগুলো পর্যালোচনার জন্য ৩০ মিনিটের বিশেষজ্ঞ পরামর্শ।",
       feeBdt: 2500,
       feeEffectiveFrom: effectiveFromIso,
-      reviewedByEn: "Dr. Mahmudul Hasan (Synthetic Reviewer), Dept. of Oncology",
-      reviewedByBn: "ডা. মাহমুদুল হাসান (সিনথেটিক রিভিউয়ার), অনকোলজি বিভাগ",
+      reviewedByEn: "Dr. Mahmudul Hasan, Dept. of Oncology",
+      reviewedByBn: "ডা. মাহমুদুল হাসান, অনকোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -3032,8 +3032,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "রোগী ও দাতার স্বাস্থ্য পরীক্ষা, টিস্যু টাইপিং সমন্বয় এবং দীর্ঘমেয়াদী কিডনি যত্নের পরামর্শ।",
       feeBdt: 2500,
       feeEffectiveFrom: effectiveFromIso,
-      reviewedByEn: "Dr. Zahidul Haque (Synthetic Reviewer), Dept. of Nephrology",
-      reviewedByBn: "ডা. জাহিদুল হক (সিনথেটিক রিভিউয়ার), নেফ্রোলজি বিভাগ",
+      reviewedByEn: "Dr. Zahidul Haque, Dept. of Nephrology",
+      reviewedByBn: "ডা. জাহিদুল হক, নেফ্রোলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -3058,8 +3058,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         "বিস্তারিত কার্ডিওপালমোনারি মূল্যায়ন, অক্সিজেন থেরাপি সমন্বয় এবং বিশেষজ্ঞ পরামর্শ।",
       feeBdt: 2200,
       feeEffectiveFrom: effectiveFromIso,
-      reviewedByEn: "Dr. Syed Arman Hossain (Synthetic Reviewer), Dept. of Pulmonology",
-      reviewedByBn: "ডা. সৈয়দ আরমান হোসেন (সিনথেটিক রিভিউয়ার), বক্ষব্যাধি বিভাগ",
+      reviewedByEn: "Dr. Syed Arman Hossain, Dept. of Pulmonology",
+      reviewedByBn: "ডা. সৈয়দ আরমান হোসেন, বক্ষব্যাধি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -3081,8 +3081,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       whatToExpectBn: "২০–৩০ মিনিট সময় লাগে; সম্পূর্ণ ব্যথাহীন আল্ট্রাসাউন্ড পরীক্ষা।",
       feeBdt: 3200,
       feeEffectiveFrom: effectiveFromIso,
-      reviewedByEn: "Prof. Dr. Anisur Rahman (Synthetic Reviewer), Dept. of Cardiology",
-      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান (সিনথেটিক রিভিউয়ার), কার্ডিওলজি বিভাগ",
+      reviewedByEn: "Prof. Dr. Anisur Rahman, Dept. of Cardiology",
+      reviewedByBn: "অধ্যাপক ডা. আনিসুর রহমান, কার্ডিওলজি বিভাগ",
       lastReviewedAt: nowIso,
       publicationState: "PUBLISHED",
       updatedAt: nowIso,
@@ -3090,13 +3090,13 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
   ];
 
   // Demo users with explicit roles and secure bcrypt password hashes
-  const demoBcryptHash = hashPasswordSync("DeltaCare#2026");
+  const demoBcryptHash = hashPasswordSync("Evercare#2026");
 
   const users: UserAccount[] = [
     {
       id: "user-superadmin-1",
-      email: "admin@deltacare.bd",
-      fullName: "Nafisa Chowdhury (Hospital Admin - Synthetic)",
+      email: "admin@evercare.bd",
+      fullName: "Nafisa Chowdhury (Hospital Admin)",
       phone: "01711000001",
       passwordHash: demoBcryptHash,
       role: "HOSPITAL_ADMIN",
@@ -3108,8 +3108,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-super-0",
-      email: "superadmin@deltacare.bd",
-      fullName: "System Director (Super Admin - Synthetic)",
+      email: "superadmin@evercare.bd",
+      fullName: "System Director (Super Admin)",
       phone: "01711000000",
       passwordHash: demoBcryptHash,
       role: "SUPER_ADMIN",
@@ -3120,8 +3120,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-reception-1",
-      email: "frontdesk@deltacare.bd",
-      fullName: "Kamrul Hasan (Front Desk Receptionist - Synthetic)",
+      email: "frontdesk@evercare.bd",
+      fullName: "Kamrul Hasan (Front Desk Receptionist)",
       phone: "01711000002",
       passwordHash: demoBcryptHash,
       role: "RECEPTIONIST",
@@ -3133,8 +3133,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-editor-1",
-      email: "editor@deltacare.bd",
-      fullName: "Sadia Islam (Content & Schedule Editor - Synthetic)",
+      email: "editor@evercare.bd",
+      fullName: "Sadia Islam (Content & Schedule Editor)",
       phone: "01711000003",
       passwordHash: demoBcryptHash,
       role: "CONTENT_EDITOR",
@@ -3145,8 +3145,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-doctor-1",
-      email: "doctor@deltacare.bd",
-      fullName: "Prof. Dr. Anisur Rahman (Senior Cardiologist - Synthetic)",
+      email: "doctor@evercare.bd",
+      fullName: "Prof. Dr. Anisur Rahman (Senior Cardiologist)",
       phone: "01711000004",
       passwordHash: demoBcryptHash,
       role: "DOCTOR",
@@ -3159,8 +3159,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-doctor-2",
-      email: "doctor2@deltacare.bd",
-      fullName: "Dr. Nusrat Jahan (Gynecologist - Synthetic)",
+      email: "doctor2@evercare.bd",
+      fullName: "Dr. Nusrat Jahan (Gynecologist)",
       phone: "01711000005",
       passwordHash: demoBcryptHash,
       role: "DOCTOR",
@@ -3173,8 +3173,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "user-patient-1",
-      email: "patient@deltacare.bd",
-      fullName: "Tanvir Ahmed (Patient - Synthetic)",
+      email: "patient@evercare.bd",
+      fullName: "Tanvir Ahmed (Patient)",
       phone: "01711223344",
       passwordHash: demoBcryptHash,
       role: "PATIENT",
@@ -3188,15 +3188,15 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
   const appointments: Appointment[] = [
     {
       id: "apt-1001",
-      reference: "DC-2026-1041",
+      reference: "EC-2026-1041",
       doctorBranchId: "db-doc1-dhanmondi",
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
       branchId: "branch-dhanmondi",
       patientUserId: "user-patient-1",
-      patientName: "Tanvir Ahmed (Synthetic)",
+      patientName: "Tanvir Ahmed",
       patientPhone: "01711223344",
-      patientEmail: "patient@deltacare.bd",
+      patientEmail: "patient@evercare.bd",
       preferredDate: "2026-11-07",
       preferredTimeSlot: "16:40",
       visitType: "NEW_CONSULTATION",
@@ -3234,15 +3234,15 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1002",
-      reference: "DC-2026-1042",
+      reference: "EC-2026-1042",
       doctorBranchId: "db-doc2-dhanmondi",
       departmentId: "dept-neurology",
       doctorId: "doc-2",
       branchId: "branch-dhanmondi",
       patientUserId: "user-patient-1",
-      patientName: "Tanvir Ahmed (Synthetic)",
+      patientName: "Tanvir Ahmed",
       patientPhone: "01711223344",
-      patientEmail: "patient@deltacare.bd",
+      patientEmail: "patient@evercare.bd",
       preferredDate: "2026-11-09",
       preferredTimeSlot: "15:20",
       visitType: "FOLLOW_UP",
@@ -3267,12 +3267,12 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1003",
-      reference: "DC-2026-1043",
+      reference: "EC-2026-1043",
       doctorBranchId: "db-doc4-gulshan",
       departmentId: "dept-orthopedics",
       doctorId: "doc-4",
       branchId: "branch-gulshan",
-      patientName: "Nusrat Jahan (Synthetic)",
+      patientName: "Nusrat Jahan",
       patientPhone: "01819556677",
       patientEmail: "nusrat.demo@example.com",
       preferredDate: "2026-11-08",
@@ -3310,7 +3310,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     // Realistic multi-branch, multi-department, multi-status distribution for analytics
     {
       id: "apt-1004",
-      reference: "DC-2026-1044",
+      reference: "EC-2026-1044",
       doctorBranchId: "db-doc1-dhanmondi",
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
@@ -3330,7 +3330,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1005",
-      reference: "DC-2026-1045",
+      reference: "EC-2026-1045",
       doctorBranchId: "db-doc1-dhanmondi",
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
@@ -3350,7 +3350,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1006",
-      reference: "DC-2026-1046",
+      reference: "EC-2026-1046",
       doctorBranchId: "db-doc1-dhanmondi",
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
@@ -3370,7 +3370,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1007",
-      reference: "DC-2026-1047",
+      reference: "EC-2026-1047",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3390,7 +3390,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1008",
-      reference: "DC-2026-1048",
+      reference: "EC-2026-1048",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3410,7 +3410,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1009",
-      reference: "DC-2026-1049",
+      reference: "EC-2026-1049",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3430,7 +3430,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1010",
-      reference: "DC-2026-1050",
+      reference: "EC-2026-1050",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3451,7 +3451,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1011",
-      reference: "DC-2026-1051",
+      reference: "EC-2026-1051",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3471,7 +3471,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1012",
-      reference: "DC-2026-1052",
+      reference: "EC-2026-1052",
       doctorBranchId: "db-doc9-dhanmondi",
       departmentId: "dept-medicine",
       doctorId: "doc-9",
@@ -3491,7 +3491,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1013",
-      reference: "DC-2026-1053",
+      reference: "EC-2026-1053",
       doctorBranchId: "db-doc2-dhanmondi",
       departmentId: "dept-neurology",
       doctorId: "doc-2",
@@ -3511,7 +3511,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1014",
-      reference: "DC-2026-1054",
+      reference: "EC-2026-1054",
       doctorBranchId: "db-doc2-dhanmondi",
       departmentId: "dept-neurology",
       doctorId: "doc-2",
@@ -3531,7 +3531,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1015",
-      reference: "DC-2026-1055",
+      reference: "EC-2026-1055",
       doctorBranchId: "db-doc3-uttara",
       departmentId: "dept-gastroenterology",
       doctorId: "doc-3",
@@ -3551,7 +3551,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1016",
-      reference: "DC-2026-1056",
+      reference: "EC-2026-1056",
       doctorBranchId: "db-doc3-uttara",
       departmentId: "dept-gastroenterology",
       doctorId: "doc-3",
@@ -3571,7 +3571,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1017",
-      reference: "DC-2026-1057",
+      reference: "EC-2026-1057",
       doctorBranchId: "db-doc5-gulshan",
       departmentId: "dept-gynecology",
       doctorId: "doc-5",
@@ -3591,7 +3591,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1018",
-      reference: "DC-2026-1058",
+      reference: "EC-2026-1058",
       doctorBranchId: "db-doc5-gulshan",
       departmentId: "dept-gynecology",
       doctorId: "doc-5",
@@ -3611,7 +3611,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1019",
-      reference: "DC-2026-1059",
+      reference: "EC-2026-1059",
       doctorBranchId: "db-doc5-gulshan",
       departmentId: "dept-gynecology",
       doctorId: "doc-5",
@@ -3631,7 +3631,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1020",
-      reference: "DC-2026-1060",
+      reference: "EC-2026-1060",
       doctorBranchId: "db-doc7-dhanmondi",
       departmentId: "dept-pediatrics",
       doctorId: "doc-7",
@@ -3651,7 +3651,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1021",
-      reference: "DC-2026-1061",
+      reference: "EC-2026-1061",
       doctorBranchId: "db-doc7-dhanmondi",
       departmentId: "dept-pediatrics",
       doctorId: "doc-7",
@@ -3671,7 +3671,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1022",
-      reference: "DC-2026-1062",
+      reference: "EC-2026-1062",
       doctorBranchId: "db-doc8-uttara",
       departmentId: "dept-ent",
       doctorId: "doc-8",
@@ -3691,7 +3691,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1023",
-      reference: "DC-2026-1063",
+      reference: "EC-2026-1063",
       doctorBranchId: "db-doc10-mirpur",
       departmentId: "dept-cardiology",
       doctorId: "doc-10",
@@ -3711,7 +3711,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1024",
-      reference: "DC-2026-1064",
+      reference: "EC-2026-1064",
       doctorBranchId: "db-doc10-mirpur",
       departmentId: "dept-cardiology",
       doctorId: "doc-10",
@@ -3731,7 +3731,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1025",
-      reference: "DC-2026-1065",
+      reference: "EC-2026-1065",
       doctorBranchId: "db-doc11-mirpur",
       departmentId: "dept-gynecology",
       doctorId: "doc-11",
@@ -3751,7 +3751,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1026",
-      reference: "DC-2026-1066",
+      reference: "EC-2026-1066",
       doctorBranchId: "db-doc11-mirpur",
       departmentId: "dept-gynecology",
       doctorId: "doc-11",
@@ -3771,7 +3771,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1027",
-      reference: "DC-2026-1067",
+      reference: "EC-2026-1067",
       doctorBranchId: "db-doc4-gulshan",
       departmentId: "dept-orthopedics",
       doctorId: "doc-4",
@@ -3791,7 +3791,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1028",
-      reference: "DC-2026-1068",
+      reference: "EC-2026-1068",
       doctorBranchId: "db-doc6-uttara",
       departmentId: "dept-nephrology",
       doctorId: "doc-6",
@@ -3811,7 +3811,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1029",
-      reference: "DC-2026-1069",
+      reference: "EC-2026-1069",
       doctorBranchId: "db-doc6-uttara",
       departmentId: "dept-nephrology",
       doctorId: "doc-6",
@@ -3831,7 +3831,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     },
     {
       id: "apt-1030",
-      reference: "DC-2026-1070",
+      reference: "EC-2026-1070",
       doctorBranchId: "db-doc1-dhanmondi",
       departmentId: "dept-cardiology",
       doctorId: "doc-1",
@@ -3915,9 +3915,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
         requiresStaffApproval: true,
       }),
       draftNoticeEn:
-        "Notice: Dr. Zahidul Haque's Nephrology chamber at DeltaCare Uttara (Room 205) will be unavailable on 15 November 2026 due to conference attendance. Regular chambers resume 16 November 2026.",
+        "Notice: Dr. Zahidul Haque's Nephrology chamber at Evercare Uttara (Room 205) will be unavailable on 15 November 2026 due to conference attendance. Regular chambers resume 16 November 2026.",
       draftNoticeBn:
-        "বিজ্ঞপ্তি: আগামী ১৫ নভেম্বর ২০২৬ তারিখে কনফারেন্সে অংশগ্রহণের কারণে ডেল্টাকেয়ার উত্তরা শাখায় (কক্ষ ২০৫) ডা. জাহিদুল হকের চেম্বার বন্ধ থাকবে। ১৬ নভেম্বর থেকে নিয়মিত চেম্বার চলবে।",
+        "বিজ্ঞপ্তি: আগামী ১৫ নভেম্বর ২০২৬ তারিখে কনফারেন্সে অংশগ্রহণের কারণে এভারকেয়ার উত্তরা শাখায় (কক্ষ ২০৫) ডা. জাহিদুল হকের চেম্বার বন্ধ থাকবে। ১৬ নভেম্বর থেকে নিয়মিত চেম্বার চলবে।",
       approvalStatus: "PENDING_APPROVAL",
       createdAt: "2026-11-03T10:00:00.000Z",
     },
@@ -3927,7 +3927,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     {
       id: "cr-4001",
       reference: "CB-2026-801",
-      fullName: "Rafiqul Alam (Synthetic)",
+      fullName: "Rafiqul Alam",
       phone: "01715889900",
       email: "rafiqul.demo@example.com",
       branchId: "branch-dhanmondi",
@@ -3950,7 +3950,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       category: "WAIT_TIME",
       routedDepartmentId: "dept-orthopedics",
       branchId: "branch-gulshan",
-      patientName: "Mahbubur Rahman (Synthetic)",
+      patientName: "Mahbubur Rahman",
       patientPhone: "01911445566",
       patientEmail: "mahbub.demo@example.com",
       subject: "Evening chamber queue delay at Gulshan",
@@ -3972,7 +3972,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       category: "APPOINTMENT",
       routedDepartmentId: "dept-cardiology",
       branchId: "branch-dhanmondi",
-      patientName: "Farzana Yasmin (Synthetic)",
+      patientName: "Farzana Yasmin",
       patientPhone: "01712334455",
       subject: "Helpful bilingual schedule and fee transparency",
       message:
@@ -3993,9 +3993,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       channel: "SMS",
       recipient: "01711223344",
       templateCode: "APT_CONFIRMED_BN_EN",
-      subject: "DeltaCare Appointment Confirmed (DC-2026-1041)",
+      subject: "Evercare Appointment Confirmed (EC-2026-1041)",
       bodyPreview:
-        "DeltaCare: Your appointment (Ref: DC-2026-1041) with Prof. Dr. Anisur Rahman at Dhanmondi Room 302 on 2026-11-07 at 16:40 is CONFIRMED.",
+        "Evercare: Your appointment (Ref: EC-2026-1041) with Prof. Dr. Anisur Rahman at Dhanmondi Room 302 on 2026-11-07 at 16:40 is CONFIRMED.",
       status: "DELIVERED",
       relatedEntityType: "APPOINTMENT",
       relatedEntityId: "apt-1001",
@@ -4005,11 +4005,11 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     {
       id: "notif-6002",
       channel: "EMAIL",
-      recipient: "patient@deltacare.bd",
+      recipient: "patient@evercare.bd",
       templateCode: "APT_REQUEST_RECEIVED",
-      subject: "DeltaCare Appointment Request Received (Ref: DC-2026-1042 — Pending Confirmation)",
+      subject: "Evercare Appointment Request Received (Ref: EC-2026-1042 — Pending Confirmation)",
       bodyPreview:
-        "We have received your appointment request DC-2026-1042 for Prof. Dr. Farhana Karim. Status: REQUESTED (Pending Front-Desk Confirmation).",
+        "We have received your appointment request EC-2026-1042 for Prof. Dr. Farhana Karim. Status: REQUESTED (Pending Front-Desk Confirmation).",
       status: "SENT",
       relatedEntityType: "APPOINTMENT",
       relatedEntityId: "apt-1002",
@@ -4063,7 +4063,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       action: "APPOINTMENT_CONFIRMED",
       entityType: "Appointment",
       entityId: "apt-1001",
-      summary: "Confirmed appointment DC-2026-1041 for slot 2026-11-07 16:40 after capacity verification.",
+      summary: "Confirmed appointment EC-2026-1041 for slot 2026-11-07 16:40 after capacity verification.",
       occurredAt: "2026-11-02T11:20:00.000Z",
     },
     {
@@ -4171,9 +4171,9 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       summaryBn:
         "মাত্র ২ ঘণ্টার মধ্যে ডেঙ্গু এনএস১ অ্যান্টিজেন এবং অটোমেটেড সিবিসি ও প্লাটিলেট রিপোর্ট প্রদান করা হচ্ছে।",
       bodyEn:
-        "DeltaCare's Medicine & Dengue Care Department operates dedicated fever triage and outpatient specialist chambers across Dhanmondi, Uttara, Gulshan, and Mirpur. Patients experiencing high fever, retro-orbital headache, or warning signs are advised to consult our FCPS/MRCP Medicine specialists or call Helpline 10666.",
+        "Evercare's Medicine & Dengue Care Department operates dedicated fever triage and outpatient specialist chambers across Dhanmondi, Uttara, Gulshan, and Mirpur. Patients experiencing high fever, retro-orbital headache, or warning signs are advised to consult our FCPS/MRCP Medicine specialists or call Helpline 10666.",
       bodyBn:
-        "ডেল্টাকেয়ারের ধানমন্ডি, উত্তরা, গুলশান এবং মিরপুর শাখায় বিশেষায়িত ডেঙ্গু ও ফিভার ক্লিনিক চালু রয়েছে। তীব্র জ্বর বা ডেঙ্গুর লক্ষণ দেখা দিলে আমাদের মেডিসিন বিশেষজ্ঞদের পরামর্শ নিন অথবা ১০৬৬৬ নম্বরে কল করুন।",
+        "এভারকেয়ারের ধানমন্ডি, উত্তরা, গুলশান এবং মিরপুর শাখায় বিশেষায়িত ডেঙ্গু ও ফিভার ক্লিনিক চালু রয়েছে। তীব্র জ্বর বা ডেঙ্গুর লক্ষণ দেখা দিলে আমাদের মেডিসিন বিশেষজ্ঞদের পরামর্শ নিন অথবা ১০৬৬৬ নম্বরে কল করুন।",
       category: "CLINICAL_ALERT",
       branchId: null,
       isPinned: true,
@@ -4184,8 +4184,8 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
     {
       id: "notice-2",
       slug: "mirpur-diagnostic-specialist-center-opening",
-      titleEn: "New Specialist Chambers & 4D Ultrasound Wing at DeltaCare Mirpur-10",
-      titleBn: "ডেল্টাকেয়ার মিরপুর-১০ শাখায় নতুন বিশেষজ্ঞ চেম্বার ও ৪ডি আল্ট্রাসাউন্ড উইং চালু",
+      titleEn: "New Specialist Chambers & 4D Ultrasound Wing at Evercare Mirpur-10",
+      titleBn: "এভারকেয়ার মিরপুর-১০ শাখায় নতুন বিশেষজ্ঞ চেম্বার ও ৪ডি আল্ট্রাসাউন্ড উইং চালু",
       summaryEn:
         "Senior professors from DMC, BSMMU, and Bangladesh Shishu Hospital now hold evening chambers at Mirpur-10.",
       summaryBn:
@@ -4211,7 +4211,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       summaryBn:
         "রোগীদের দীর্ঘ অপেক্ষার ভোগান্তি কমাতে সকল বিশেষজ্ঞ চেম্বারে ১৫/২০ মিনিটের ফিক্সড টাইম স্লট পদ্ধতি চালু করা হয়েছে।",
       bodyEn:
-        "Patients with confirmed reference codes (e.g. DC-2026-XXXX) are requested to report to the respective floor reception 15 minutes before their scheduled slot time with previous prescriptions and diagnostic reports.",
+        "Patients with confirmed reference codes (e.g. EC-2026-XXXX) are requested to report to the respective floor reception 15 minutes before their scheduled slot time with previous prescriptions and diagnostic reports.",
       bodyBn:
         "নিশ্চিতকৃত রেফারেন্স কোডধারী রোগীদের নির্ধারিত স্লট সময়ের অন্তত ১৫ মিনিট পূর্বে সংশ্লিষ্ট তলার অভ্যর্থনা ডেস্কে পূর্ববর্তী প্রেসক্রিপশন ও রিপোর্টসহ উপস্থিত থাকার অনুরোধ করা হচ্ছে।",
       category: "PATIENT_ADVISORY",
@@ -4229,7 +4229,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       appointmentId: "apt-1001",
       recipientPhone: "01711223344",
       messageBody:
-        "DeltaCare: Appt DC-2026-1041 with Prof. Dr. Anisur Rahman at Dhanmondi (Room 302) on 2026-11-07 4:40 PM is CONFIRMED. Helpline: 10666.",
+        "Evercare: Appt EC-2026-1041 with Prof. Dr. Anisur Rahman at Dhanmondi (Room 302) on 2026-11-07 4:40 PM is CONFIRMED. Helpline: 10666.",
       eventType: "CONFIRMED",
       providerStatus: "SENT",
       sentAt: "2026-11-02T11:20:05.000Z",
@@ -4239,7 +4239,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       appointmentId: "apt-1002",
       recipientPhone: "01711223344",
       messageBody:
-        "DeltaCare: Request DC-2026-1042 received for Prof. Dr. Farhana Karim on 2026-11-09 3:20 PM. Front Desk will confirm shortly.",
+        "Evercare: Request EC-2026-1042 received for Prof. Dr. Farhana Karim on 2026-11-09 3:20 PM. Front Desk will confirm shortly.",
       eventType: "REQUEST_RECEIVED",
       providerStatus: "SENT",
       sentAt: "2026-11-03T08:30:02.000Z",
@@ -4259,7 +4259,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       rating: 5,
       comment: "Clear BDT consultation & follow-up fees and exact 20-minute slot booking without confusion.",
       status: "RESOLVED",
-      adminResponse: "Thank you for visiting DeltaCare Dhanmondi.",
+      adminResponse: "Thank you for visiting Evercare Dhanmondi.",
       createdAt: "2026-11-01T14:20:00.000Z",
     },
     {
@@ -4349,7 +4349,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       rating: 5,
       comment: "Uttara branch endoscopy waiting lounge and washrooms were spotlessly clean. পরিচ্ছন্ন পরিবেশ।",
       status: "RESOLVED",
-      adminResponse: "Cleanliness and infection control are top priorities at DeltaCare Uttara.",
+      adminResponse: "Cleanliness and infection control are top priorities at Evercare Uttara.",
       createdAt: "2026-11-06T19:00:00.000Z",
     },
     {
@@ -4409,7 +4409,7 @@ export function createInitialSeedState(): DeltaCareDatabaseState {
       rating: 5,
       comment: "Delighted to see senior cardiology professors available at Mirpur branch now! খুব সহজে বুকিং করেছি।",
       status: "RESOLVED",
-      adminResponse: "Thank you. DeltaCare Mirpur is committed to expanding neighborhood specialist access.",
+      adminResponse: "Thank you. Evercare Mirpur is committed to expanding neighborhood specialist access.",
       createdAt: "2026-11-05T12:00:00.000Z",
     },
     {

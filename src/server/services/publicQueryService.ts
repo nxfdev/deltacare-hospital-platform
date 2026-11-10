@@ -1,3 +1,4 @@
+import { fuzzyFilter, fuzzyRecordScore, FUZZY_THRESHOLD } from "@/lib/fuzzy";
 import { getDbState } from "@/server/db/store";
 import {
   Branch,
@@ -14,7 +15,7 @@ import {
 } from "@/types/domain";
 
 // ============================================================================
-// DeltaCare Public Query & Search Service
+// Evercare Public Query & Search Service
 // Enforces FR-WEB-08: Never expose DRAFT, PENDING_APPROVAL, ARCHIVED, or expired records
 // ============================================================================
 
@@ -162,35 +163,28 @@ export function getPublishedDoctors(filters?: DoctorFilterParams): Doctor[] {
   }
 
   if (filters.query && filters.query.trim().length > 0) {
-    const q = filters.query.trim().toLowerCase();
-    list = list.filter((d) => {
+    list = fuzzyFilter(list, filters.query, (d) => {
       const dept = db.departments.find((dep) => dep.id === d.departmentId);
-      const branchNames = d.branches
-        .map((b) => {
-          const br = db.branches.find((item) => item.id === b.branchId);
-          return br ? `${br.nameEn} ${br.nameBn}` : "";
-        })
-        .join(" ");
-      const haystack = [
-        d.nameEn,
-        d.nameBn,
-        d.designationEn,
-        d.designationBn,
-        d.qualificationsEn,
-        d.qualificationsBn,
-        d.workplaceEn ?? "",
-        d.workplaceBn ?? "",
-        d.bmdcRegistrationNo,
-        ...(d.symptomTags ?? []),
-        ...d.clinicalInterestsEn,
-        ...d.clinicalInterestsBn,
-        dept?.nameEn ?? "",
-        dept?.nameBn ?? "",
-        branchNames,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(q);
+      const branchNames = d.branches.flatMap((b) => {
+        const br = db.branches.find((item) => item.id === b.branchId);
+        return br ? [br.nameEn, br.nameBn] : [];
+      });
+      return {
+        primary: [d.nameEn, d.nameBn, dept?.nameEn, dept?.nameBn],
+        secondary: [
+          d.designationEn,
+          d.designationBn,
+          d.qualificationsEn,
+          d.qualificationsBn,
+          d.workplaceEn,
+          d.workplaceBn,
+          d.bmdcRegistrationNo,
+          ...(d.symptomTags ?? []),
+          ...d.clinicalInterestsEn,
+          ...d.clinicalInterestsBn,
+          ...branchNames,
+        ],
+      };
     });
   }
 
@@ -249,20 +243,10 @@ export function getPublishedConditions(
   }
 
   if (query && query.trim().length > 0) {
-    const q = query.trim().toLowerCase();
-    list = list.filter((c) =>
-      [
-        c.nameEn,
-        c.nameBn,
-        c.summaryEn,
-        c.summaryBn,
-        ...c.symptomsEn,
-        ...c.symptomsBn,
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q)
-    );
+    return fuzzyFilter(list, query, (c) => ({
+      primary: [c.nameEn, c.nameBn],
+      secondary: [c.summaryEn, c.summaryBn, ...c.symptomsEn, ...c.symptomsBn],
+    }));
   }
 
   return list.sort((a, b) => a.nameEn.localeCompare(b.nameEn));
@@ -288,20 +272,10 @@ export function getPublishedProcedures(
     if (val.startsWith("dept-")) {
       list = list.filter((p) => p.departmentId === val);
     } else {
-      const q = val.toLowerCase();
-      list = list.filter((p) =>
-        [
-          p.nameEn,
-          p.nameBn,
-          p.categoryEn,
-          p.categoryBn,
-          p.summaryEn,
-          p.summaryBn,
-        ]
-          .join(" ")
-          .toLowerCase()
-          .includes(q)
-      );
+      list = fuzzyFilter(list, val, (p) => ({
+        primary: [p.nameEn, p.nameBn],
+        secondary: [p.categoryEn, p.categoryBn, p.summaryEn, p.summaryBn],
+      }));
     }
   }
   return list;
@@ -419,19 +393,19 @@ export function executeGlobalSearch(
     categoryFilter === "Department"
   ) {
     for (const dept of getPublishedDepartments()) {
-      const hay = [
-        dept.nameEn,
-        dept.nameBn,
-        dept.shortDescriptionEn,
-        dept.shortDescriptionBn,
-        ...(dept.servicesEn ?? []),
-        ...(dept.servicesBn ?? []),
-        ...(dept.commonConditionsEn ?? []),
-        ...(dept.commonConditionsBn ?? []),
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (hay.includes(q)) {
+      const score = fuzzyRecordScore(
+        q,
+        [dept.nameEn, dept.nameBn, dept.slug.replace(/-/g, " ")],
+        [
+          dept.shortDescriptionEn,
+          dept.shortDescriptionBn,
+          ...(dept.servicesEn ?? []),
+          ...(dept.servicesBn ?? []),
+          ...(dept.commonConditionsEn ?? []),
+          ...(dept.commonConditionsBn ?? []),
+        ]
+      );
+      if (score >= FUZZY_THRESHOLD) {
         results.push({
           id: dept.id,
           type: "DEPARTMENT",
@@ -460,10 +434,8 @@ export function executeGlobalSearch(
     categoryFilter === "Service"
   ) {
     for (const srv of getPublishedServices()) {
-      const hay = [srv.nameEn, srv.nameBn, srv.descriptionEn, srv.descriptionBn]
-        .join(" ")
-        .toLowerCase();
-      if (hay.includes(q)) {
+      const score = fuzzyRecordScore(q, [srv.nameEn, srv.nameBn], [srv.descriptionEn, srv.descriptionBn]);
+      if (score >= FUZZY_THRESHOLD) {
         results.push({
           id: srv.id,
           type: "SERVICE",
@@ -484,7 +456,16 @@ export function executeGlobalSearch(
     }
   }
 
-  return results.slice(0, 20);
+  // Rank across categories: best title matches first (stable for ties).
+  return results
+    .map((r, i) => ({
+      r,
+      i,
+      s: fuzzyRecordScore(q, [r.titleEn, r.titleBn], [r.subtitleEn, r.subtitleBn]),
+    }))
+    .sort((a, b) => b.s - a.s || a.i - b.i)
+    .map((x) => x.r)
+    .slice(0, 20);
 }
 
 export function getPublishedHospitalNotices(): HospitalNotice[] {

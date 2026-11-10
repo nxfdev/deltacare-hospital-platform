@@ -1,5 +1,5 @@
 // ============================================================================
-// DeltaCare Hospital Platform — Prisma Relational Schema (PostgreSQL)
+// Evercare Hospital Platform — Prisma Relational Schema (PostgreSQL)
 // Phase 1: Multi-Branch Fixed-Slot Engine, Doctor Chambers & CMS Governance
 // ============================================================================
 
@@ -136,8 +136,8 @@ model HospitalConfiguration {
   code                 String   @unique
   nameEn               String
   nameBn               String
-  taglineEn            String   @default("Care at DeltaCare")
-  taglineBn            String   @default("ডেল্টাকেয়ারে সেবা")
+  taglineEn            String   @default("Care at Evercare")
+  taglineBn            String   @default("এভারকেয়ারে সেবা")
   timezone             String   @default("Asia/Dhaka")
   defaultLocale        String   @default("en")
   emergencyPhone       String
@@ -157,7 +157,7 @@ model HospitalConfiguration {
 
 model Branch {
   id                String           @id @default(uuid())
-  hospitalId        String           @default("hosp-deltacare-bd-01")
+  hospitalId        String           @default("hosp-evercare-bd-01")
   slug              String           @unique
   nameEn            String
   nameBn            String
@@ -170,7 +170,7 @@ model Branch {
   hotline           String           @default("10666")
   phone             String           @default("+88029612301")
   emergencyPhone    String           @default("+8809612310666")
-  email             String           @default("info@deltacare.bd")
+  email             String           @default("info@evercare.bd")
   operatingHoursEn  String           @default("Outpatient Chambers: 8:00 AM – 10:00 PM | Emergency: 24/7")
   operatingHoursBn  String           @default("আউটপেশেন্ট চেম্বার: সকাল ৮:০০ – রাত ১০:০০ | জরুরি বিভাগ: ২৪/৭")
   mapUrl            String           @default("https://maps.google.com/?q=Dhaka")
@@ -247,7 +247,7 @@ model Specialty {
 
 model Doctor {
   id                  String           @id @default(uuid())
-  hospitalId          String           @default("hosp-deltacare-bd-01")
+  hospitalId          String           @default("hosp-evercare-bd-01")
   departmentId        String
   slug                String           @unique
   nameEn              String
@@ -450,8 +450,8 @@ model DiseaseCondition {
   causesBn            String
   diagnosisOverviewEn String
   diagnosisOverviewBn String
-  careAtDeltaCareEn   String
-  careAtDeltaCareBn   String
+  careAtEvercareEn   String
+  careAtEvercareBn   String
   isFeaturedCareArea  Boolean          @default(false)
   reviewedByEn        String
   reviewedByBn        String
@@ -493,7 +493,7 @@ model MedicalProcedure {
 
 model Appointment {
   id                String            @id @default(uuid())
-  referenceCode     String            @unique // e.g., DC-2026-8419
+  referenceCode     String            @unique // e.g., EC-2026-8419
   reference         String            @unique // Alias for backwards compatibility
   doctorBranchId    String?
   departmentId      String

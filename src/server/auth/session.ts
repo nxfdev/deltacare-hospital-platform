@@ -7,14 +7,14 @@ import { APPROVER_ROLES, STAFF_ROLES, ADMIN_CONSOLE_ROLES } from "@/lib/auth/rol
 export { APPROVER_ROLES, STAFF_ROLES, ADMIN_CONSOLE_ROLES };
 
 // ============================================================================
-// DeltaCare Authentication & Server-Side RBAC Guard (Single Auth System)
+// Evercare Authentication & Server-Side RBAC Guard (Single Auth System)
 // Enforces server-side permissions on all admin mutations & routes (NFR-06)
 // ============================================================================
 
-export const SESSION_COOKIE_NAME = "deltacare_session";
+export const SESSION_COOKIE_NAME = "evercare_session";
 
 const SECRET_KEY =
-  process.env.AUTH_SECRET || "deltacare-dev-secret-key-at-least-32-bytes-long";
+  process.env.AUTH_SECRET || "evercare-dev-secret-key-at-least-32-bytes-long";
 
 export interface SessionPayload {
   userId: string;

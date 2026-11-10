@@ -60,7 +60,7 @@ export function AlphabetConditionDirectory({
   const [activeIndex, setActiveIndex] = useState(-1);
 
   const matchingConditions = conditions.filter(
-    (c) => c.firstLetter.toUpperCase() === selectedLetter.toUpperCase()
+    (c) => locale === "bn" || c.firstLetter.toUpperCase() === selectedLetter.toUpperCase()
   );
 
   useEffect(() => {
@@ -225,13 +225,13 @@ export function AlphabetConditionDirectory({
                 {locale === "bn" ? "করোনারি আর্টারি ডিজিজ" : "Coronary Artery Disease"}
               </Link>
               <Link
-                href="/diseases-conditions/ischemic-stroke"
+                href="/diseases-conditions/stroke-cerebrovascular"
                 className="px-3.5 py-1.5 rounded-full bg-[#f3f4f6] hover:bg-[#e8f0f9] border border-[#e5e7eb] hover:border-[#bfdbfe] text-[#374151] hover:text-[#0057b8] transition-colors font-medium"
               >
                 {locale === "bn" ? "ইস্কেমিক স্ট্রোক" : "Ischemic Stroke"}
               </Link>
               <Link
-                href="/diseases-conditions/type-2-diabetes"
+                href="/diseases-conditions/diabetes-mellitus"
                 className="px-3.5 py-1.5 rounded-full bg-[#f3f4f6] hover:bg-[#e8f0f9] border border-[#e5e7eb] hover:border-[#bfdbfe] text-[#374151] hover:text-[#0057b8] transition-colors font-medium"
               >
                 {locale === "bn" ? "টাইপ ২ ডায়াবেটিস" : "Type 2 Diabetes"}
@@ -257,6 +257,7 @@ export function AlphabetConditionDirectory({
             </div>
 
             {/* 27 Circular Buttons - Popping off off-white background */}
+            {locale !== "bn" && (
             <ul
               role="list"
               aria-label="Alphabetical index of diseases and conditions"
@@ -282,6 +283,7 @@ export function AlphabetConditionDirectory({
                 );
               })}
             </ul>
+            )}
 
             {/* Live Selected Letter Preview (Unboxed Clean Editorial List) */}
             <div className="pt-2 space-y-3">
@@ -290,8 +292,8 @@ export function AlphabetConditionDirectory({
                   <BookOpen className="w-4 h-4" />
                   <span>
                     {locale === "bn"
-                      ? `"${selectedLetter}" দিয়ে শুরু হওয়া অনুমোদিত স্বাস্থ্য নির্দেশিকা`
-                      : `Verified Conditions Starting with "${selectedLetter}"`}
+                      ? "রোগ ও শারীরিক অবস্থা"
+                      : `Conditions starting with "${selectedLetter}"`}
                   </span>
                 </p>
                 <Link
@@ -308,8 +310,8 @@ export function AlphabetConditionDirectory({
               {matchingConditions.length === 0 ? (
                 <p className="text-sm text-[#64748b] py-4">
                   {locale === "bn"
-                    ? `বর্তমানে "${selectedLetter}" অক্ষরে কোনো নিবন্ধ তালিকাভুক্ত নেই। অনুগ্রহ করে C, D, H, I, B, A, বা P অক্ষর নির্বাচন করুন অথবা সম্পূর্ণ ডিরেক্টরি দেখুন।`
-                    : `No condition guides under "${selectedLetter}" in this seed set. Try letters A, B, C, D, G, H, I, K, M, O, P, R, S, or T, or browse the full directory.`}
+                    ? "কোনো নিবন্ধ পাওয়া যায়নি।"
+                    : `No condition guides under "${selectedLetter}" yet. Try another letter or browse the full directory.`}
                 </p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">

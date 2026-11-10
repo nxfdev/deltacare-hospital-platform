@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Request Appointment Form | DeltaCare Hospital",
+  title: "Request Appointment Form | Evercare Hospital",
   description:
-    "Complete your specialist appointment booking with DeltaCare. Verified BMDC consultants and real-time fixed-slot scheduling.",
+    "Complete your specialist appointment booking with Evercare. Verified BMDC consultants and real-time fixed-slot scheduling.",
 };
 
 export default async function RequestAppointmentFormPage({

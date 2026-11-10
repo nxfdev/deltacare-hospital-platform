@@ -1,186 +1,142 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import {
-  Search,
-  AlertCircle,
-  ArrowLeft,
-  Calendar,
-} from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { useLocale } from "@/lib/i18n/LocaleContext";
-import {
-  DigitalAppointmentSlip,
-  DigitalSlipAppointment,
-} from "@/components/appointments/DigitalAppointmentSlip";
+import { DigitalAppointmentSlip, DigitalSlipAppointment } from "@/components/appointments/DigitalAppointmentSlip";
+
+const COPY = {
+  en: {
+    title: "Track your appointment",
+    intro: "Enter the reference code from your SMS and the mobile number you booked with.",
+    ref: "Reference code",
+    phone: "Mobile number",
+    submit: "Find appointment",
+    checking: "Checking…",
+    notFound: "We couldn't find an appointment with those details.",
+    error: "Unable to check right now. Please try again.",
+    book: "Book a new appointment",
+  },
+  bn: {
+    title: "অ্যাপয়েন্টমেন্ট ট্র্যাক করুন",
+    intro: "এসএমএসে পাওয়া রেফারেন্স কোড ও বুকিংয়ের মোবাইল নম্বর দিন।",
+    ref: "রেফারেন্স কোড",
+    phone: "মোবাইল নম্বর",
+    submit: "খুঁজুন",
+    checking: "খোঁজা হচ্ছে…",
+    notFound: "এই তথ্যে কোনো অ্যাপয়েন্টমেন্ট পাওয়া যায়নি।",
+    error: "এই মুহূর্তে যাচাই করা যাচ্ছে না। আবার চেষ্টা করুন।",
+    book: "নতুন অ্যাপয়েন্টমেন্ট নিন",
+  },
+} as const;
+
+const fieldCls =
+  "w-full h-12 rounded-lg border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#0b1b33] focus:border-[#0057b8] focus:ring-2 focus:ring-[#0057b8]/15 outline-none transition";
 
 function TrackAppointmentInner() {
   const { locale } = useLocale();
+  const t = COPY[locale === "bn" ? "bn" : "en"];
   const searchParams = useSearchParams();
-  const [reference, setReference] = useState(
-    searchParams.get("reference") || "DC-2026-1041"
-  );
-  const [phone, setPhone] = useState(
-    searchParams.get("phone") || "01711223344"
-  );
+  const [reference, setReference] = useState(searchParams.get("reference") || "");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [appointment, setAppointment] = useState<DigitalSlipAppointment | null>(
-    null
-  );
+  const [appointment, setAppointment] = useState<DigitalSlipAppointment | null>(null);
 
-  const lookup = async (refVal: string, phoneVal: string) => {
-    if (!refVal.trim() || !phoneVal.trim()) return;
+  const lookup = async () => {
+    if (!reference.trim() || !phone.trim()) return;
     setLoading(true);
     setErrorMsg(null);
     try {
       const res = await fetch(
-        `/api/v1/public/appointments?reference=${encodeURIComponent(
-          refVal.trim()
-        )}&phone=${encodeURIComponent(phoneVal.trim())}`,
+        `/api/v1/public/appointments?reference=${encodeURIComponent(reference.trim())}&phone=${encodeURIComponent(phone.trim())}`,
         { cache: "no-store" }
       );
       const data = await res.json();
       if (!res.ok || !data.ok) {
         setAppointment(null);
-        setErrorMsg(
-          data.error || "No appointment found matching those details."
-        );
+        setErrorMsg(t.notFound);
       } else {
         setAppointment(data.appointment);
       }
     } catch {
-      setErrorMsg("Unable to check status right now.");
+      setErrorMsg(t.error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    const r = searchParams.get("reference");
-    const p = searchParams.get("phone");
-    if (r && p) {
-      lookup(r, p);
-    }
-  }, [searchParams]);
-
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Blue Hero Header (Hidden on Print) */}
-      <div className="print:hidden w-full bg-[#012d61] text-white py-14 md:py-18 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-            Care at DeltaCare • Real-Time Booking Verification & Digital Slip
-          </p>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            {locale === "bn"
-              ? "অ্যাপয়েন্টমেন্ট স্ট্যাটাস ও ডিজিটাল স্লিপ"
-              : "Track Your Appointment & Digital Slip"}
-          </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            রিয়েল-টাইম রেফারেন্স, চেম্বার রুম ও এসএমএস কনফার্মেশন ট্র্যাকার
-          </p>
-          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-            {locale === "bn"
-              ? "আপনার রেফারেন্স কোড (যেমন: DC-2026-1041) এবং নিবন্ধিত মোবাইল নম্বর (যেমন: 01711223344) দিয়ে বর্তমান অবস্থা, চেম্বার রুম নম্বর এবং প্রিন্টযোগ্য ডিজিটাল অ্যাপয়েন্টমেন্ট স্লিপ দেখুন।"
-              : "Enter your appointment reference code (demo: DC-2026-1041 or DC-2026-1042) and registered mobile number (01711223344) to inspect live verification status and print your Digital Appointment Slip."}
-          </p>
+    <div className="bg-white">
+      <section className="print:hidden w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <h1 className="mc-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">{t.title}</h1>
+          <p className="mt-5 max-w-2xl text-lg text-white/80">{t.intro}</p>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-5xl mx-auto px-6 sm:px-10 lg:px-12 space-y-10">
-          {/* Top Actions Link */}
-          <div className="print:hidden flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-[#e5e7eb]">
-            <Link
-              href="/appointments"
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#004181] hover:text-[#0057b8] hover:underline"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>
-                {locale === "bn"
-                  ? "অনলাইন অ্যাপয়েন্টমেন্ট বুকিংয়ে ফিরুন"
-                  : "Back to Online Appointment Booking"}
-              </span>
-            </Link>
-            <Link
-              href="/appointments"
-              className="inline-flex min-h-[44px] items-center gap-2 bg-[#0057b8] hover:bg-[#004494] text-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider"
-            >
-              <Calendar className="w-3.5 h-3.5" />
-              <span>
-                {locale === "bn"
-                  ? "নতুন অ্যাপয়েন্টমেন্ট বুক করুন"
-                  : "Book New Appointment"}
-              </span>
-            </Link>
+      <div className="mc-container max-w-4xl mx-auto px-6 sm:px-10 py-16 space-y-10">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void lookup();
+          }}
+          className="print:hidden grid gap-5 sm:grid-cols-[1fr_1fr_auto] items-end"
+        >
+          <div>
+            <label htmlFor="track-ref" className="block text-sm font-medium text-[#374151] mb-1.5">
+              {t.ref}
+            </label>
+            <input
+              id="track-ref"
+              required
+              value={reference}
+              onChange={(e) => setReference(e.target.value.toUpperCase())}
+              placeholder="EC-2026-1041"
+              className={fieldCls}
+            />
           </div>
-
-          {/* Search Form - Unboxed */}
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              lookup(reference, phone);
-            }}
-            className="print:hidden grid grid-cols-1 sm:grid-cols-3 gap-6 items-end"
+          <div>
+            <label htmlFor="track-phone" className="block text-sm font-medium text-[#374151] mb-1.5">
+              {t.phone}
+            </label>
+            <input
+              id="track-phone"
+              type="tel"
+              inputMode="numeric"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="01XXXXXXXXX"
+              className={fieldCls}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="h-12 px-6 rounded-full bg-[#0057b8] hover:bg-[#004a9c] text-white font-medium inline-flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            <div>
-              <label
-                htmlFor="track-ref"
-                className="block text-sm font-bold text-[#080808] mb-2"
-              >
-                Reference Code *
-              </label>
-              <input
-                id="track-ref"
-                type="text"
-                required
-                value={reference}
-                onChange={(e) => setReference(e.target.value)}
-                placeholder="DC-2026-1041"
-                className="w-full h-12 px-3.5 border border-[#9ca3af] focus:border-[#0057b8] text-base outline-none tabular-nums"
-              />
-            </div>
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            {loading ? t.checking : t.submit}
+          </button>
+        </form>
 
-            <div>
-              <label
-                htmlFor="track-phone"
-                className="block text-sm font-bold text-[#080808] mb-2"
-              >
-                11-Digit BD Mobile Number *
-              </label>
-              <input
-                id="track-phone"
-                type="tel"
-                required
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="01711223344"
-                className="w-full h-12 px-3.5 border border-[#9ca3af] focus:border-[#0057b8] text-base outline-none tabular-nums"
-              />
-            </div>
+        {errorMsg && (
+          <p className="print:hidden flex items-center gap-2 text-red-600">
+            <AlertCircle className="w-5 h-5 shrink-0" />
+            {errorMsg}
+          </p>
+        )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="h-12 bg-[#0057b8] hover:bg-[#004494] text-white flex items-center justify-center gap-2 text-base font-semibold cursor-pointer"
-            >
-              <Search className="w-4 h-4" />
-              <span>{loading ? "Checking..." : "View Digital Slip"}</span>
-            </button>
-          </form>
-
-          {errorMsg && (
-            <div className="print:hidden p-4 border-l-4 border-[#dc2626] bg-[#fef2f2] text-[#7f1d1d] flex items-center gap-2 text-sm">
-              <AlertCircle className="w-5 h-5 shrink-0" />
-              <span>{errorMsg}</span>
-            </div>
-          )}
-
-          {appointment && <DigitalAppointmentSlip appointment={appointment} />}
-        </div>
+        {appointment ? (
+          <DigitalAppointmentSlip appointment={appointment} />
+        ) : (
+          <Link href="/appointments" className="print:hidden inline-block text-[#0057b8] hover:underline">
+            {t.book}
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -188,7 +144,7 @@ function TrackAppointmentInner() {
 
 export default function TrackAppointmentPage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-gray-500">Loading...</div>}>
+    <Suspense fallback={null}>
       <TrackAppointmentInner />
     </Suspense>
   );

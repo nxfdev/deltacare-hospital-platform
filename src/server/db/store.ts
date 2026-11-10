@@ -1,33 +1,33 @@
 import fs from "fs";
 import path from "path";
-import { createInitialSeedState, DeltaCareDatabaseState } from "./seedData";
+import { createInitialSeedState, EvercareDatabaseState } from "./seedData";
 import { AuditEvent, RoleCode } from "@/types/domain";
 import { isBcryptHash, migrateLegacyPassword } from "@/server/auth/passwordService";
 
 // ============================================================================
-// DeltaCare PostgreSQL + Prisma Transactional State & Concurrency Engine
-// Retires legacy .data/deltacare-db.json and backs Prisma Client operations
+// Evercare PostgreSQL + Prisma Transactional State & Concurrency Engine
+// Retires legacy .data/evercare-db.json and backs Prisma Client operations
 // with ACID serialized transactions, active-slot uniqueness enforcement, and
 // resilient runtime snapshot persistence across dev server restarts.
 // ============================================================================
 
-const globalForDeltaCare = globalThis as unknown as {
-  __deltacareDbState?: DeltaCareDatabaseState;
-  __deltacareTxQueue?: Promise<unknown>;
+const globalForEvercare = globalThis as unknown as {
+  __evercareDbState?: EvercareDatabaseState;
+  __evercareTxQueue?: Promise<unknown>;
 };
 
 const RUNTIME_CACHE_FILE = path.join(
   process.cwd(),
   ".next",
   "cache",
-  "deltacare-runtime-state.json"
+  "evercare-runtime-state.json"
 );
 
 function isTestEnvironment(): boolean {
   return process.env.NODE_ENV === "test" || Boolean(process.env.VITEST);
 }
 
-function sanitizeState(state: DeltaCareDatabaseState): void {
+function sanitizeState(state: EvercareDatabaseState): void {
   if (Array.isArray(state.users)) {
     for (const u of state.users) {
       if (!isBcryptHash(u.passwordHash)) {
@@ -55,7 +55,7 @@ function sanitizeState(state: DeltaCareDatabaseState): void {
   }
 }
 
-export function persistRuntimeState(state: DeltaCareDatabaseState): void {
+export function persistRuntimeState(state: EvercareDatabaseState): void {
   if (isTestEnvironment()) return;
   try {
     const dir = path.dirname(RUNTIME_CACHE_FILE);
@@ -68,15 +68,15 @@ export function persistRuntimeState(state: DeltaCareDatabaseState): void {
   }
 }
 
-function loadRuntimeSnapshot(): DeltaCareDatabaseState {
+function loadRuntimeSnapshot(): EvercareDatabaseState {
   const baseSeed = createInitialSeedState();
   if (!isTestEnvironment()) {
     try {
       if (fs.existsSync(RUNTIME_CACHE_FILE)) {
         const raw = fs.readFileSync(RUNTIME_CACHE_FILE, "utf8");
-        const parsed = JSON.parse(raw) as Partial<DeltaCareDatabaseState>;
+        const parsed = JSON.parse(raw) as Partial<EvercareDatabaseState>;
         if (parsed && Array.isArray(parsed.doctors) && Array.isArray(parsed.appointments)) {
-          const merged: DeltaCareDatabaseState = {
+          const merged: EvercareDatabaseState = {
             ...baseSeed,
             ...parsed,
           };
@@ -92,21 +92,21 @@ function loadRuntimeSnapshot(): DeltaCareDatabaseState {
   return baseSeed;
 }
 
-function ensureLoaded(): DeltaCareDatabaseState {
-  if (!globalForDeltaCare.__deltacareDbState) {
-    globalForDeltaCare.__deltacareDbState = loadRuntimeSnapshot();
+function ensureLoaded(): EvercareDatabaseState {
+  if (!globalForEvercare.__evercareDbState) {
+    globalForEvercare.__evercareDbState = loadRuntimeSnapshot();
   }
-  return globalForDeltaCare.__deltacareDbState;
+  return globalForEvercare.__evercareDbState;
 }
 
-export function getDbState(): DeltaCareDatabaseState {
+export function getDbState(): EvercareDatabaseState {
   return ensureLoaded();
 }
 
-export function resetDbStateForTests(): DeltaCareDatabaseState {
+export function resetDbStateForTests(): EvercareDatabaseState {
   const fresh = createInitialSeedState();
   sanitizeState(fresh);
-  globalForDeltaCare.__deltacareDbState = fresh;
+  globalForEvercare.__evercareDbState = fresh;
   return fresh;
 }
 
@@ -115,21 +115,21 @@ export function resetDbStateForTests(): DeltaCareDatabaseState {
  * appointment bookings for the same slot cannot double-book (T-APT-02 / R-04).
  */
 export async function runInTransaction<T>(
-  work: (state: DeltaCareDatabaseState) => Promise<T> | T
+  work: (state: EvercareDatabaseState) => Promise<T> | T
 ): Promise<T> {
-  const currentQueue = globalForDeltaCare.__deltacareTxQueue ?? Promise.resolve();
+  const currentQueue = globalForEvercare.__evercareTxQueue ?? Promise.resolve();
   const next = currentQueue.then(async () => {
     const state = ensureLoaded();
     const res = await work(state);
     persistRuntimeState(state);
     return res;
   });
-  globalForDeltaCare.__deltacareTxQueue = next.catch(() => {});
+  globalForEvercare.__evercareTxQueue = next.catch(() => {});
   return next;
 }
 
 export function recordAuditEvent(
-  state: DeltaCareDatabaseState,
+  state: EvercareDatabaseState,
   params: {
     actorUserId: string;
     actorName: string;

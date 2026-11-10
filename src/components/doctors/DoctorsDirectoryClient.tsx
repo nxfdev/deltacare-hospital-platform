@@ -1,7 +1,9 @@
 "use client";
 
+import { fuzzyRecordScore, FUZZY_THRESHOLD } from "@/lib/fuzzy";
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import {
   Search,
   Award,
@@ -59,9 +61,7 @@ export function DoctorsDirectoryClient({
     if (query.trim()) {
       const q = query.trim().toLowerCase();
       const dept = departments.find((d) => d.id === doc.departmentId);
-      const hay = [
-        doc.nameEn,
-        doc.nameBn,
+      const score = fuzzyRecordScore(q, [doc.nameEn, doc.nameBn, dept?.nameEn, dept?.nameBn], [
         doc.designationEn,
         doc.designationBn,
         doc.qualificationsEn,
@@ -72,178 +72,97 @@ export function DoctorsDirectoryClient({
         ...(doc.symptomTags ?? []),
         ...doc.clinicalInterestsEn,
         ...doc.clinicalInterestsBn,
-        dept?.nameEn ?? "",
-        dept?.nameBn ?? "",
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!hay.includes(q)) return false;
+      ]);
+      if (score < FUZZY_THRESHOLD) return false;
     }
     return true;
   });
 
-  const QUICK_SYMPTOM_PILLS = [
-    { labelEn: "Dengue / ডেঙ্গু", query: "Dengue" },
-    { labelEn: "Chest Pain / বুক ব্যথা", query: "Chest Pain" },
-    { labelEn: "Gastric & Liver / গ্যাস্ট্রিক ও লিভার", query: "Fatty Liver" },
-    { labelEn: "Diabetes / ডায়াবেটিস", query: "Diabetes" },
-    { labelEn: "Child Fever / শিশুর জ্বর", query: "Child Fever" },
-    { labelEn: "Pregnancy / গর্ভকালীন পরিচর্যা", query: "Pregnancy" },
-    { labelEn: "DMC Professors", query: "DMC" },
-    { labelEn: "BSMMU Specialists", query: "BSMMU" },
-  ];
+  const bn = locale === "bn";
+  const QUICK = bn
+    ? [
+        { label: "ডেঙ্গু", query: "Dengue" },
+        { label: "বুকে ব্যথা", query: "Chest Pain" },
+        { label: "ফ্যাটি লিভার", query: "Fatty Liver" },
+        { label: "ডায়াবেটিস", query: "Diabetes" },
+        { label: "শিশুর জ্বর", query: "Child Fever" },
+        { label: "গর্ভকালীন সেবা", query: "Pregnancy" },
+      ]
+    : [
+        { label: "Dengue", query: "Dengue" },
+        { label: "Chest pain", query: "Chest Pain" },
+        { label: "Fatty liver", query: "Fatty Liver" },
+        { label: "Diabetes", query: "Diabetes" },
+        { label: "Child fever", query: "Child Fever" },
+        { label: "Pregnancy", query: "Pregnancy" },
+      ];
+  const hasFilters = Boolean(query || selectedDeptId || selectedBranchId || selectedSpecialtyId || selectedLanguage);
+  const selectCls =
+    "h-12 rounded-lg border border-[#e5e7eb] bg-white px-4 text-[15px] text-[#0b1b33] focus:border-[#0057b8] outline-none";
+  const num = (v: number) => (bn ? String(v).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]) : String(v));
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-            {locale === "bn"
-              ? "ডেল্টাকেয়ারে সেবা • অনুমোদিত চিকিৎসক ডিরেক্টরি"
-              : "Care at DeltaCare • Verified Specialist Directory"}
-          </p>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            {locale === "bn"
-              ? "বিশেষজ্ঞ চিকিৎসক খুঁজুন"
-              : "Find a Verified Specialist"}
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <h1 className="mc-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {bn ? "ডাক্তার খুঁজুন" : "Find a doctor"}
           </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            বিএমডিসি-নিবন্ধিত পরামর্শক ও ক্লিনিক্যাল বিশেষজ্ঞ
+          <p className="mt-5 max-w-2xl text-lg text-white/80">
+            {bn
+              ? "নাম, বিভাগ বা উপসর্গ লিখে খুঁজুন — বানান ভুল হলেও সমস্যা নেই।"
+              : "Search by name, department or symptom — spelling mistakes are fine."}
           </p>
-          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-            {locale === "bn"
-              ? "বিভাগ, স্পেশালিটি, শাখা এবং ভাষা অনুযায়ী বিএমডিসি-নিবন্ধিত বিশেষজ্ঞ চিকিৎসকদের সময়সূচী ও অনুমোদিত কনসালটেশন ফি দেখুন।"
-              : "Search and filter BMDC-registered consultants by department, specialty, hospital branch, and consultation language. Every profile displays verified chamber schedules and effective-dated fees."}
-          </p>
-        </div>
-      </div>
-
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-12">
-          {/* Unboxed Filter Bar */}
-          <div className="pb-8 border-b border-[#e5e7eb] space-y-4">
-            <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-[#0057b8]">
-              <Filter className="w-4 h-4" />
-              <span>
-                {locale === "bn"
-                  ? "চিকিৎসক অনুসন্ধান ও ফিল্টার"
-                  : "Filter Specialists"}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div className="relative">
-                <Search className="w-4 h-4 text-[#6b7280] absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="search"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder={
-                    locale === "bn"
-                      ? "নাম, বিএমডিসি বা রোগ..."
-                      : "Doctor name, BMDC, interest..."
-                  }
-                  className="w-full h-11 pl-10 pr-3 border border-[#9ca3af] focus:border-[#0057b8] text-sm outline-none"
-                />
-              </div>
-
-            <select
-              aria-label="Filter by Department"
-              value={selectedDeptId}
-              onChange={(e) => setSelectedDeptId(e.target.value)}
-              className="h-11 px-3 rounded-lg border border-[#757575] text-sm bg-white"
-            >
-              <option value="">
-                {locale === "bn" ? "সকল বিভাগ" : "All Departments"}
-              </option>
-              {departments.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {locale === "bn" ? d.nameBn : d.nameEn}
-                </option>
-              ))}
-            </select>
-
-            <select
-              aria-label="Filter by Specialty"
-              value={selectedSpecialtyId}
-              onChange={(e) => setSelectedSpecialtyId(e.target.value)}
-              className="h-11 px-3 rounded-lg border border-[#757575] text-sm bg-white"
-            >
-              <option value="">
-                {locale === "bn" ? "সকল স্পেশালিটি" : "All Specialties"}
-              </option>
-              {specialties.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {locale === "bn" ? s.nameBn : s.nameEn}
-                </option>
-              ))}
-            </select>
-
-            <select
-              aria-label="Filter by Branch"
-              value={selectedBranchId}
-              onChange={(e) => setSelectedBranchId(e.target.value)}
-              className="h-11 px-3 rounded-lg border border-[#757575] text-sm bg-white"
-            >
-              <option value="">
-                {locale === "bn" ? "সকল শাখা" : "All Hospital Branches"}
-              </option>
-              {branches.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {locale === "bn" ? b.nameBn : b.nameEn}
-                </option>
-              ))}
-            </select>
-
-            <select
-              aria-label="Filter by Language"
-              value={selectedLanguage}
-              onChange={(e) => setSelectedLanguage(e.target.value)}
-              className="h-11 px-3 rounded-lg border border-[#757575] text-sm bg-white"
-            >
-              <option value="">
-                {locale === "bn" ? "সকল ভাষা" : "All Languages"}
-              </option>
-              <option value="Bangla">Bangla (বাংলা)</option>
-              <option value="English">English</option>
-            </select>
+          <div className="relative mt-8 max-w-2xl">
+            <Search className="w-5 h-5 text-[#6b7280] absolute left-5 top-1/2 -translate-y-1/2" />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label={bn ? "ডাক্তার খুঁজুন" : "Search doctors"}
+              placeholder={bn ? "যেমন: হৃদরোগ, ডেঙ্গু, ডা. রফিকুল…" : "e.g. cardiology, dengue, Dr. Rafiqul…"}
+              className="w-full h-14 rounded-full pl-14 pr-5 bg-white text-[#0b1b33] text-base outline-none"
+            />
           </div>
-
-          {/* Quick Symptom & Institution Search Pills */}
-          <div className="pt-2 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mr-1">
-              {locale === "bn" ? "দ্রুত অনুসন্ধান:" : "Quick Search:"}
-            </span>
-            {QUICK_SYMPTOM_PILLS.map((pill) => (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {QUICK.map((pill) => (
               <button
                 key={pill.query}
                 type="button"
                 onClick={() => setQuery(query === pill.query ? "" : pill.query)}
-                className={`px-3 py-1 rounded-full text-xs font-semibold border transition-colors ${
-                  query.toLowerCase() === pill.query.toLowerCase()
-                    ? "bg-[#0057b8] text-white border-[#0057b8]"
-                    : "bg-[#f8f9fc] text-[#004181] border-[#d6d6d6] hover:border-[#0057b8]"
+                className={`px-4 py-1.5 rounded-full text-sm transition-colors ${
+                  query === pill.query ? "bg-white text-[#012d61]" : "bg-white/10 text-white hover:bg-white/20"
                 }`}
               >
-                {pill.labelEn}
+                {pill.label}
               </button>
             ))}
           </div>
         </div>
+      </section>
 
-        {/* Results Count */}
-        <div className="flex items-center justify-between text-sm text-[#424242]">
-          <p>
-            {locale === "bn"
-              ? `${filtered.length} জন অনুমোদিত বিশেষজ্ঞ চিকিৎসক পাওয়া গেছে`
-              : `Showing ${filtered.length} verified published specialists`}
-          </p>
-          {(query ||
-            selectedDeptId ||
-            selectedBranchId ||
-            selectedSpecialtyId ||
-            selectedLanguage) && (
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-14">
+        <div className="flex flex-wrap items-center gap-3">
+          <select aria-label={bn ? "বিভাগ" : "Department"} value={selectedDeptId} onChange={(e) => setSelectedDeptId(e.target.value)} className={selectCls}>
+            <option value="">{bn ? "সকল বিভাগ" : "All departments"}</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>
+                {bn ? d.nameBn : d.nameEn}
+              </option>
+            ))}
+          </select>
+          <select aria-label={bn ? "শাখা" : "Branch"} value={selectedBranchId} onChange={(e) => setSelectedBranchId(e.target.value)} className={selectCls}>
+            <option value="">{bn ? "সকল শাখা" : "All branches"}</option>
+            {branches.map((b) => (
+              <option key={b.id} value={b.id}>
+                {bn ? b.nameBn : b.nameEn}
+              </option>
+            ))}
+          </select>
+          <span className="ml-auto text-sm text-[#6b7280]">
+            {bn ? `${num(filtered.length)} জন ডাক্তার` : `${filtered.length} doctor${filtered.length === 1 ? "" : "s"}`}
+          </span>
+          {hasFilters && (
             <button
               type="button"
               onClick={() => {
@@ -253,169 +172,58 @@ export function DoctorsDirectoryClient({
                 setSelectedSpecialtyId("");
                 setSelectedLanguage("");
               }}
-              className="text-[#0057b8] font-semibold underline"
+              className="text-sm text-[#0057b8] hover:underline"
             >
-              {locale === "bn" ? "ফিল্টার রিসেট করুন" : "Reset all filters"}
+              {bn ? "মুছুন" : "Clear"}
             </button>
           )}
         </div>
 
-        {/* Specialist Editorial Grid - Unboxed */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
-          {filtered.map((doc) => {
-            const dept = departments.find((d) => d.id === doc.departmentId);
-            const primaryBranchAssign = doc.branches[0];
-            const branchObj = branches.find(
-              (b) => b.id === primaryBranchAssign?.branchId
-            );
-            const scheduleRule = primaryBranchAssign?.scheduleRules[0];
-
-            return (
-              <article
-                key={doc.id}
-                className="pb-8 border-b border-[#e5e7eb] flex flex-col justify-between gap-6"
-              >
-                <div className="flex flex-col sm:flex-row gap-5 items-start">
-                  <img
-                    src={doc.imageUrl}
-                    alt={locale === "bn" ? doc.nameBn : doc.nameEn}
-                    className="w-24 h-24 rounded-full object-cover border-2 border-[#0057b8] shrink-0 bg-[#e8f0f9]"
-                  />
-                  <div className="space-y-2 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#0057b8]">
-                        <Award className="w-3.5 h-3.5" />
-                        BMDC: {doc.bmdcRegistrationNo}
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#065f46]">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        {locale === "bn" ? "যাচাইকৃত" : "Verified"}
-                      </span>
+        {filtered.length === 0 ? (
+          <p className="py-24 text-center text-[#6b7280]">
+            {bn ? "কোনো ডাক্তার পাওয়া যায়নি।" : "No doctors match your search."}
+          </p>
+        ) : (
+          <div className="mt-12 grid gap-x-10 gap-y-14 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((doc, i) => {
+              const dept = departments.find((d) => d.id === doc.departmentId);
+              return (
+                <motion.article
+                  key={doc.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-40px" }}
+                  transition={{ duration: 0.5, delay: (i % 3) * 0.06 }}
+                  className="group"
+                >
+                  <Link href={`/doctors/${doc.slug}`} className="block">
+                    <div className="aspect-[4/5] overflow-hidden bg-[#eef2f6]">
+                      <img
+                        src={doc.imageUrl}
+                        alt={bn ? doc.nameBn : doc.nameEn}
+                        className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
-
-                    <h2 className="text-2xl font-bold text-[#080808]">
-                      <Link
-                        href={`/doctors/${doc.slug}`}
-                        className="hover:text-[#0057b8] transition-colors"
-                      >
-                        {locale === "bn" ? doc.nameBn : doc.nameEn}
-                      </Link>
+                    <h2 className="mt-5 text-xl font-semibold text-[#0b1b33] group-hover:text-[#0057b8] transition-colors">
+                      {bn ? doc.nameBn : doc.nameEn}
                     </h2>
-
-                    <p className="text-base font-semibold text-[#004181]">
-                      {locale === "bn" ? doc.designationBn : doc.designationEn}{" "}
-                      {dept
-                        ? `• ${locale === "bn" ? dept.nameBn : dept.nameEn}`
-                        : ""}
+                    <p className="mt-1 text-[#4b5563]">{dept ? (bn ? dept.nameBn : dept.nameEn) : ""}</p>
+                    <p className="mt-2 text-sm text-[#6b7280]">
+                      {bn ? "ফি" : "Fee"} ৳{num(doc.consultationFeeBdt)}
                     </p>
-
-                    <p className="text-sm font-medium text-[#374151]">
-                      {locale === "bn"
-                        ? doc.qualificationsBn
-                        : doc.qualificationsEn}{" "}
-                      • {doc.experienceYears}{" "}
-                      {locale === "bn" ? "বছরের অভিজ্ঞতা" : "years experience"}
-                    </p>
-
-                    {(doc.workplaceEn || doc.workplaceBn) && (
-                      <p className="text-xs font-semibold text-[#1f2937] bg-[#f8f9fc] px-2.5 py-1 border-l-2 border-[#0057b8]">
-                        {locale === "bn"
-                          ? doc.workplaceBn || doc.workplaceEn
-                          : doc.workplaceEn}
-                      </p>
-                    )}
-
-                    {/* Branch-by-Branch Chamber Schedule */}
-                    <div className="pt-1 space-y-1 text-xs text-[#4b5563]">
-                      {doc.branches.map((br) => {
-                        const bObj = branches.find((b) => b.id === br.branchId);
-                        const firstRule = br.scheduleRules[0];
-                        return (
-                          <div
-                            key={br.id}
-                            className="flex flex-wrap items-center gap-1.5"
-                          >
-                            <Building2 className="w-3.5 h-3.5 text-[#0057b8] shrink-0" />
-                            <span className="font-bold text-[#080808]">
-                              {bObj
-                                ? locale === "bn"
-                                  ? bObj.nameBn
-                                  : bObj.nameEn
-                                : br.branchId}
-                              :
-                            </span>
-                            <span>
-                              {firstRule
-                                ? `${
-                                    locale === "bn"
-                                      ? firstRule.weekdayLabelBn
-                                      : firstRule.weekdayLabelEn
-                                  } ${firstRule.startTime}–${firstRule.endTime}`
-                                : "By appointment"}{" "}
-                              · {br.roomNumber}
-                            </span>
-                          </div>
-                        );
-                      })}
-                      <div className="flex items-center gap-1 pt-0.5">
-                        <Globe2 className="w-3.5 h-3.5 text-[#0057b8]" />
-                        <span>
-                          {(locale === "bn"
-                            ? doc.languagesBn
-                            : doc.languagesEn
-                          ).join(", ")}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t border-[#f3f4f6] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="text-sm space-y-0.5">
-                    <p className="font-bold text-base text-[#080808]">
-                      {locale === "bn" ? "কনসালটেশন ফি:" : "Consultation Fee:"}{" "}
-                      ৳{doc.consultationFeeBdt.toLocaleString()}{" "}
-                      <span className="font-normal text-xs text-[#6b7280]">
-                        ({locale === "bn" ? "ফলো-আপ:" : "Follow-up:"} ৳
-                        {doc.followupFeeBdt.toLocaleString()})
-                      </span>
-                    </p>
-                    <p className="text-xs text-[#0057b8] font-semibold">
-                      {scheduleRule
-                        ? `${scheduleRule.slotMinutes || 15}-min Fixed Time Slots Available`
-                        : "Fixed-Slot Chamber Booking"}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-3 shrink-0">
-                    <Link
-                      href={`/doctors/${doc.slug}`}
-                      className="mc-btn-secondary !py-2 !px-4 text-xs"
-                    >
-                      {locale === "bn" ? "প্রোফাইল" : "View Profile"}
-                    </Link>
-                    <Link
-                      href={`/request-appointment?doctorId=${encodeURIComponent(
-                        doc.id
-                      )}`}
-                      className="mc-btn-primary !py-2 !px-4 text-xs inline-flex items-center gap-1.5"
-                    >
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>
-                        {locale === "bn"
-                          ? "অ্যাপয়েন্টমেন্ট"
-                          : "Request Appointment"}
-                      </span>
-                    </Link>
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+                  </Link>
+                  <Link
+                    href={`/appointments?doctor=${encodeURIComponent(doc.slug)}`}
+                    className="mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-[#0057b8] ring-1 ring-[#dbe3ee] hover:bg-[#0057b8] hover:text-white transition-colors"
+                  >
+                    {bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book appointment"}
+                  </Link>
+                </motion.article>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
-  </div>
   );
 }
-

@@ -1,4 +1,4 @@
-// Node.js end-to-end verification script for DeltaCare 5 role-based dashboards & specialist CRUD
+// Node.js end-to-end verification script for Evercare 5 role-based dashboards & specialist CRUD
 import http from "node:http";
 
 const BASE_URL = "http://localhost:3000";
@@ -59,7 +59,7 @@ async function login(email, password) {
 
 async function runTests() {
   console.log("================================================================================");
-  console.log("DELTACARE — FIVE DASHBOARDS & SPECIALIST CRUD VERIFICATION SUITE");
+  console.log("EVERCARE — FIVE DASHBOARDS & SPECIALIST CRUD VERIFICATION SUITE");
   console.log("================================================================================\n");
 
   const results = [];
@@ -74,8 +74,8 @@ async function runTests() {
   // --------------------------------------------------------------------------
   // ROLE A: SUPER ADMIN
   // --------------------------------------------------------------------------
-  console.log("\n[TESTING ROLE A: SUPER ADMIN (superadmin@deltacare.bd)]");
-  const superAuth = await login("superadmin@deltacare.bd", "DeltaCare#2026");
+  console.log("\n[TESTING ROLE A: SUPER ADMIN (superadmin@evercare.bd)]");
+  const superAuth = await login("superadmin@evercare.bd", "Evercare#2026");
   record("Super Admin Login", superAuth.status === 200 && superAuth.user?.role === "SUPER_ADMIN", `Status ${superAuth.status}, role=${superAuth.user?.role}`);
 
   const superAdminPage = await request("/admin", {
@@ -96,8 +96,8 @@ async function runTests() {
   // --------------------------------------------------------------------------
   // ROLE B: HOSPITAL ADMIN & SPECIALIST CRUD
   // --------------------------------------------------------------------------
-  console.log("\n[TESTING ROLE B: HOSPITAL ADMIN & SPECIALIST CRUD (admin@deltacare.bd)]");
-  const hospAuth = await login("admin@deltacare.bd", "DeltaCare#2026");
+  console.log("\n[TESTING ROLE B: HOSPITAL ADMIN & SPECIALIST CRUD (admin@evercare.bd)]");
+  const hospAuth = await login("admin@evercare.bd", "Evercare#2026");
   record("Hospital Admin Login", hospAuth.status === 200 && hospAuth.user?.role === "HOSPITAL_ADMIN", `Role=${hospAuth.user?.role}`);
 
   const hospAdminPage = await request("/admin", {
@@ -194,8 +194,8 @@ async function runTests() {
   // --------------------------------------------------------------------------
   // ROLE C: RECEPTIONIST
   // --------------------------------------------------------------------------
-  console.log("\n[TESTING ROLE C: RECEPTIONIST (frontdesk@deltacare.bd)]");
-  const recAuth = await login("frontdesk@deltacare.bd", "DeltaCare#2026");
+  console.log("\n[TESTING ROLE C: RECEPTIONIST (frontdesk@evercare.bd)]");
+  const recAuth = await login("frontdesk@evercare.bd", "Evercare#2026");
   record("Receptionist Login", recAuth.status === 200 && recAuth.user?.role === "RECEPTIONIST", `Role=${recAuth.user?.role}`);
 
   const recAdminPage = await request("/admin", {
@@ -229,8 +229,8 @@ async function runTests() {
   // --------------------------------------------------------------------------
   // ROLE D: CONTENT EDITOR (CMS)
   // --------------------------------------------------------------------------
-  console.log("\n[TESTING ROLE D: CONTENT EDITOR (editor@deltacare.bd)]");
-  const edAuth = await login("editor@deltacare.bd", "DeltaCare#2026");
+  console.log("\n[TESTING ROLE D: CONTENT EDITOR (editor@evercare.bd)]");
+  const edAuth = await login("editor@evercare.bd", "Evercare#2026");
   record("Content Editor Login", edAuth.status === 200 && edAuth.user?.role === "CONTENT_EDITOR", `Role=${edAuth.user?.role}`);
 
   const edAdminPage = await request("/admin", {
@@ -285,8 +285,8 @@ async function runTests() {
   // --------------------------------------------------------------------------
   // ROLE E: PATIENT PORTAL
   // --------------------------------------------------------------------------
-  console.log("\n[TESTING ROLE E: PATIENT PORTAL (patient@deltacare.bd)]");
-  const patAuth = await login("patient@deltacare.bd", "DeltaCare#2026");
+  console.log("\n[TESTING ROLE E: PATIENT PORTAL (patient@evercare.bd)]");
+  const patAuth = await login("patient@evercare.bd", "Evercare#2026");
   record("Patient Login", patAuth.status === 200 && patAuth.user?.role === "PATIENT", `Role=${patAuth.user?.role}`);
 
   const patDashboardPage = await request("/dashboard", {

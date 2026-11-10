@@ -2,7 +2,7 @@ import { getDbState } from "@/server/db/store";
 import { OperationalInsight, RoleCode } from "@/types/domain";
 
 // ============================================================================
-// DeltaCare Operational Insights & Actionable Intelligence Engine
+// Evercare Operational Insights & Actionable Intelligence Engine
 // Dynamically extracts evidence-grounded insights from live database state.
 // Strictly NO fabricated trends or fake numbers.
 // ============================================================================

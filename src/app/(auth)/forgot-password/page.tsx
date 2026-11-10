@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
           </Link>
 
           <h1 className="mc-serif text-2xl text-[#080808]">
-            Reset Your DeltaCare Password
+            Reset Your Evercare Password
           </h1>
 
           {error && (
@@ -63,10 +63,10 @@ export default function ForgotPasswordPage() {
                 <span>Password Reset Instructions Logged</span>
               </div>
               <p>
-                If an active DeltaCare account matches <strong>{email}</strong>,
+                If an active Evercare account matches <strong>{email}</strong>,
                 a password recovery link has been queued via the Notification
                 Adapter. For staff MFA/account unlocks, contact Super Admin or IT
-                Desk at ext. 10678.
+                Desk at ext. 10666.
               </p>
             </div>
           ) : (

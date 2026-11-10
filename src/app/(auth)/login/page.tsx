@@ -70,16 +70,16 @@ export default function LoginPage() {
         <div className="text-center space-y-2">
           <Link href="/" className="inline-block">
             <img
-              src="/images/deltacare-logo.svg"
-              alt="DeltaCare Home"
+              src="/images/evercare-logo.svg"
+              alt="Evercare Home"
               className="h-12 w-auto mx-auto"
             />
           </Link>
           <h1 className="mc-serif text-3xl text-[#080808]">
-            Sign in to DeltaCare
+            Sign in to Evercare
           </h1>
           <p className="text-sm text-[#4a4a4a]">
-            Access the Patient Portal or DeltaCare Staff Operations Console
+            Access the Patient Portal or Evercare Staff Operations Console
           </p>
         </div>
 
@@ -103,7 +103,7 @@ export default function LoginPage() {
                 id="login-email"
                 type="email"
                 required
-                placeholder="name@deltacare.bd"
+                placeholder="name@evercare.bd"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full h-11 px-3.5 border border-[#757575] text-sm focus:border-[#0057b8] outline-none"
@@ -162,7 +162,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={loading}
                 onClick={() =>
-                  void handleQuickDemoSignIn("admin@deltacare.bd", "DeltaCare#2026")
+                  void handleQuickDemoSignIn("admin@evercare.bd", "Evercare#2026")
                 }
                 className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#0057b8] bg-slate-50/70 hover:bg-[#f0f7ff] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
               >
@@ -184,7 +184,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={loading}
                 onClick={() =>
-                  void handleQuickDemoSignIn("frontdesk@deltacare.bd", "DeltaCare#2026")
+                  void handleQuickDemoSignIn("frontdesk@evercare.bd", "Evercare#2026")
                 }
                 className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#059669] bg-slate-50/70 hover:bg-[#ecfdf5] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
               >
@@ -206,7 +206,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={loading}
                 onClick={() =>
-                  void handleQuickDemoSignIn("editor@deltacare.bd", "DeltaCare#2026")
+                  void handleQuickDemoSignIn("editor@evercare.bd", "Evercare#2026")
                 }
                 className="w-full text-left p-3 border border-[#e5e7eb] hover:border-[#d97706] bg-slate-50/70 hover:bg-[#fffbeb] transition-colors flex items-center justify-between gap-3 group cursor-pointer"
               >
@@ -239,7 +239,7 @@ export default function LoginPage() {
               href="/register"
               className="font-bold text-[#004181] hover:underline"
             >
-              Create a DeltaCare Patient Account
+              Create a Evercare Patient Account
             </Link>
           </div>
         </div>

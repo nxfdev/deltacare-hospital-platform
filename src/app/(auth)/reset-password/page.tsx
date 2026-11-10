@@ -82,7 +82,7 @@ function ResetPasswordContent() {
             <span>Password Reset Completed</span>
           </div>
           <p>
-            Your DeltaCare password has been securely updated and all previous
+            Your Evercare password has been securely updated and all previous
             sessions have been invalidated.
           </p>
           <Link

@@ -29,20 +29,20 @@ async function runVerification() {
   );
   console.log('Primary Menu Buttons:', navMenuButtons);
   if (navMenuButtons.length !== 3) throw new Error(`Expected exactly 3 primary menu buttons, found ${navMenuButtons.length}`);
-  if (!navMenuButtons.includes('Care at DeltaCare')) throw new Error('Missing "Care at DeltaCare"');
+  if (!navMenuButtons.includes('Care at Evercare')) throw new Error('Missing "Care at Evercare"');
   if (!navMenuButtons.includes('Health Library')) throw new Error('Missing "Health Library"');
   if (!navMenuButtons.includes('Departments and Specialists')) throw new Error('Missing "Departments and Specialists"');
 
-  // Check Dropdown 1: Care at DeltaCare
-  await page.click('button:has-text("Care at DeltaCare")');
+  // Check Dropdown 1: Care at Evercare
+  await page.click('button:has-text("Care at Evercare")');
   await page.waitForTimeout(300);
   const careLinks = await page.$$eval('div[role="region"] a', links => links.map(l => l.innerText.trim()));
-  console.log('Care at DeltaCare items found:');
-  const expectedCare = ['Patient-Centred Care', 'About DeltaCare', 'Request Appointment', 'Locations', 'Contact Us'];
+  console.log('Care at Evercare items found:');
+  const expectedCare = ['Patient-Centred Care', 'About Evercare', 'Request Appointment', 'Locations', 'Contact Us'];
   for (const exp of expectedCare) {
     const found = careLinks.some(l => l.includes(exp));
     console.log(`  ✓ ${exp}: ${found}`);
-    if (!found) throw new Error(`Missing item in Care at DeltaCare dropdown: ${exp}`);
+    if (!found) throw new Error(`Missing item in Care at Evercare dropdown: ${exp}`);
   }
 
   // Check Dropdown 2: Health Library
@@ -86,7 +86,7 @@ async function runVerification() {
   if (!langBtn) throw new Error('Missing Language switcher');
   await langBtn.click();
   await page.waitForTimeout(300);
-  const isBangla = await page.evaluate(() => document.body.innerText.includes('ডেল্টাকেয়ারে সেবা'));
+  const isBangla = await page.evaluate(() => document.body.innerText.includes('এভারকেয়ারে সেবা'));
   console.log('Switched to Bangla successfully:', isBangla);
   // Switch back to English
   await langBtn.click();
@@ -150,8 +150,8 @@ async function runVerification() {
   console.log('Navigated to login with redirect param:', page.url());
 
   // Fill credentials for demo patient
-  await page.fill('#login-email', 'patient@deltacare.bd');
-  await page.fill('#login-password', 'DeltaCare#2026');
+  await page.fill('#login-email', 'patient@evercare.bd');
+  await page.fill('#login-password', 'Evercare#2026');
   await page.click('button[type="submit"]');
 
   // Must redirect automatically to /request-appointment/form
@@ -171,7 +171,7 @@ async function runVerification() {
   const emailVal = await page.$eval('#apt-email', el => el.value);
   console.log('Pre-populated Patient Name:', nameVal);
   console.log('Pre-populated Patient Email:', emailVal);
-  if (!emailVal.includes('patient@deltacare.bd')) {
+  if (!emailVal.includes('patient@evercare.bd')) {
     throw new Error(`Patient email not pre-populated! Got: ${emailVal}`);
   }
 
@@ -201,11 +201,11 @@ async function runVerification() {
   await page2.waitForURL(url => url.pathname === '/register' && url.searchParams.get('redirect') === '/request-appointment/form');
   console.log('Navigated to registration with redirect param:', page2.url());
 
-  const testEmail = `newpatient_${Date.now()}@deltacare.bd`;
+  const testEmail = `newpatient_${Date.now()}@evercare.bd`;
   await page2.fill('#reg-name', 'Nusrat Jahan');
   await page2.fill('#reg-email', testEmail);
   await page2.fill('#reg-phone', '01799887766');
-  await page2.fill('#reg-password', 'DeltaCare#2026');
+  await page2.fill('#reg-password', 'Evercare#2026');
   await page2.check('input[type="checkbox"]');
   await page2.click('button[type="submit"]');
 

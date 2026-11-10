@@ -1,18 +1,17 @@
 import React from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Calendar,
-  Stethoscope,
-  ShieldAlert,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   getPublishedConditionBySlug,
   getPublishedDepartments,
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
+import { getServerLocale } from "@/lib/i18n/server";
+import { getTechnologyForDepartment } from "@/lib/medicalTechnology";
+import { TechnologyShowcase } from "@/components/ui/TechnologyShowcase";
+import { Reveal } from "@/components/ui/Reveal";
+import { toBnDigits } from "@/lib/i18n/digits";
 
 export const dynamic = "force-dynamic";
 
@@ -23,216 +22,120 @@ export default async function DiseaseDetailPage({
 }) {
   const { slug } = await params;
   const condition = getPublishedConditionBySlug(slug);
-  if (!condition) {
-    notFound();
-  }
+  if (!condition) notFound();
 
-  const departments = getPublishedDepartments();
-  const department = departments.find((d) => d.id === condition.departmentId);
-  const relatedDoctors = getPublishedDoctors({
-    departmentId: condition.departmentId,
-  });
+  const locale = await getServerLocale();
+  const bn = locale === "bn";
+  const L = (en?: string, b?: string) => (bn ? b || en : en) || "";
+
+  const department = getPublishedDepartments().find((d) => d.id === condition.departmentId);
+  const doctors = getPublishedDoctors({ departmentId: condition.departmentId });
+  const tech = getTechnologyForDepartment(condition.departmentId);
+  const symptoms = bn ? condition.symptomsBn : condition.symptomsEn;
+
+  const sections: Array<[string, string]> = [
+    [bn ? "কারণ ও ঝুঁকি" : "Causes & risk factors", L(condition.causesEn, condition.causesBn)],
+    [bn ? "রোগ নির্ণয়" : "How it's diagnosed", L(condition.diagnosisOverviewEn, condition.diagnosisOverviewBn)],
+    [bn ? "এভারকেয়ারে চিকিৎসা" : "Care at Evercare", L(condition.careAtEvercareEn, condition.careAtEvercareBn)],
+  ];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Dark Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
           <Link
             href="/diseases-conditions"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#93c5fd] hover:underline mb-2"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>All Diseases &amp; Conditions (A–Z)</span>
+            {bn ? "সকল রোগ ও অবস্থা" : "All diseases & conditions"}
           </Link>
-          <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-wider text-[#93c5fd]">
-            <span>Diseases &amp; Conditions • Letter {condition.firstLetter}</span>
+          <h1 className="mc-serif mt-6 text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {L(condition.nameEn, condition.nameBn)}
+          </h1>
+          <p className="mt-5 max-w-3xl text-lg leading-relaxed text-white/80">
+            {L(condition.summaryEn, condition.summaryBn)}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-6">
+            <Link
+              href={`/appointments?department=${encodeURIComponent(department?.slug ?? condition.departmentId)}`}
+              className="mc-btn-primary inline-flex items-center gap-2 !py-3 !px-6"
+            >
+              {bn ? "বিশেষজ্ঞ দেখান" : "See a specialist"}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
             {department && (
-              <>
-                <span>•</span>
-                <Link
-                  href={`/departments/${department.slug}`}
-                  className="underline hover:text-white"
-                >
-                  {department.nameEn} ({department.nameBn})
-                </Link>
-              </>
+              <Link href={`/departments/${department.slug}`} className="text-white/80 hover:text-white underline-offset-4 hover:underline">
+                {L(department.nameEn, department.nameBn)}
+              </Link>
             )}
           </div>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            {condition.nameEn}
-          </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">{condition.nameBn}</p>
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-[#e8f0f9]">
-            <span className="inline-flex items-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-[#93c5fd]" />
-              Clinically Reviewed by: {condition.reviewedByEn} ({condition.reviewedByBn})
-            </span>
-            <span>•</span>
-            <span>Last Reviewed: {condition.lastReviewedAt}</span>
-          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body - Unboxed Editorial */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-12">
-          {/* Notice Bar */}
-          <div className="p-4 border-l-4 border-[#0057b8] bg-[#f0f9ff] text-sm text-[#0369a1] flex items-start gap-3">
-            <ShieldAlert className="w-5 h-5 text-[#0057b8] shrink-0 mt-0.5" />
-            <div>
-              <strong>Educational Health Information Notice:</strong> This guide
-              provides general, reviewed educational information and does not
-              substitute for a clinical consultation. For acute or emergency
-              symptoms, call DeltaCare Emergency at <strong>10678</strong> immediately.
-            </div>
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 space-y-24">
+        <section className="grid gap-16 lg:grid-cols-[1fr_1.4fr]">
+          <Reveal>
+            <h2 className="mc-serif text-3xl text-[#0b1b33]">{bn ? "সাধারণ লক্ষণ" : "Common symptoms"}</h2>
+            <ul className="mt-6 divide-y divide-[#eef0f3]">
+              {symptoms.map((s) => (
+                <li key={s} className="py-4 text-lg text-[#1f2937]">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <div className="space-y-12">
+            {sections.map(([title, body], i) =>
+              body ? (
+                <Reveal key={title} delay={i * 0.06}>
+                  <h2 className="mc-serif text-2xl sm:text-3xl text-[#0b1b33]">{title}</h2>
+                  <p className="mt-4 text-lg leading-relaxed text-[#374151]">{body}</p>
+                </Reveal>
+              ) : null
+            )}
+            <p className="text-sm text-[#6b7280]">
+              {bn
+                ? "এই তথ্য শুধুমাত্র সচেতনতার জন্য, চিকিৎসকের পরামর্শের বিকল্প নয়। জরুরি প্রয়োজনে ১০৬৬৬ নম্বরে কল করুন।"
+                : "This information is for awareness only and does not replace a consultation. In an emergency, call 10666."}
+            </p>
           </div>
+        </section>
 
-          {/* Overview */}
-          <section className="space-y-3 pb-8 border-b border-[#e5e7eb]">
-            <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
-              Overview / সংক্ষিপ্ত বিবরণ
-            </h2>
-            <p className="text-base sm:text-lg text-[#080808] leading-relaxed">
-              {condition.summaryEn}
-            </p>
-            <p className="text-base text-[#4b5563] leading-relaxed">
-              {condition.summaryBn}
-            </p>
-          </section>
+        <TechnologyShowcase items={tech} locale={locale} />
 
-          {/* Symptoms */}
-          <section className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-8 border-b border-[#e5e7eb]">
-            <div>
-              <h2 className="mc-serif text-2xl text-[#080808] mb-3">
-                Common Symptoms (English)
+        {doctors.length > 0 && (
+          <section className="space-y-10">
+            <Reveal>
+              <h2 className="mc-serif text-3xl sm:text-4xl text-[#0b1b33]">
+                {bn ? "যে বিশেষজ্ঞরা চিকিৎসা করেন" : "Specialists who treat this"}
               </h2>
-              <ul className="list-disc list-inside space-y-2 text-base text-[#374151]">
-                {condition.symptomsEn.map((sym) => (
-                  <li key={sym}>{sym}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h2 className="mc-serif text-2xl text-[#080808] mb-3">
-                সাধারণ লক্ষণসমূহ (বাংলা)
-              </h2>
-              <ul className="list-disc list-inside space-y-2 text-base text-[#374151]">
-                {condition.symptomsBn.map((sym) => (
-                  <li key={sym}>{sym}</li>
-                ))}
-              </ul>
-            </div>
-          </section>
-
-          {/* Causes & Risk Factors */}
-          <section className="space-y-3 pb-8 border-b border-[#e5e7eb]">
-            <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
-              Causes &amp; Risk Factors / কারণ ও ঝুঁকি
-            </h2>
-            <p className="text-base text-[#374151] leading-relaxed">
-              {condition.causesEn}
-            </p>
-            <p className="text-sm text-[#6b7280] leading-relaxed">
-              {condition.causesBn}
-            </p>
-          </section>
-
-          {/* Diagnosis & Evaluation */}
-          <section className="space-y-3 pb-8 border-b border-[#e5e7eb]">
-            <h2 className="mc-serif text-2xl md:text-3xl text-[#080808]">
-              Diagnostic Evaluation / রোগ নির্ণয় পদ্ধতি
-            </h2>
-            <p className="text-base text-[#374151] leading-relaxed">
-              {condition.diagnosisOverviewEn}
-            </p>
-            <p className="text-sm text-[#6b7280] leading-relaxed">
-              {condition.diagnosisOverviewBn}
-            </p>
-          </section>
-
-          {/* Care at DeltaCare */}
-          <section className="p-8 border border-[#e5e7eb] space-y-4">
-            <h2 className="mc-serif text-2xl md:text-3xl text-[#004181] flex items-center gap-2">
-              <Stethoscope className="w-6 h-6 text-[#0057b8]" />
-              <span>Care at DeltaCare / ডেল্টাকেয়ারে চিকিৎসা সেবা</span>
-            </h2>
-            <p className="text-base text-[#080808] leading-relaxed">
-              {condition.careAtDeltaCareEn}
-            </p>
-            <p className="text-sm text-[#4b5563] leading-relaxed">
-              {condition.careAtDeltaCareBn}
-            </p>
-            <div className="pt-2 flex flex-wrap gap-4">
-              <Link
-                href={`/request-appointment?departmentId=${encodeURIComponent(
-                  condition.departmentId
-                )}`}
-                className="mc-btn-primary inline-flex items-center gap-2 text-sm !py-2.5 !px-5"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Request Specialist Consultation</span>
-              </Link>
-              {department && (
-                <Link
-                  href={`/departments/${department.slug}`}
-                  className="mc-btn-secondary text-sm !py-2.5 !px-5"
-                >
-                  Visit {department.nameEn}
-                </Link>
-              )}
-            </div>
-          </section>
-
-          {/* Related Specialists */}
-          {relatedDoctors.length > 0 && (
-            <section className="space-y-6 pt-4">
-              <div className="pb-4 border-b-2 border-[#080808]">
-                <h2 className="mc-serif text-3xl text-[#080808]">
-                  Specialists Treating {condition.nameEn}
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {relatedDoctors.map((doc) => (
-                  <div
-                    key={doc.id}
-                    className="pb-6 border-b border-[#e5e7eb] flex items-center justify-between gap-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <img
-                        src={doc.imageUrl}
-                        alt={doc.nameEn}
-                        className="w-16 h-16 rounded-full object-cover border border-[#0057b8] shrink-0"
-                      />
-                      <div>
-                        <h3 className="font-bold text-lg text-[#080808]">
-                          <Link
-                            href={`/doctors/${doc.slug}`}
-                            className="hover:text-[#0057b8] hover:underline"
-                          >
-                            {doc.nameEn}
-                          </Link>
-                        </h3>
-                        <p className="text-xs text-[#004181]">
-                          {doc.designationEn} • BMDC {doc.bmdcRegistrationNo}
-                        </p>
-                        <p className="text-xs font-semibold text-[#080808] mt-1">
-                          Consultation Fee: BDT {doc.consultationFeeBdt}
-                        </p>
-                      </div>
+            </Reveal>
+            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+              {doctors.map((doc, i) => (
+                <Reveal key={doc.id} delay={i * 0.06} as="article" className="group">
+                  <Link href={`/doctors/${doc.slug}`} className="flex items-center gap-5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={doc.imageUrl}
+                      alt=""
+                      className="w-20 h-20 rounded-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold text-[#0b1b33] group-hover:text-[#0057b8] transition-colors">
+                        {L(doc.nameEn, doc.nameBn)}
+                      </h3>
+                      <p className="text-sm text-[#6b7280]">
+                        {bn ? "ফি" : "Fee"} ৳
+                        {bn ? toBnDigits(doc.consultationFeeBdt) : doc.consultationFeeBdt}
+                      </p>
                     </div>
-                    <Link
-                      href={`/request-appointment?doctorId=${encodeURIComponent(doc.id)}`}
-                      className="mc-btn-primary !py-2 !px-4 text-xs shrink-0"
-                    >
-                      Book
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

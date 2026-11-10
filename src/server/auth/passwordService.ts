@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 // ============================================================================
-// DeltaCare Centralized Password Hashing & Verification Security Service
+// Evercare Centralized Password Hashing & Verification Security Service
 // Uses bcrypt (work factor 10) for secure, salted cryptographic hashing.
 // Rejects all plaintext and insecure legacy demo hashes during verification.
 // ============================================================================
@@ -66,7 +66,7 @@ export async function verifyPassword(
 /**
  * Migrates existing synthetic demo accounts safely to bcrypt.
  * If the value is already a bcrypt hash, it is returned untouched.
- * If it is an identifiable legacy demo format ("DeltaCare#2026" or "demo-hash:<password>"),
+ * If it is an identifiable legacy demo format ("Evercare#2026" or "demo-hash:<password>"),
  * it is migrated to a secure bcrypt hash.
  * For unmigratable or unknown plaintext, a forced password reset token is assigned.
  */
@@ -75,8 +75,8 @@ export function migrateLegacyPassword(legacyHashOrPlaintext: string): string {
     return legacyHashOrPlaintext;
   }
 
-  if (legacyHashOrPlaintext === "DeltaCare#2026") {
-    return hashPasswordSync("DeltaCare#2026");
+  if (legacyHashOrPlaintext === "Evercare#2026") {
+    return hashPasswordSync("Evercare#2026");
   }
 
   if (legacyHashOrPlaintext.startsWith("demo-hash:")) {

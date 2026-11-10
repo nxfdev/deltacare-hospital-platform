@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Allows building to a separate folder (e.g. NEXT_DIST_DIR=.next-build) while a dev server uses .next
+  distDir: process.env.NEXT_DIST_DIR || ".next",
   reactStrictMode: true,
   images: {
     unoptimized: true,

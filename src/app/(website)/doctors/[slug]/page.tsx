@@ -1,16 +1,7 @@
 import React, { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  Award,
-  Building2,
-  Calendar,
-  CheckCircle2,
-  Clock,
-  Globe2,
-  ArrowLeft,
-  ShieldCheck,
-} from "lucide-react";
+import { ArrowLeft, ArrowDown } from "lucide-react";
 import {
   getPublishedBranches,
   getPublishedDepartments,
@@ -18,9 +9,23 @@ import {
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
 import { PublicThreeStepBookingClient } from "@/components/appointments/PublicThreeStepBookingClient";
-import { getAvailableSlotsForDoctor } from "@/lib/schedule-engine";
+import { getServerLocale } from "@/lib/i18n/server";
+import { Reveal } from "@/components/ui/Reveal";
+import { toBnDigits } from "@/lib/i18n/digits";
 
 export const dynamic = "force-dynamic";
+
+const WEEKDAYS_EN = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const WEEKDAYS_BN = ["রবিবার", "সোমবার", "মঙ্গলবার", "বুধবার", "বৃহস্পতিবার", "শুক্রবার", "শনিবার"];
+
+function timeLabel(t: string, bn: boolean): string {
+  const [h, m] = t.split(":").map(Number);
+  if (bn) {
+    const period = h >= 18 ? "রাত" : h >= 15 ? "বিকাল" : h >= 12 ? "দুপুর" : "সকাল";
+    return `${period} ${toBnDigits(`${h % 12 || 12}:${String(m).padStart(2, "0")}`)}`;
+  }
+  return `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h >= 12 ? "PM" : "AM"}`;
+}
 
 export default async function DoctorDetailPage({
   params,
@@ -29,259 +34,142 @@ export default async function DoctorDetailPage({
 }) {
   const { slug } = await params;
   const doctor = getPublishedDoctorBySlug(slug);
-  if (!doctor) {
-    notFound();
-  }
+  if (!doctor) notFound();
+
+  const locale = await getServerLocale();
+  const bn = locale === "bn";
+  const L = (en?: string, b?: string) => (bn ? b || en : en) || "";
+  const n = (v: number) => (bn ? toBnDigits(v.toLocaleString("en-IN")) : v.toLocaleString("en-IN"));
 
   const departments = getPublishedDepartments();
   const branches = getPublishedBranches();
   const allDoctors = getPublishedDoctors();
   const department = departments.find((d) => d.id === doctor.departmentId);
-
-  const primaryBranchId = doctor.branches[0]?.branchId ?? "branch-dhanmondi";
-  // Find next available chamber date within the next 7 days
-  let nextSlotPreview = await getAvailableSlotsForDoctor({
-    doctorId: doctor.id,
-    branchId: primaryBranchId,
-    date: "2026-11-15",
-  });
-  for (let offset = 0; offset < 7; offset++) {
-    const dt = new Date(Date.now() + offset * 86400000);
-    const dateStr = dt.toISOString().slice(0, 10);
-    const candidate = await getAvailableSlotsForDoctor({
-      doctorId: doctor.id,
-      branchId: primaryBranchId,
-      date: dateStr,
-    });
-    if (candidate.isAvailableDay && candidate.slots.some((s) => s.status === "AVAILABLE")) {
-      nextSlotPreview = candidate;
-      break;
-    }
-  }
+  const interests = bn ? doctor.clinicalInterestsBn : doctor.clinicalInterestsEn;
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Dark Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-14 md:py-20">
           <Link
             href="/doctors"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#93c5fd] hover:underline mb-2"
+            className="inline-flex items-center gap-1.5 text-sm text-white/70 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Specialist Directory / চিকিৎসক ডিরেক্টরিতে ফিরুন</span>
+            {bn ? "সকল ডাক্তার" : "All doctors"}
           </Link>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#93c5fd]">
-            <span>{department?.nameEn} • {department?.nameBn}</span>
-          </div>
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div className="space-y-3">
-              <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-                {doctor.nameEn}
-              </h1>
-              <p className="text-xl text-[#c5e2f9] font-medium">
-                {doctor.nameBn} — {doctor.designationEn}
-              </p>
-              <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-                {doctor.qualificationsEn} • {doctor.experienceYears} Years Clinical Experience
-              </p>
-              {doctor.workplaceEn && (
-                <p className="text-sm sm:text-base text-[#93c5fd] font-semibold max-w-3xl">
-                  {doctor.workplaceEn}
-                  {doctor.workplaceBn ? ` (${doctor.workplaceBn})` : ""}
-                </p>
+          <div className="mt-8 flex flex-col md:flex-row md:items-center gap-8 md:gap-12">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={doctor.imageUrl}
+              alt={L(doctor.nameEn, doctor.nameBn)}
+              className="w-40 h-40 md:w-48 md:h-48 rounded-full object-cover object-top bg-white/10"
+            />
+            <div>
+              {department && (
+                <Link
+                  href={`/departments/${department.slug}`}
+                  className="text-sm text-white/70 hover:text-white transition-colors"
+                >
+                  {L(department.nameEn, department.nameBn)}
+                </Link>
               )}
+              <h1 className="mc-serif mt-2 text-4xl sm:text-5xl font-normal tracking-tight">
+                {L(doctor.nameEn, doctor.nameBn)}
+              </h1>
+              <p className="mt-3 text-lg text-white/80">{L(doctor.designationEn, doctor.designationBn)}</p>
+              <p className="mt-1 text-white/60">{L(doctor.qualificationsEn, doctor.qualificationsBn)}</p>
+              <a
+                href="#book-appointment"
+                className="mc-btn-primary mt-7 inline-flex items-center gap-2 !py-3 !px-6"
+              >
+                {bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an appointment"}
+                <ArrowDown className="w-4 h-4" />
+              </a>
             </div>
-
-            <a
-              href="#book-appointment"
-              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-[#0057b8] hover:bg-[#004494] text-white font-bold px-6 py-3 text-sm uppercase tracking-wider transition-colors shrink-0"
-            >
-              <Calendar className="w-4 h-4" />
-              <span>Book Appointment / অ্যাপয়েন্টমেন্ট নিন</span>
-            </a>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body - Unboxed Editorial */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-16">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 pb-12 border-b border-[#e5e7eb] items-start">
-            <div className="lg:col-span-3 flex flex-col items-center text-center space-y-3">
-              <img
-                src={doctor.imageUrl}
-                alt={doctor.nameEn}
-                className="w-44 h-44 rounded-full object-cover border-4 border-[#0057b8] bg-[#e8f0f9] shadow-sm"
-              />
-              <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-[#0057b8]">
-                <Award className="w-3.5 h-3.5" />
-                BMDC Reg. No: {doctor.bmdcRegistrationNo}
-              </span>
-              <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#065f46]">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Verified &amp; Published Record
-              </span>
-            </div>
-
-            <div className="lg:col-span-9 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-6 border-b border-[#e5e7eb]">
-                <div>
-                  <p className="text-xs text-[#6b7280] uppercase font-bold tracking-wider">
-                    Consultation Fee / ভিজিট ফি
-                  </p>
-                  <p className="text-2xl font-bold text-[#080808] mt-1 tabular-nums">
-                    ৳{doctor.consultationFeeBdt.toLocaleString()}{" "}
-                    <span className="text-sm font-normal text-[#6b7280]">
-                      (New Visit / নতুন রোগী)
-                    </span>
-                  </p>
-                  <p className="text-sm text-[#004181] font-semibold mt-1 tabular-nums">
-                    Follow-up / রিপোর্ট দেখানো: ৳{doctor.followupFeeBdt.toLocaleString()}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-xs text-[#6b7280] uppercase font-bold tracking-wider">
-                    Languages &amp; Verification
-                  </p>
-                  <p className="text-base font-semibold text-[#080808] mt-1 flex items-center gap-2">
-                    <Globe2 className="w-4 h-4 text-[#0057b8]" />
-                    {doctor.languagesEn.join(", ")} ({doctor.languagesBn.join(", ")})
-                  </p>
-                  <p className="text-xs text-[#6b7280] mt-1 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#0057b8]" />
-                    Last verified: {doctor.lastVerifiedAt.slice(0, 10)}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h2 className="mc-serif text-2xl text-[#080808]">
-                  Clinical Biography / পরিচিতি
-                </h2>
-                <p className="text-base text-[#374151] leading-relaxed">
-                  {doctor.bioEn}
-                </p>
-                <p className="text-sm text-[#6b7280] leading-relaxed">
-                  {doctor.bioBn}
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-[#6b7280] mb-2">
-                  Clinical Focus Areas:
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 space-y-24">
+        <section className="grid gap-16 lg:grid-cols-[1.5fr_1fr]">
+          <Reveal>
+            <h2 className="mc-serif text-3xl text-[#0b1b33]">{bn ? "পরিচিতি" : "About"}</h2>
+            <p className="mt-5 text-lg leading-relaxed text-[#374151]">{L(doctor.bioEn, doctor.bioBn)}</p>
+            {interests.length > 0 && (
+              <>
+                <h3 className="mt-10 text-lg font-semibold text-[#0b1b33]">
+                  {bn ? "বিশেষ আগ্রহের ক্ষেত্র" : "Areas of focus"}
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {doctor.clinicalInterestsEn.map((interest, idx) => (
-                    <span
-                      key={interest}
-                      className="px-3 py-1 bg-[#f3f4f6] text-[#374151] text-xs font-medium"
-                    >
-                      {interest}
-                      {doctor.clinicalInterestsBn[idx]
-                        ? ` (${doctor.clinicalInterestsBn[idx]})`
-                        : ""}
-                    </span>
+                <ul className="mt-3 grid sm:grid-cols-2 gap-x-8">
+                  {interests.map((it) => (
+                    <li key={it} className="py-2.5 border-b border-[#eef0f3] text-[#374151]">
+                      {it}
+                    </li>
                   ))}
-                </div>
-              </div>
+                </ul>
+              </>
+            )}
+          </Reveal>
 
-              {/* Chamber Assignments & Schedules */}
-              <div className="pt-6 border-t border-[#e5e7eb] space-y-4">
-                <h3 className="mc-serif text-2xl text-[#080808] flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-[#0057b8]" />
-                  <span>Branch-by-Branch Chamber Schedule / শাখাভিত্তিক চেম্বার সময়সূচী</span>
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {doctor.branches.map((dbAssign) => {
-                    const br = branches.find((b) => b.id === dbAssign.branchId);
-                    const uniqueLabels = Array.from(
-                      new Set(
-                        dbAssign.scheduleRules.map(
-                          (rule) =>
-                            `${rule.weekdayLabelEn} (${rule.weekdayLabelBn}) · ${rule.startTime} – ${rule.endTime} · ${rule.slotMinutes}m fixed slots`
-                        )
-                      )
-                    );
-                    return (
-                      <div
-                        key={dbAssign.id}
-                        className="p-5 border border-[#e5e7eb] space-y-2"
-                      >
-                        <p className="font-bold text-base text-[#004181]">
-                          {br?.nameEn} ({br?.nameBn})
-                        </p>
-                        <p className="text-sm text-[#4b5563]">
-                          Chamber Room: <strong className="text-[#080808]">{dbAssign.roomNumber}</strong>
-                        </p>
-                        {uniqueLabels.map((lbl) => (
-                          <div
-                            key={lbl}
-                            className="text-sm text-[#374151] flex items-center gap-2"
-                          >
-                            <Clock className="w-4 h-4 text-[#0057b8] shrink-0" />
-                            <span>{lbl}</span>
-                          </div>
+          <Reveal delay={0.08} className="space-y-10">
+            <div>
+              <p className="text-sm text-[#6b7280]">{bn ? "কনসালটেশন ফি" : "Consultation fee"}</p>
+              <p className="mt-1 text-3xl font-semibold text-[#0b1b33]">৳{n(doctor.consultationFeeBdt)}</p>
+              <p className="mt-1 text-sm text-[#6b7280]">
+                {bn ? "ফলো-আপ" : "Follow-up"} ৳{n(doctor.followupFeeBdt)}
+              </p>
+            </div>
+            <div>
+              <p className="text-sm text-[#6b7280]">{bn ? "চেম্বারের সময়" : "Chamber hours"}</p>
+              <div className="mt-3 space-y-5">
+                {doctor.branches.map((a) => {
+                  const br = branches.find((b) => b.id === a.branchId);
+                  return (
+                    <div key={a.id}>
+                      <p className="font-semibold text-[#0b1b33]">
+                        {L(br?.nameEn, br?.nameBn)} · {bn ? "কক্ষ" : "Room"} {bn ? toBnDigits(a.roomNumber) : a.roomNumber}
+                      </p>
+                      <ul className="mt-1.5 space-y-1 text-[#4b5563]">
+                        {a.scheduleRules.map((r) => (
+                          <li key={r.id} className="flex justify-between gap-4">
+                            <span>{(bn ? WEEKDAYS_BN : WEEKDAYS_EN)[r.weekday]}</span>
+                            <span>
+                              {timeLabel(r.startTime, bn)} – {timeLabel(r.endTime, bn)}
+                            </span>
+                          </li>
                         ))}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Next Available Fixed Time Slots Preview */}
-                {nextSlotPreview.isAvailableDay && nextSlotPreview.slots.length > 0 && (
-                  <div className="pt-4 space-y-2">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#0057b8]">
-                      Next Available Fixed Time Slots ({nextSlotPreview.date} · {nextSlotPreview.chamberRoom}):
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {nextSlotPreview.slots
-                        .filter((s) => s.status === "AVAILABLE")
-                        .slice(0, 8)
-                        .map((slot) => (
-                          <a
-                            key={slot.time24}
-                            href="#book-appointment"
-                            className="px-3 py-1.5 bg-[#f0f7ff] hover:bg-[#0057b8] text-[#004181] hover:text-white border border-[#93c5fd] text-xs font-bold transition-colors tabular-nums"
-                          >
-                            {slot.labelEn} ({slot.labelBn})
-                          </a>
-                        ))}
+                      </ul>
                     </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
             </div>
-          </div>
-
-          {/* Direct 3-Step Fixed-Slot Appointment Booking Section for this Specialist */}
-          <div id="book-appointment" className="space-y-6 pt-4 scroll-mt-24">
-            <div className="pb-4 border-b-2 border-[#080808] flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-[#0057b8]" />
-              <h2 className="mc-serif text-3xl text-[#080808]">
-                Book Fixed-Slot Appointment with {doctor.nameEn}
-              </h2>
+            <div>
+              <p className="text-sm text-[#6b7280]">{bn ? "ভাষা" : "Languages"}</p>
+              <p className="mt-1 text-[#0b1b33]">{(bn ? doctor.languagesBn : doctor.languagesEn).join(", ")}</p>
             </div>
-            <Suspense
-              fallback={
-                <div className="p-12 text-center text-slate-500 border border-[#e5e7eb]">
-                  Loading real-time 14-day chamber schedule...
-                </div>
-              }
-            >
-              <PublicThreeStepBookingClient
-                embedded
-                branches={branches}
-                departments={departments}
-                doctors={allDoctors}
-                preselectedDoctorId={doctor.id}
-                preselectedDepartmentId={doctor.departmentId}
-                preselectedBranchId={doctor.branches[0]?.branchId}
-              />
-            </Suspense>
-          </div>
-        </div>
+          </Reveal>
+        </section>
+
+        <section id="book-appointment" className="scroll-mt-24">
+          <Reveal>
+            <h2 className="mc-serif text-3xl sm:text-4xl text-[#0b1b33] mb-12">
+              {bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an appointment"}
+            </h2>
+          </Reveal>
+          <Suspense fallback={null}>
+            <PublicThreeStepBookingClient
+              embedded
+              branches={branches}
+              departments={departments}
+              doctors={allDoctors}
+              preselectedDoctorId={doctor.id}
+              preselectedDepartmentId={doctor.departmentId}
+              preselectedBranchId={doctor.branches[0]?.branchId}
+            />
+          </Suspense>
+        </section>
       </div>
     </div>
   );

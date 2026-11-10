@@ -9,7 +9,7 @@ import {
 } from "@/types/domain";
 
 // ============================================================================
-// DeltaCare Prisma Client Singleton & Relational Engine
+// Evercare Prisma Client Singleton & Relational Engine
 // Uses @prisma/client against PostgreSQL and provides a deterministic
 // transactional fallback when local PostgreSQL (localhost:5432) is offline.
 // ============================================================================
@@ -28,7 +28,7 @@ if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prismaRaw = prismaRaw;
 }
 
-const useLivePostgres = process.env.DELTACARE_USE_LIVE_POSTGRES === "true";
+const useLivePostgres = process.env.EVERCARE_USE_LIVE_POSTGRES === "true";
 
 function matchesWhere<T extends Record<string, unknown>>(
   item: T,

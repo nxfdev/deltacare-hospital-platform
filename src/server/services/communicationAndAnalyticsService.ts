@@ -14,7 +14,7 @@ import { z } from "zod";
 import { SessionPayload } from "@/server/auth/session";
 
 // ============================================================================
-// DeltaCare Communications, Feedback & Operational Analytics Service
+// Evercare Communications, Feedback & Operational Analytics Service
 // Enforces FR-FB-01..06, FR-NTF-01..04, FR-REP-01..05
 // - Private feedback & complaint submission with AI category assistance
 // - Contact & callback request logging
@@ -52,8 +52,8 @@ export async function createContactRequest(
       channel: "SMS",
       recipient: input.phone,
       templateCode: "CALLBACK_REQUEST_LOGGED",
-      subject: `DeltaCare Callback Logged (${reference})`,
-      bodyPreview: `DeltaCare: Your enquiry ${reference} has been logged. Our Patient Desk will contact you at ${input.phone}.`,
+      subject: `Evercare Callback Logged (${reference})`,
+      bodyPreview: `Evercare: Your enquiry ${reference} has been logged. Our Patient Desk will contact you at ${input.phone}.`,
       status: "SENT",
       relatedEntityType: "CONTACT_REQUEST",
       relatedEntityId: record.id,

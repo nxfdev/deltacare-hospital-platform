@@ -155,14 +155,14 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
   const isStaff = user && STAFF_ROLES.includes(user.role);
 
   // EXACT PRIMARY MENUS PER REQUIREMENTS:
-  // 1. Care at DeltaCare
+  // 1. Care at Evercare
   // 2. Health Library
   // 3. Departments and Specialists
   const primaryMenus: PrimaryMenu[] = [
     {
       id: "care",
-      labelEn: "Care at DeltaCare",
-      labelBn: "ডেল্টাকেয়ারে সেবা",
+      labelEn: "Care at Evercare",
+      labelBn: "এভারকেয়ারে সেবা",
       items: [
         {
           labelEn: "Patient-Centred Care",
@@ -189,8 +189,8 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           icon: MapPin,
         },
         {
-          labelEn: "About DeltaCare",
-          labelBn: "ডেল্টাকেয়ার সম্পর্কে",
+          labelEn: "About Evercare",
+          labelBn: "এভারকেয়ার সম্পর্কে",
           href: "/about",
           descriptionEn: "Our clinical leadership, values, and multi-specialty standards.",
           descriptionBn: "আমাদের ক্লিনিক্যাল নেতৃত্ব, মূল্যবোধ ও চিকিৎসার মানদণ্ড।",
@@ -208,14 +208,14 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           labelEn: "Contact Us & 24/7 Helpline",
           labelBn: "যোগাযোগ ও জরুরি হেল্পলাইন",
           href: "/contact",
-          descriptionEn: "24/7 patient helpline 10678, international desk, and callbacks.",
-          descriptionBn: "২৪/৭ জরুরি হেল্পলাইন ১০৬৭৮ এবং কলব্যাক সেবা।",
+          descriptionEn: "24/7 patient helpline 10666, international desk, and callbacks.",
+          descriptionBn: "২৪/৭ জরুরি হেল্পলাইন ১০৬৬৬ এবং কলব্যাক সেবা।",
           icon: Phone,
         },
       ],
       teaser: {
-        titleEn: "Care at DeltaCare",
-        titleBn: "ডেল্টাকেয়ারে বিশেষজ্ঞ সেবা",
+        titleEn: "Care at Evercare",
+        titleBn: "এভারকেয়ারে বিশেষজ্ঞ সেবা",
         subtitleEn: "Multi-disciplinary coordinated specialist consultations across modern medical campuses.",
         subtitleBn: "আধুনিক মেডিকেল ক্যাম্পাসে সমন্বিত বিশেষজ্ঞ সেবা ও পরামর্শ।",
         href: "/patient-services",
@@ -363,7 +363,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
     >
       {/* ====================================================================
           SPACIOUS, BALANCED NAVBAR WITH EXACTLY SIX PRIMARY ELEMENTS
-          1. Care at DeltaCare (Dropdown)
+          1. Care at Evercare (Dropdown)
           2. Health Library (Dropdown)
           3. Departments and Specialists (Dropdown)
           4. Register / Log in (Auth State)
@@ -375,7 +375,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
             DESKTOP NAVBAR: All options middle-justified in one centered row
             (Enlarged by 30% for high visual impact, clarity & legibility)
             1. Logo
-            2. Care at DeltaCare
+            2. Care at Evercare
             3. Health Library
             4. Departments and Specialists
             5. Register / Log in
@@ -387,16 +387,16 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           <Link
             href="/"
             className="flex items-center shrink-0 pr-1 xl:pr-2 focus:outline-none transition-transform hover:opacity-95"
-            aria-label="DeltaCare Home"
+            aria-label="Evercare Home"
           >
             <img
-              src="/images/deltacare-logo.svg"
-              alt="DeltaCare"
+              src="/images/evercare-logo.svg"
+              alt="Evercare"
               className="h-14 xl:h-16 w-auto"
             />
           </Link>
 
-          {/* OPTIONS 2, 3, 4: Care at DeltaCare, Health Library, Departments and Specialists */}
+          {/* OPTIONS 2, 3, 4: Care at Evercare, Health Library, Departments and Specialists */}
           <nav
             aria-label="Primary Navigation"
             className="flex items-center gap-1 xl:gap-2"
@@ -484,7 +484,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setActiveMenuId(null)}
                 placeholder={
-                  locale === "bn" ? "অনুসন্ধান করুন..." : "Search DeltaCare..."
+                  locale === "bn" ? "অনুসন্ধান করুন..." : "Search Evercare..."
                 }
                 className="w-40 lg:w-48 xl:w-60 2xl:w-72 h-11 pl-10 pr-9 text-xs xl:text-sm rounded-full border border-[#d1d5db] bg-[#f9fafb] text-[#111827] placeholder-[#6b7280] focus:border-[#0057b8] focus:bg-white focus:outline-none transition-all shadow-sm"
                 aria-label={t.alphabetSearchSection.searchHeading}
@@ -564,11 +564,11 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
           <Link
             href="/"
             className="flex items-center shrink-0 focus:outline-none"
-            aria-label="DeltaCare Home"
+            aria-label="Evercare Home"
           >
             <img
-              src="/images/deltacare-logo.svg"
-              alt="DeltaCare"
+              src="/images/evercare-logo.svg"
+              alt="Evercare"
               className="h-14 sm:h-16 w-auto"
             />
           </Link>
@@ -776,7 +776,7 @@ export function SiteHeader({ initialUser }: { initialUser?: NavUser | null }) {
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0057b8] text-white text-xs font-bold"
                   >
                     <User className="w-3.5 h-3.5" />
-                    <span>{isStaff ? "DeltaCare Admin" : "Patient Portal"}</span>
+                    <span>{isStaff ? "Evercare Admin" : "Patient Portal"}</span>
                   </Link>
                   <button
                     type="button"

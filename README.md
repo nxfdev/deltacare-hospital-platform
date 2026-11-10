@@ -1,17 +1,17 @@
-# DeltaCare Hospital Platform
+# Evercare Hospital Platform
 
-**Brand Name:** DeltaCare  
-**Header Tagline:** Care at DeltaCare  
+**Brand Name:** Evercare  
+**Header Tagline:** Care at Evercare  
 **Primary CTA:** Request Appointment  
-**Platform Name:** DeltaCare Hospital Platform  
-**Staff Console:** DeltaCare Staff Console  
-**AI Patient Assistant:** DeltaCare Assistant  
+**Platform Name:** Evercare Hospital Platform  
+**Staff Console:** Evercare Staff Console  
+**AI Patient Assistant:** Evercare Assistant  
 
 ---
 
 ## 1. Platform Overview
 
-**DeltaCare** is a bilingual (English `en` & Bangla `bn`) healthcare website and multi-branch doctor chamber & fixed-slot appointment platform built with Next.js App Router, React 19, TypeScript (strict mode), Tailwind CSS + Mayo Clinic reference CSS custom properties (`--mc-*`), Zod runtime validation, `date-fns-tz` (`Asia/Dhaka` `UTC+6`), and Prisma / PostgreSQL relational architecture.
+**Evercare** is a bilingual (English `en` & Bangla `bn`) healthcare website and multi-branch doctor chamber & fixed-slot appointment platform built with Next.js App Router, React 19, TypeScript (strict mode), Tailwind CSS + Mayo Clinic reference CSS custom properties (`--mc-*`), Zod runtime validation, `date-fns-tz` (`Asia/Dhaka` `UTC+6`), and Prisma / PostgreSQL relational architecture.
 
 ---
 
@@ -21,7 +21,7 @@ All 8 engineering and reference audit specifications are located in [`docs/refer
 
 - [`REFERENCE_AUDIT.md`](file:///e:/projects/hospital%20final/docs/reference-audit/REFERENCE_AUDIT.md) — Source audit, Requirements Traceability Matrix, and Resolved Conflict Log.
 - [`ROUTE_INVENTORY.md`](file:///e:/projects/hospital%20final/docs/reference-audit/ROUTE_INVENTORY.md) — Public, authentication, patient portal, staff console, and stateless JSON `/api/v1/*` routes (APK-ready).
-- [`COMPONENT_INVENTORY.md`](file:///e:/projects/hospital%20final/docs/reference-audit/COMPONENT_INVENTORY.md) — Component mapping to DeltaCare React components.
+- [`COMPONENT_INVENTORY.md`](file:///e:/projects/hospital%20final/docs/reference-audit/COMPONENT_INVENTORY.md) — Component mapping to Evercare React components.
 - [`DESIGN_SYSTEM.md`](file:///e:/projects/hospital%20final/docs/reference-audit/DESIGN_SYSTEM.md) — Extracted `--mc-*` color palette, typography scale, spacing, radii, and elevation tokens.
 - [`INTERACTION_SPEC.md`](file:///e:/projects/hospital%20final/docs/reference-audit/INTERACTION_SPEC.md) — Keyboard focus, mega-menu, autocomplete search, and transactional fixed-slot booking behaviors.
 - [`RESPONSIVE_SPEC.md`](file:///e:/projects/hospital%20final/docs/reference-audit/RESPONSIVE_SPEC.md) — Breakpoints and mobile drawer behaviors.
@@ -74,9 +74,9 @@ npm start
 
 1. **PostgreSQL Production Backup:**
    ```bash
-   pg_dump "$DATABASE_URL" --format=custom --file=deltacare_backup_$(date +%F).dump
+   pg_dump "$DATABASE_URL" --format=custom --file=evercare_backup_$(date +%F).dump
    ```
 2. **PostgreSQL Restore:**
    ```bash
-   pg_restore --clean --if-exists --dbname="$DATABASE_URL" deltacare_backup_YYYY-MM-DD.dump
+   pg_restore --clean --if-exists --dbname="$DATABASE_URL" evercare_backup_YYYY-MM-DD.dump
    ```

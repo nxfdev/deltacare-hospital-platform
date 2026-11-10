@@ -1,136 +1,75 @@
 import React from "react";
 import Link from "next/link";
-import { ShieldCheck, Calendar, CheckCircle2, PhoneCall, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { getHospitalConfig, getPublishedServices } from "@/server/services/publicQueryService";
+import { getServerLocale } from "@/lib/i18n/server";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
-export default function PatientServicesPage() {
-  const hospital = getHospitalConfig();
+export default async function PatientServicesPage() {
+  const bn = (await getServerLocale()) === "bn";
+  const h = getHospitalConfig();
   const services = getPublishedServices();
 
+  const pillars = bn
+    ? [
+        { t: "অনলাইনে তাৎক্ষণিক অ্যাপয়েন্টমেন্ট", b: "ক্যালেন্ডার থেকে তারিখ ও সময় বেছে নিন — সঙ্গে সঙ্গে নিশ্চিতকরণ এসএমএস পাবেন।" },
+        { t: "স্বচ্ছ ফি", b: "প্রতিটি কনসালটেশন ও পরীক্ষার ফি আগে থেকেই টাকায় প্রকাশিত — কোনো লুকানো চার্জ নেই।" },
+        { t: "২৪/৭ হেল্পলাইন", b: `যেকোনো প্রয়োজনে ${h.helplinePhone} নম্বরে কল করুন অথবা অনলাইনে কলব্যাকের অনুরোধ করুন।` },
+      ]
+    : [
+        { t: "Instant online booking", b: "Pick a date and time on the calendar — you'll get a confirmation SMS straight away." },
+        { t: "Transparent fees", b: "Every consultation and test fee is published in Taka up front — no hidden charges." },
+        { t: "24/7 helpline", b: `Call ${h.helplinePhone} any time, or request a callback online.` },
+      ];
+
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-            Care at DeltaCare • Patient &amp; Visitor Guide
-          </p>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            Patient-Centered Care &amp; Services
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <h1 className="mc-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {bn ? "রোগী ও দর্শনার্থী সেবা" : "Patient & visitor services"}
           </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            রোগী ও দর্শনার্থী সেবা নির্দেশিকা
-          </p>
-          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-            Transparent consultation fees, accountable appointment scheduling,
-            preparation instructions, and visitor support across all DeltaCare
-            campuses.
+          <p className="mt-5 max-w-2xl text-lg text-white/80">
+            {bn
+              ? "অ্যাপয়েন্টমেন্ট, ফি ও হাসপাতালে আসার আগে প্রয়োজনীয় সব তথ্য।"
+              : "Everything you need to know about appointments, fees and your visit."}
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body Content - Unboxed & Spread Out */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-16">
-          {/* 3-Column Editorial Pillars (No Boxes) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 pb-14 border-b border-[#e5e7eb]">
-            <div className="space-y-3">
-              <ShieldCheck className="w-8 h-8 text-[#0057b8]" />
-              <h2 className="mc-serif text-2xl text-[#080808]">
-                Honest Appointment Workflow
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                {hospital.cancellationPolicyEn}
-              </p>
-              <p className="text-sm text-[#686868] leading-relaxed">
-                {hospital.cancellationPolicyBn}
-              </p>
-            </div>
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 space-y-24">
+        <div className="grid gap-12 md:grid-cols-3">
+          {pillars.map((p, i) => (
+            <Reveal key={p.t} delay={i * 0.06}>
+              <h2 className="mc-serif text-2xl text-[#0b1b33]">{p.t}</h2>
+              <p className="mt-3 text-lg leading-relaxed text-[#4b5563]">{p.b}</p>
+            </Reveal>
+          ))}
+        </div>
 
-            <div className="space-y-3">
-              <CheckCircle2 className="w-8 h-8 text-[#0057b8]" />
-              <h2 className="mc-serif text-2xl text-[#080808]">
-                Effective-Dated Fee Governance
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                Every consultation fee and diagnostic charge published on
-                DeltaCare carries an explicit effective date and administrative
-                sign-off so patients never face unverified website estimates.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <PhoneCall className="w-8 h-8 text-[#0057b8]" />
-              <h2 className="mc-serif text-2xl text-[#080808]">
-                24/7 Helpline &amp; Callback Desk
-              </h2>
-              <p className="text-base text-[#424242] leading-relaxed">
-                Reach our central Patient Desk at{" "}
-                <strong className="text-[#080808]">{hospital.helplinePhone}</strong> ({hospital.emergencyPhone})
-                or request a callback online.
-              </p>
-              <div className="pt-2">
-                <Link
-                  href="/contact"
-                  className="inline-flex items-center gap-2 text-sm font-bold text-[#0057b8] hover:underline"
-                >
-                  <span>Contact &amp; Callback Desk</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Published Fees Directory (Unboxed Divided Rows) */}
-          <section className="space-y-6">
-            <div className="flex flex-wrap items-end justify-between gap-4 pb-4 border-b-2 border-[#080808]">
-              <div>
-                <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#0057b8] mb-1">
-                  Official Fee Schedule
-                </p>
-                <h2 className="mc-serif text-3xl sm:text-4xl text-[#080808]">
-                  Published Diagnostic &amp; Clinical Service Fees
-                </h2>
-              </div>
-              <Link
-                href="/request-appointment"
-                className="mc-btn-primary text-sm !py-2.5 !px-5 inline-flex items-center gap-2"
-              >
-                <Calendar className="w-4 h-4" />
-                <span>Request Appointment</span>
+        {services.length > 0 && (
+          <section>
+            <Reveal className="flex flex-wrap items-end justify-between gap-6">
+              <h2 className="mc-serif text-3xl sm:text-4xl text-[#0b1b33]">{bn ? "সেবা ও ফি" : "Services & fees"}</h2>
+              <Link href="/appointments" className="inline-flex items-center gap-2 text-[#0057b8] font-medium hover:underline">
+                {bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an appointment"} <ArrowRight className="w-4 h-4" />
               </Link>
-            </div>
-
-            <div className="divide-y divide-[#e5e7eb]">
-              {services.map((srv) => (
-                <div
-                  key={srv.id}
-                  className="py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-[#fbfbfb] px-2 transition-colors"
-                >
-                  <div className="space-y-1">
-                    <h3 className="font-bold text-lg text-[#080808]">
-                      {srv.nameEn}{" "}
-                      <span className="font-normal text-sm text-[#4b5563]">
-                        ({srv.nameBn})
-                      </span>
-                    </h3>
-                    <p className="text-base text-[#4b5563]">{srv.descriptionEn}</p>
+            </Reveal>
+            <ul className="mt-8 divide-y divide-[#eef0f3]">
+              {services.map((s) => (
+                <li key={s.id} className="py-5 flex items-start justify-between gap-6">
+                  <div>
+                    <p className="text-lg text-[#0b1b33]">{bn ? s.nameBn : s.nameEn}</p>
+                    <p className="mt-1 text-[#6b7280]">{bn ? s.descriptionBn : s.descriptionEn}</p>
                   </div>
-                  <div className="sm:text-right shrink-0">
-                    <span className="font-bold text-xl text-[#004181] block">
-                      {srv.feeLabelEn}
-                    </span>
-                    <span className="text-xs font-semibold text-[#6b7280]">
-                      Effective {srv.effectiveFrom}
-                    </span>
-                  </div>
-                </div>
+                  <span className="shrink-0 text-lg font-semibold text-[#0b1b33]">{bn ? s.feeLabelBn : s.feeLabelEn}</span>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
-        </div>
+        )}
       </div>
     </div>
   );

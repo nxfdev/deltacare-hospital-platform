@@ -1,107 +1,60 @@
 import React from "react";
-import Link from "next/link";
-import { Bell, Calendar, Pin, ArrowRight } from "lucide-react";
-import {
-  getPublishedBranches,
-  getPublishedHospitalNotices,
-} from "@/server/services/publicQueryService";
+import { getPublishedBranches, getPublishedHospitalNotices } from "@/server/services/publicQueryService";
+import { getServerLocale } from "@/lib/i18n/server";
+import { Reveal } from "@/components/ui/Reveal";
+import { toBnDigits } from "@/lib/i18n/digits";
 
 export const dynamic = "force-dynamic";
 
-export default function HospitalNoticesPage() {
-  const notices = getPublishedHospitalNotices();
+export default async function HospitalNoticesPage() {
+  const locale = await getServerLocale();
+  const bn = locale === "bn";
+  const notices = [...getPublishedHospitalNotices()].sort((a, b) => Number(b.isPinned) - Number(a.isPinned));
   const branches = getPublishedBranches();
+  const fmtDate = (iso: string) => {
+    const s = new Intl.DateTimeFormat(bn ? "bn-BD" : "en-GB", { day: "numeric", month: "long", year: "numeric" }).format(
+      new Date(iso)
+    );
+    return bn ? toBnDigits(s) : s;
+  };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
-          <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-            Care at DeltaCare • Official Hospital Bulletins &amp; Chamber Advisories
-          </p>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            Hospital Notices &amp; Patient Advisories
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <h1 className="mc-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {bn ? "বিজ্ঞপ্তি" : "Notices"}
           </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            হাসপাতাল বিজ্ঞপ্তি ও রোগীদের জন্য জরুরি নির্দেশনা
-          </p>
-          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-            Stay informed on special clinical clinics, branch openings, chamber
-            schedule updates, and outpatient visiting guidelines across DeltaCare.
+          <p className="mt-5 max-w-2xl text-lg text-white/80">
+            {bn
+              ? "বিশেষ ক্লিনিক, চেম্বারের সময় পরিবর্তন ও হাসপাতালের হালনাগাদ তথ্য।"
+              : "Special clinics, chamber schedule changes and hospital updates."}
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body - Unboxed Editorial List */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-12">
-          <div className="divide-y divide-[#e5e7eb]">
-            {notices.map((notice) => {
-              const branch = branches.find((b) => b.id === notice.branchId);
+      <div className="mc-container max-w-4xl mx-auto px-6 sm:px-10 py-20">
+        {notices.length === 0 ? (
+          <p className="text-center text-[#6b7280]">{bn ? "এখন কোনো বিজ্ঞপ্তি নেই।" : "No notices right now."}</p>
+        ) : (
+          <div className="divide-y divide-[#eef0f3]">
+            {notices.map((n, i) => {
+              const branch = branches.find((b) => b.id === n.branchId);
               return (
-                <article
-                  key={notice.id}
-                  className="py-10 first:pt-0 space-y-4"
-                >
-                  <div className="flex flex-wrap items-center gap-3 text-xs font-bold uppercase tracking-wider">
-                    {notice.isPinned && (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#e8f0f9] text-[#0057b8]">
-                        <Pin className="w-3.5 h-3.5" />
-                        Pinned Notice
-                      </span>
-                    )}
-                    <span className="inline-flex items-center gap-1 text-[#004181]">
-                      <Bell className="w-3.5 h-3.5 text-[#0057b8]" />
-                      {notice.category}
-                    </span>
-                    {branch && (
-                      <span className="text-[#4b5563]">
-                        • {branch.nameEn} ({branch.nameBn})
-                      </span>
-                    )}
-                    <span className="text-[#6b7280]">
-                      • Published {notice.publishedAt.slice(0, 10)}
-                    </span>
-                  </div>
-
-                  <h2 className="mc-serif text-2xl sm:text-3xl text-[#080808]">
-                    {notice.titleEn}
-                  </h2>
-                  <p className="text-lg font-semibold text-[#004181]">
-                    {notice.titleBn}
+                <Reveal key={n.id} as="article" delay={Math.min(i, 3) * 0.05} className="py-10 first:pt-0 scroll-mt-24">
+                  <span id={n.slug} />
+                  <p className="text-sm text-[#6b7280]">
+                    {fmtDate(n.publishedAt)}
+                    {branch ? ` · ${bn ? branch.nameBn : branch.nameEn}` : ""}
                   </p>
-
-                  <p className="text-base text-[#374151] leading-relaxed max-w-4xl">
-                    {notice.bodyEn}
-                  </p>
-                  <p className="text-sm text-[#4b5563] leading-relaxed max-w-4xl">
-                    {notice.bodyBn}
-                  </p>
-
-                  <div className="pt-2 flex flex-wrap items-center gap-4">
-                    <Link
-                      href="/request-appointment"
-                      className="mc-btn-primary !py-2 !px-5 text-xs inline-flex items-center gap-1.5"
-                    >
-                      <Calendar className="w-3.5 h-3.5" />
-                      <span>Request Appointment</span>
-                    </Link>
-                    <Link
-                      href="/doctors"
-                      className="inline-flex items-center gap-1 text-sm font-bold text-[#0057b8] hover:underline"
-                    >
-                      <span>Browse Specialist Chambers</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </Link>
-                  </div>
-                </article>
+                  <h2 className="mc-serif mt-2 text-2xl sm:text-3xl text-[#0b1b33]">{bn ? n.titleBn : n.titleEn}</h2>
+                  <p className="mt-4 text-lg leading-relaxed text-[#374151]">{bn ? n.bodyBn : n.bodyEn}</p>
+                </Reveal>
               );
             })}
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 }
-

@@ -41,8 +41,8 @@ export function SpecialistModal({
   const [consultationFee, setConsultationFee] = useState(1500);
   const [followupFee, setFollowupFee] = useState(1000);
   const [feeEffectiveFrom, setFeeEffectiveFrom] = useState("2026-01-01");
-  const [bioEn, setBioEn] = useState("Verified clinical specialist consultant at DeltaCare Hospital Platform.");
-  const [bioBn, setBioBn] = useState("ডেল্টাকেয়ার হাসপাতালের যাচাইকৃত বিশেষজ্ঞ চিকিৎসক।");
+  const [bioEn, setBioEn] = useState("Verified clinical specialist consultant at Evercare Hospital Platform.");
+  const [bioBn, setBioBn] = useState("এভারকেয়ার হাসপাতালের যাচাইকৃত বিশেষজ্ঞ চিকিৎসক।");
   const [publicationState, setPublicationState] = useState<PublicationState>("PUBLISHED");
 
   const [loading, setLoading] = useState(false);
@@ -87,8 +87,8 @@ export function SpecialistModal({
       setConsultationFee(1500);
       setFollowupFee(1000);
       setFeeEffectiveFrom("2026-01-01");
-      setBioEn("Verified clinical specialist consultant at DeltaCare Hospital Platform.");
-      setBioBn("ডেল্টাকেয়ার হাসপাতালের যাচাইকৃত বিশেষজ্ঞ চিকিৎসক।");
+      setBioEn("Verified clinical specialist consultant at Evercare Hospital Platform.");
+      setBioBn("এভারকেয়ার হাসপাতালের যাচাইকৃত বিশেষজ্ঞ চিকিৎসক।");
       setPublicationState("PUBLISHED");
     }
     setErrorMessage(null);

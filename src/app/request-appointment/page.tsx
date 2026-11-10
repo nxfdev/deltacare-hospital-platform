@@ -4,9 +4,9 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Book Specialist Appointment Online | DeltaCare Hospital",
+  title: "Book Specialist Appointment Online | Evercare Hospital",
   description:
-    "Interactive 3-step specialist appointment booking across DeltaCare Dhanmondi, Uttara, Mirpur, and nationwide branches with real-time fixed time slots and SMS confirmation.",
+    "Interactive 3-step specialist appointment booking across Evercare Dhanmondi, Uttara, Mirpur, and nationwide branches with real-time fixed time slots and SMS confirmation.",
 };
 
 export default async function AppointmentLandingPage({

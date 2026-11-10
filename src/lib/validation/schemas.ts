@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 // ============================================================================
-// DeltaCare Hospital Platform — Runtime Validation Schemas (Zod)
+// Evercare Hospital Platform — Runtime Validation Schemas (Zod)
 // ============================================================================
 
 export const bangladeshPhoneRegex = /^(?:\+?8801|01)[3-9]\d{8}$/;
@@ -126,6 +126,10 @@ export const assistantMessageSchema = z.object({
   message: z.string().trim().min(1, "Please enter a question").max(600),
   locale: z.enum(["en", "bn"]).default("en"),
   branchId: z.string().optional(),
+  history: z
+    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(2000) }))
+    .max(12)
+    .optional(),
 });
 
 export const loginSchema = z.object({

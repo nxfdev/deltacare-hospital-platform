@@ -36,7 +36,7 @@ import {
   Doctor,
   NotificationRecord,
 } from "@/types/domain";
-import { DeltaCareAssistantWidget } from "@/components/assistant/DeltaCareAssistantWidget";
+import { EvercareAssistantWidget } from "@/components/assistant/EvercareAssistantWidget";
 
 export type PatientTab =
   | "overview"
@@ -285,7 +285,7 @@ export function PatientDashboardClient({
         <div className="space-y-1.5">
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-bold uppercase tracking-widest text-[#c5e2f9] bg-white/10 px-2.5 py-0.5 rounded-full">
-              DeltaCare Patient Self-Service Portal
+              Evercare Patient Self-Service Portal
             </span>
             <button
               type="button"
@@ -338,7 +338,7 @@ export function PatientDashboardClient({
           { tab: "profile", label: "My Profile", icon: <User className="w-3.5 h-3.5" /> },
           { tab: "notifications", label: "Notifications", icon: <Bell className="w-3.5 h-3.5" /> },
           { tab: "help", label: "Help & Support", icon: <HelpCircle className="w-3.5 h-3.5" /> },
-          { tab: "assistant", label: "DeltaCare Assistant", icon: <Bot className="w-3.5 h-3.5" /> },
+          { tab: "assistant", label: "Evercare Assistant", icon: <Bot className="w-3.5 h-3.5" /> },
           { tab: "settings", label: "Account Settings", icon: <Sliders className="w-3.5 h-3.5" /> },
         ].map((item) => (
           <button
@@ -451,7 +451,7 @@ export function PatientDashboardClient({
               <Calendar className="w-10 h-10 text-[#0057b8] mx-auto opacity-70" />
               <h3 className="mc-serif text-xl text-[#080808]">No Active Upcoming Consultations</h3>
               <p className="text-xs text-[#686868] max-w-md mx-auto">
-                You do not have any confirmed appointments right now. You can book an outpatient consultation with any specialist at DeltaCare.
+                You do not have any confirmed appointments right now. You can book an outpatient consultation with any specialist at Evercare.
               </p>
               <button
                 type="button"
@@ -480,7 +480,7 @@ export function PatientDashboardClient({
                 <span>Completed Visits</span>
               </h3>
               <p className="text-2xl font-extrabold text-[#080808]">{pastBookings.length}</p>
-              <p className="text-xs text-[#686868]">Historical consultations at DeltaCare</p>
+              <p className="text-xs text-[#686868]">Historical consultations at Evercare</p>
             </div>
 
             <div className="bg-white rounded-2xl border border-[#d6d6d6] p-5 space-y-2">
@@ -754,7 +754,7 @@ export function PatientDashboardClient({
               <input
                 type="text"
                 required
-                placeholder="e.g. DC-2026-1041"
+                placeholder="e.g. EC-2026-1041"
                 value={trackRefInput}
                 onChange={(e) => setTrackRefInput(e.target.value)}
                 className="flex-1 px-3 py-2 rounded-xl border border-[#949494] text-xs font-mono uppercase"
@@ -861,11 +861,11 @@ export function PatientDashboardClient({
 
       {activeTab === "assistant" && (
         <div className="bg-white rounded-2xl border border-[#d6d6d6] p-6 space-y-4">
-          <h3 className="mc-serif text-xl text-[#080808]">DeltaCare Grounded AI Assistant</h3>
+          <h3 className="mc-serif text-xl text-[#080808]">Evercare Grounded AI Assistant</h3>
           <p className="text-xs text-[#686868]">
             Ask questions about doctor schedules, departments, hospital fees, or branch locations.
           </p>
-          <DeltaCareAssistantWidget />
+          <EvercareAssistantWidget />
         </div>
       )}
 

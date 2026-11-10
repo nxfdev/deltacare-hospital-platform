@@ -2,7 +2,7 @@ import { getDbState } from "@/server/db/store";
 import { getAvailableSlotsForDoctor, resolveDhakaWeekday } from "@/lib/schedule-engine";
 
 // ============================================================================
-// DeltaCare Phase 3 — Daily Facebook Campaign Template & Caption Service
+// Evercare Phase 3 — Daily Facebook Campaign Template & Caption Service
 // Queries live chamber schedules + overrides via getAvailableSlotsForDoctor
 // ============================================================================
 
@@ -139,7 +139,7 @@ export async function generateDailyFacebookCampaign(params: {
       const symptomHighlightBn =
         (doc.symptomTags || []).slice(0, 4).join(" · ") ||
         `${deptObj?.nameBn || "বিশেষজ্ঞ"} পরামর্শ ও চিকিৎসা`;
-      const directBookingLink = `https://deltacare.bd/appointments?doctor=${encodeURIComponent(
+      const directBookingLink = `https://evercare.bd/appointments?doctor=${encodeURIComponent(
         doc.slug
       )}&branch=${encodeURIComponent(br.branchId)}`;
 
@@ -158,10 +158,10 @@ export async function generateDailyFacebookCampaign(params: {
 ✅ অনলাইনে আপনার সুবিধাজনক ফিক্সড টাইম স্লট বুক করুন:
 👉 ${directBookingLink}
 
-📞 সিরিয়াল ও যে কোনো তথ্যের জন্য কল করুন ডেল্টাকেয়ার হটলাইন:
+📞 সিরিয়াল ও যে কোনো তথ্যের জন্য কল করুন এভারকেয়ার হটলাইন:
 ☎️ 10666 (+8809612310666)
 
-#DeltaCare #DeltaCareHospital #SpecialistDoctor #DoctorChamber #${
+#Evercare #EvercareHospital #SpecialistDoctor #DoctorChamber #${
         deptObj?.slug?.replace(/-/g, "") || "HealthCare"
       } #DhakaHospital #BMDCVerified`;
 
@@ -206,18 +206,18 @@ export async function generateDailyFacebookCampaign(params: {
       `${i + 1}. ${d.nameBn} (${d.departmentNameBn})\n   📍 ${d.branchNameBn} (${d.chamberRoom}) | ⏰ ${d.visitingHoursBn}`
   );
 
-  const masterDailyCaption = `🏥 ডেল্টাকেয়ার হাসপাতাল · আজকের বিশেষজ্ঞ চিকিৎসক তালিকা (${dateStr}, ${weekdayInfo.bn})
+  const masterDailyCaption = `🏥 এভারকেয়ার হাসপাতাল · আজকের বিশেষজ্ঞ চিকিৎসক তালিকা (${dateStr}, ${weekdayInfo.bn})
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-সম্মানিত সুধী, ডেল্টাকেয়ারের বিভিন্ন শাখায় আজকের চেম্বার সময়সূচি নিচে দেওয়া হলো:
+সম্মানিত সুধী, এভারকেয়ারের বিভিন্ন শাখায় আজকের চেম্বার সময়সূচি নিচে দেওয়া হলো:
 
 ${masterLines.join("\n\n")}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 💡 প্রতিটি চেম্বার ১৫/২০ মিনিটের নির্ধারিত ফিক্সড স্লট ভিত্তিতে পরিচালিত হয়। 
-🌐 অনলাইনে সরাসরি আপনার স্লট বেছে নিন: https://deltacare.bd/appointments
+🌐 অনলাইনে সরাসরি আপনার স্লট বেছে নিন: https://evercare.bd/appointments
 📞 জরুরি প্রয়োজনে বা হটলাইনে বুকিংয়ের জন্য ২৪ ঘণ্টা কল করুন: 10666
 
-#DeltaCare #DeltaCareHospital #DoctorSchedule #DhakaDoctors #HealthcareBangladesh`;
+#Evercare #EvercareHospital #DoctorSchedule #DhakaDoctors #HealthcareBangladesh`;
 
   return {
     ok: true,

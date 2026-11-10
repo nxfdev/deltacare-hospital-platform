@@ -123,7 +123,7 @@ export class FacebookPublishingAdapter {
         batchId,
         status: "READY",
         message:
-          "Automated Meta Graph API publishing is currently disabled (feature flag FB_AUTO_PUBLISH_ENABLED=false). Cards are generated and marked READY for manual publishing to the DeltaCare Facebook page.",
+          "Automated Meta Graph API publishing is currently disabled (feature flag FB_AUTO_PUBLISH_ENABLED=false). Cards are generated and marked READY for manual publishing to the Evercare Facebook page.",
         error: "FACEBOOK_AUTO_PUBLISH_DISABLED",
       };
     }
@@ -163,7 +163,7 @@ export class FacebookPublishingAdapter {
         ok: true,
         batchId,
         status: "PUBLISHED",
-        message: "Successfully published batch to DeltaCare Facebook page via Meta Graph API.",
+        message: "Successfully published batch to Evercare Facebook page via Meta Graph API.",
         fbPostId: simulatedFbPostId,
         publishedAt: nowIso,
       };
@@ -178,6 +178,88 @@ export class FacebookPublishingAdapter {
       };
     }
   }
+}
+
+export interface PhotoUploadInput {
+  doctorId?: string;
+  fileName: string;
+  /** PNG data URL (data:image/png;base64,...) */
+  dataUrl: string;
+}
+
+export interface PhotoSetPublishResult {
+  ok: boolean;
+  postId?: string;
+  postUrl?: string;
+  uploaded: number;
+  failed: Array<{ fileName: string; error: string }>;
+  error?: string;
+}
+
+function dataUrlToBlob(dataUrl: string): Blob {
+  const match = dataUrl.match(/^data:(image\/[a-z+]+);base64,(.+)$/i);
+  if (!match) throw new Error("Invalid image data.");
+  return new Blob([Buffer.from(match[2], "base64")], { type: match[1] });
+}
+
+/**
+ * Publishes a set of generated photocards as a single multi-photo post on the
+ * configured Facebook Page via the Meta Graph API.
+ */
+export async function publishPhotoSetToFacebook(
+  images: PhotoUploadInput[],
+  caption: string
+): Promise<PhotoSetPublishResult> {
+  const pageId = process.env.FB_PAGE_ID;
+  const token = process.env.FB_PAGE_ACCESS_TOKEN;
+  const version = process.env.FB_API_VERSION || "v21.0";
+  if (!pageId || !token) {
+    return { ok: false, uploaded: 0, failed: [], error: "Facebook page credentials are not configured." };
+  }
+  if (images.length === 0) {
+    return { ok: false, uploaded: 0, failed: [], error: "No photocards to publish." };
+  }
+
+  const base = `https://graph.facebook.com/${version}/${pageId}`;
+  const mediaIds: string[] = [];
+  const failed: PhotoSetPublishResult["failed"] = [];
+
+  for (const img of images) {
+    try {
+      const form = new FormData();
+      form.append("source", dataUrlToBlob(img.dataUrl), img.fileName);
+      form.append("published", "false");
+      form.append("access_token", token);
+      const res = await fetch(`${base}/photos`, { method: "POST", body: form });
+      const json = (await res.json()) as { id?: string; error?: { message?: string } };
+      if (!res.ok || !json.id) throw new Error(json.error?.message || `HTTP ${res.status}`);
+      mediaIds.push(json.id);
+    } catch (err) {
+      failed.push({ fileName: img.fileName, error: (err as Error).message });
+    }
+  }
+
+  if (mediaIds.length === 0) {
+    return { ok: false, uploaded: 0, failed, error: failed[0]?.error || "All photo uploads failed." };
+  }
+
+  const body = new URLSearchParams();
+  body.set("message", caption);
+  body.set("access_token", token);
+  mediaIds.forEach((id, i) => body.set(`attached_media[${i}]`, JSON.stringify({ media_fbid: id })));
+  const res = await fetch(`${base}/feed`, { method: "POST", body });
+  const json = (await res.json()) as { id?: string; error?: { message?: string } };
+  if (!res.ok || !json.id) {
+    return { ok: false, uploaded: mediaIds.length, failed, error: json.error?.message || `HTTP ${res.status}` };
+  }
+
+  return {
+    ok: true,
+    postId: json.id,
+    postUrl: `https://www.facebook.com/${json.id}`,
+    uploaded: mediaIds.length,
+    failed,
+  };
 }
 
 // Singleton instance

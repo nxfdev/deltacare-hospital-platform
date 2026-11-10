@@ -4,7 +4,7 @@ import { createInitialSeedState } from "../src/server/db/seedData";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Seeding DeltaCare Hospital Platform (PostgreSQL + Prisma)...");
+  console.log("Seeding Evercare Hospital Platform (PostgreSQL + Prisma)...");
   const state = createInitialSeedState();
 
   await prisma.hospitalConfiguration.upsert({
@@ -217,7 +217,7 @@ async function main() {
     });
   }
 
-  console.log("DeltaCare PostgreSQL + Prisma seed completed successfully.");
+  console.log("Evercare PostgreSQL + Prisma seed completed successfully.");
 }
 
 main()

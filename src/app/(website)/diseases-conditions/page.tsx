@@ -1,43 +1,13 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Search } from "lucide-react";
-import {
-  executeGlobalSearch,
-  getPublishedConditions,
-  getPublishedDepartments,
-} from "@/server/services/publicQueryService";
+import { Search } from "lucide-react";
+import { executeGlobalSearch, getPublishedConditions } from "@/server/services/publicQueryService";
+import { getServerLocale } from "@/lib/i18n/server";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const dynamic = "force-dynamic";
 
-const LETTERS = [
-  "A",
-  "B",
-  "C",
-  "D",
-  "E",
-  "F",
-  "G",
-  "H",
-  "I",
-  "J",
-  "K",
-  "L",
-  "M",
-  "N",
-  "O",
-  "P",
-  "Q",
-  "R",
-  "S",
-  "T",
-  "U",
-  "V",
-  "W",
-  "X",
-  "Y",
-  "Z",
-  "#",
-];
+const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export default async function DiseasesConditionsPage({
   searchParams,
@@ -45,212 +15,133 @@ export default async function DiseasesConditionsPage({
   searchParams: Promise<{ letter?: string; q?: string }>;
 }) {
   const sp = await searchParams;
-  const activeLetter = sp.letter?.toUpperCase() || "";
+  const locale = await getServerLocale();
+  const bn = locale === "bn";
+  const activeLetter = bn ? "" : sp.letter?.toUpperCase() || "";
   const query = sp.q?.trim() || "";
 
-  const conditions = getPublishedConditions({
+  const all = getPublishedConditions();
+  const available = new Set(all.map((c) => c.firstLetter.toUpperCase()));
+  let conditions = getPublishedConditions({
     letter: activeLetter || undefined,
     query: query || undefined,
   });
-  const departments = getPublishedDepartments();
-  const globalHits = query ? executeGlobalSearch(query) : [];
+  if (bn && !query) conditions = [...conditions].sort((a, b) => a.nameBn.localeCompare(b.nameBn, "bn"));
+  const otherHits = query
+    ? executeGlobalSearch(query, locale).filter((h) => h.type !== "CONDITION").slice(0, 8)
+    : [];
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Full-bleed Stretched Dark Blue Hero Header */}
-      <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-6">
-          <div>
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-              DeltaCare Health Library • Clinical Reviewer Approved
-            </p>
-            <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight mt-2">
-              Diseases &amp; Conditions A–Z
-            </h1>
-            <p className="text-xl text-[#c5e2f9] font-medium mt-1">
-              রোগ ও শারীরিক অবস্থা নির্দেশিকা
-            </p>
-            <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed mt-2">
-              Find comprehensive, clinically reviewed patient education guides on
-              diseases, symptoms, diagnostic evaluations, and specialist care at
-              DeltaCare.
-            </p>
-          </div>
-
-          {/* Search Bar - Unboxed */}
-          <form
-            action="/diseases-conditions"
-            method="GET"
-            className="max-w-2xl flex items-center gap-2 pt-2"
-          >
-            <div className="relative flex-1">
-              <Search className="w-5 h-5 text-[#6b7280] absolute left-4 top-1/2 -translate-y-1/2" />
+    <div className="bg-white">
+      <section className="w-full bg-[#012d61] text-white">
+        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 md:py-24">
+          <h1 className="mc-serif text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight">
+            {bn ? "রোগ ও শারীরিক অবস্থা" : "Diseases & conditions"}
+          </h1>
+          <p className="mt-5 max-w-2xl text-lg text-white/80">
+            {bn
+              ? "লক্ষণ, কারণ, রোগনির্ণয় ও এভারকেয়ারে চিকিৎসা সম্পর্কে সহজ ভাষায় জানুন।"
+              : "Clear guides to symptoms, causes, diagnosis and treatment at Evercare."}
+          </p>
+          <form action="/diseases-conditions" method="GET" className="mt-8 max-w-2xl">
+            <label htmlFor="cond-q" className="sr-only">
+              {bn ? "খুঁজুন" : "Search"}
+            </label>
+            <div className="relative">
+              <Search className="w-5 h-5 text-[#6b7280] absolute left-5 top-1/2 -translate-y-1/2" />
               <input
+                id="cond-q"
                 type="search"
                 name="q"
                 defaultValue={query}
-                placeholder="Search conditions, symptoms, doctors, or procedures..."
-                className="w-full h-12 pl-12 pr-4 bg-white text-[#080808] text-base outline-none"
+                placeholder={bn ? "রোগ, লক্ষণ বা ডাক্তার খুঁজুন…" : "Search a condition, symptom or doctor…"}
+                className="w-full h-14 rounded-full pl-14 pr-32 bg-white text-[#0b1b33] text-base outline-none"
               />
-            </div>
-            <button
-              type="submit"
-              className="h-12 px-6 bg-[#0057b8] hover:bg-[#004181] text-white text-base font-semibold transition-colors"
-            >
-              Search
-            </button>
-            {(activeLetter || query) && (
-              <Link
-                href="/diseases-conditions"
-                className="h-12 px-4 border border-white/60 text-white text-sm font-semibold flex items-center hover:bg-white/10"
+              <button
+                type="submit"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-11 px-6 rounded-full bg-[#0057b8] hover:bg-[#004a9c] text-white font-medium transition-colors"
               >
-                Reset
-              </Link>
-            )}
+                {bn ? "খুঁজুন" : "Search"}
+              </button>
+            </div>
           </form>
-
-          {/* A-Z Letter Strip */}
-          <div className="pt-2">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#93c5fd] mb-3">
-              Browse by first letter:
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {LETTERS.map((letter) => {
-                const isSelected = activeLetter === letter;
-                return (
-                  <Link
-                    key={letter}
-                    href={`/diseases-conditions?letter=${encodeURIComponent(
-                      letter
-                    )}`}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center font-bold text-sm transition-colors ${
-                      isSelected
-                        ? "bg-white text-[#004181]"
-                        : "bg-white/10 text-white hover:bg-white/20"
-                    }`}
-                  >
-                    {letter}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
         </div>
-      </div>
+      </section>
 
-      {/* Main Body - Unboxed Editorial */}
-      <div className="w-full py-12 md:py-16">
-        <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-14">
-          {/* Global Search Cross-Entity Results when ?q= is active */}
-          {query && globalHits.length > 0 && (
-            <div className="space-y-4 pb-8 border-b border-[#e5e7eb]">
-              <h2 className="mc-serif text-2xl text-[#080808]">
-                Cross-Platform Search Matches for &ldquo;{query}&rdquo; ({globalHits.length})
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {globalHits.map((hit) => (
-                  <Link
-                    key={`${hit.type}-${hit.id}`}
-                    href={hit.href}
-                    className="py-3 px-4 border border-[#e5e7eb] hover:border-[#0057b8] flex items-center justify-between gap-3 group"
-                  >
-                    <div>
-                      <span className="inline-block text-[10px] font-bold uppercase px-2 py-0.5 bg-[#e8f0f9] text-[#004181] mr-2">
-                        {hit.type}
-                      </span>
-                      <span className="font-semibold text-base text-[#080808] group-hover:text-[#0057b8]">
-                        {hit.titleEn}
-                      </span>
-                      <p className="text-xs text-[#6b7280] mt-0.5">
-                        {hit.subtitleEn}
-                      </p>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-[#0057b8] shrink-0" />
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Conditions List */}
-          <div className="space-y-8">
-            <div className="pb-4 border-b-2 border-[#080808] flex items-center justify-between">
-              <h2 className="mc-serif text-3xl sm:text-4xl text-[#080808]">
-                {activeLetter
-                  ? `Conditions Starting with "${activeLetter}" (${conditions.length})`
-                  : `All Published Conditions (${conditions.length})`}
-              </h2>
-            </div>
-
-            {conditions.length === 0 ? (
-              <div className="py-12 text-center space-y-4">
-                <p className="text-lg font-semibold text-[#080808]">
-                  No published condition guides found for that filter.
-                </p>
-                <Link href="/diseases-conditions" className="mc-btn-secondary inline-block">
-                  View All Published Conditions
+      <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16">
+        {!bn && (
+          <nav aria-label="A–Z" className="flex flex-wrap gap-1.5 mb-12">
+            <Link
+              href="/diseases-conditions"
+              className={`h-10 px-4 rounded-full flex items-center text-sm transition-colors ${
+                !activeLetter && !query ? "bg-[#0b1b33] text-white" : "text-[#374151] hover:bg-[#f3f4f6]"
+              }`}
+            >
+              All
+            </Link>
+            {LETTERS.map((l) =>
+              available.has(l) ? (
+                <Link
+                  key={l}
+                  href={`/diseases-conditions?letter=${l}`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm transition-colors ${
+                    activeLetter === l ? "bg-[#0b1b33] text-white" : "text-[#374151] hover:bg-[#f3f4f6]"
+                  }`}
+                >
+                  {l}
                 </Link>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-14">
-                {conditions.map((cond) => {
-                  const dept = departments.find(
-                    (d) => d.id === cond.departmentId
-                  );
-                  return (
-                    <article
-                      key={cond.id}
-                      className="pb-8 border-b border-[#e5e7eb] flex flex-col justify-between gap-4"
-                    >
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between gap-2 text-xs">
-                          <span className="font-bold text-[#0057b8] uppercase tracking-wider">
-                            Letter {cond.firstLetter} • {dept?.nameEn}
-                          </span>
-                          <span className="text-[#6b7280] inline-flex items-center gap-1">
-                            <ShieldCheck className="w-3.5 h-3.5 text-[#0057b8]" />
-                            Reviewed {cond.lastReviewedAt}
-                          </span>
-                        </div>
-
-                        <h3 className="mc-serif text-2xl text-[#080808]">
-                          <Link
-                            href={`/diseases-conditions/${cond.slug}`}
-                            className="hover:text-[#0057b8] transition-colors"
-                          >
-                            {cond.nameEn}
-                          </Link>
-                        </h3>
-                        <p className="text-sm font-semibold text-[#004181]">
-                          {cond.nameBn}
-                        </p>
-                        <p className="text-base text-[#4b5563] leading-relaxed">
-                          {cond.summaryEn}
-                        </p>
-                        <p className="text-xs text-[#6b7280] leading-relaxed">
-                          {cond.summaryBn}
-                        </p>
-                      </div>
-
-                      <div className="pt-2 flex items-center justify-between text-sm">
-                        <span className="text-xs text-[#6b7280]">
-                          Reviewed by: {cond.reviewedByEn}
-                        </span>
-                        <Link
-                          href={`/diseases-conditions/${cond.slug}`}
-                          className="inline-flex items-center gap-1 font-bold text-[#0057b8] hover:underline"
-                        >
-                          <span>Read Full Guide</span>
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
+              ) : (
+                <span key={l} className="w-10 h-10 flex items-center justify-center text-sm text-[#d1d5db]">
+                  {l}
+                </span>
+              )
             )}
+          </nav>
+        )}
+
+        {query && (
+          <p className="mb-8 text-[#4b5563]">
+            {bn ? `"${query}" এর ফলাফল` : `Results for "${query}"`}{" "}
+            <Link href="/diseases-conditions" className="ml-2 text-[#0057b8] hover:underline">
+              {bn ? "মুছুন" : "Clear"}
+            </Link>
+          </p>
+        )}
+
+        {conditions.length === 0 && otherHits.length === 0 ? (
+          <p className="py-16 text-center text-[#6b7280]">
+            {bn ? "কিছু পাওয়া যায়নি। অন্য বানানে চেষ্টা করুন।" : "Nothing found. Try a different spelling."}
+          </p>
+        ) : (
+          <div className="grid gap-x-16 md:grid-cols-2 lg:grid-cols-3">
+            {conditions.map((c, i) => (
+              <Reveal key={c.id} delay={(i % 3) * 0.04}>
+                <Link href={`/diseases-conditions/${c.slug}`} className="group block py-6 border-b border-[#eef0f3]">
+                  <h2 className="text-xl font-semibold text-[#0b1b33] group-hover:text-[#0057b8] transition-colors">
+                    {bn ? c.nameBn : c.nameEn}
+                  </h2>
+                  <p className="mt-1.5 text-[#6b7280] line-clamp-2">{bn ? c.summaryBn : c.summaryEn}</p>
+                </Link>
+              </Reveal>
+            ))}
           </div>
-        </div>
+        )}
+
+        {otherHits.length > 0 && (
+          <section className="mt-16">
+            <h2 className="mc-serif text-2xl text-[#0b1b33]">{bn ? "অন্যান্য ফলাফল" : "Also matching"}</h2>
+            <ul className="mt-4 grid gap-x-16 md:grid-cols-2">
+              {otherHits.map((h) => (
+                <li key={h.type + h.id}>
+                  <Link href={h.href} className="group block py-4 border-b border-[#eef0f3]">
+                    <span className="font-medium text-[#0b1b33] group-hover:text-[#0057b8]">{h.title}</span>
+                    <span className="ml-2 text-sm text-[#9ca3af]">{h.categoryLabel}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </div>
     </div>
   );

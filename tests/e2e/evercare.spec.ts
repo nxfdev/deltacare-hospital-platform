@@ -1,12 +1,12 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("DeltaCare Hospital Platform E2E Suite", () => {
+test.describe("Evercare Hospital Platform E2E Suite", () => {
   test("Homepage loads with branding, hotline, and primary navigation", async ({ page }) => {
     await page.goto("/");
     await page.waitForLoadState("domcontentloaded");
 
     // Title & Logo
-    await expect(page).toHaveTitle(/DeltaCare/i);
+    await expect(page).toHaveTitle(/Evercare/i);
 
     // Verify Primary Navigation buttons exist
     const nav = page.locator('nav[aria-label="Primary Navigation"]').first();

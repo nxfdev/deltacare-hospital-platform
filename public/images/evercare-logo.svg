@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 56" width="200" height="56" role="img" aria-label="Evercare">
+  <!-- Evercare mark: four quarter-circle petals around an open centre, forming a continuous loop and a negative-space cross -->
+  <g transform="translate(6 6)">
+    <path d="M22 0 A22 22 0 0 1 44 22 H28 A6 6 0 0 0 22 16 Z" fill="#0057b8"/>
+    <path d="M44 22 A22 22 0 0 1 22 44 V28 A6 6 0 0 0 28 22 Z" fill="#14b8a6"/>
+    <path d="M22 44 A22 22 0 0 1 0 22 H16 A6 6 0 0 0 22 28 Z" fill="#0057b8"/>
+    <path d="M0 22 A22 22 0 0 1 22 0 V16 A6 6 0 0 0 16 22 Z" fill="#14b8a6"/>
+  </g>
+  <text x="60" y="37" font-family="'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="26" font-weight="600" fill="#0b1b33" letter-spacing="-0.6">Evercare</text>
+</svg>

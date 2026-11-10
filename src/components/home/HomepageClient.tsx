@@ -15,6 +15,7 @@ import {
 } from "@/types/domain";
 import { useLocale } from "@/lib/i18n/LocaleContext";
 import { AlphabetConditionDirectory } from "@/components/search/AlphabetConditionDirectory";
+import { Reveal } from "@/components/ui/Reveal";
 
 export function HomepageClient({
   branches,
@@ -48,7 +49,7 @@ export function HomepageClient({
         <div className="absolute inset-0 overflow-hidden">
           <img
             src="/images/hero-surgery.jpg"
-            alt="Advanced surgical and specialist medical team performing operation at DeltaCare"
+            alt="Advanced surgical and specialist medical team performing operation at Evercare"
             className="w-full h-full object-cover object-[center_35%] opacity-50 scale-105 transition-transform duration-1000 ease-out"
           />
           {/* Centered cinematic overlay for balanced contrast */}
@@ -72,10 +73,10 @@ export function HomepageClient({
         {/* Hero CTA - Lowered down to the last portion of the blue section */}
         <div className="relative z-10 w-full flex justify-center items-center pb-6 md:pb-8 pt-4 shrink-0">
           <Link
-            href="/request-appointment"
+            href="/appointments"
             className="inline-flex items-center justify-center gap-2 px-8 sm:px-9 py-4 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base sm:text-lg shadow-lg hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-white/40 transition-all duration-200"
           >
-            <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট অনুরোধ করুন" : "Request Appointment"}</span>
+            <span>{locale === "bn" ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an Appointment"}</span>
             <ChevronRight className="w-5 h-5" />
           </Link>
         </div>
@@ -94,8 +95,8 @@ export function HomepageClient({
          ==================================================================== */}
       <section className="bg-white py-20 md:py-28 border-b border-[#d6d6d6]">
         <div className="mc-container space-y-24 md:space-y-32">
-          {/* Story Split Block 1: "Healing starts here" (Text Left, 3:4 Image Right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Story Split Block 1 */}
+          <Reveal className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-7 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
                 {locale === "bn" ? "ক্লিনিক্যাল উৎকর্ষ ও সেবা" : "Clinical Excellence"}
@@ -110,7 +111,7 @@ export function HomepageClient({
                   <h3 className="text-xl font-bold text-[#080808]">
                     {t.storySections.story1Sub1Title}
                   </h3>
-                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
+                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed">
                     {t.storySections.story1Sub1Body}
                   </p>
                 </div>
@@ -119,7 +120,7 @@ export function HomepageClient({
                   <h3 className="text-xl font-bold text-[#080808]">
                     {t.storySections.story1Sub2Title}
                   </h3>
-                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
+                  <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed">
                     {t.storySections.story1Sub2Body}{" "}
                     <Link
                       href="/departments"
@@ -136,7 +137,7 @@ export function HomepageClient({
                   href="/about"
                   className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full bg-[#0057b8] hover:bg-[#004181] active:bg-[#002d61] text-white font-bold text-base shadow-md hover:shadow-lg transition-all group"
                 >
-                  <span>{locale === "bn" ? "কেন ডেল্টাকেয়ার বেছে নেবেন" : "Why choose DeltaCare"}</span>
+                  <span>{locale === "bn" ? "কেন এভারকেয়ার বেছে নেবেন" : "Why choose Evercare"}</span>
                   <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
                 </Link>
               </div>
@@ -152,10 +153,10 @@ export function HomepageClient({
                 <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-3xl pointer-events-none" />
               </div>
             </div>
-          </div>
+          </Reveal>
 
-          {/* Story Split Block 2: "World-class care" (3:4 Image Left, Text Right on Desktop) */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+          {/* Story Split Block 2 */}
+          <Reveal className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             <div className="lg:col-span-5 order-2 lg:order-1 flex justify-center lg:justify-start">
               <div className="group relative aspect-[3/4] w-full max-w-[400px] sm:max-w-[440px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-black/5 bg-[#f8f9fc]">
                 <img
@@ -176,7 +177,7 @@ export function HomepageClient({
                 {t.storySections.story2Title}
               </h2>
 
-              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify pt-1">
+              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed pt-1">
                 {t.storySections.story2Body}
               </p>
 
@@ -190,7 +191,7 @@ export function HomepageClient({
                 </Link>
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -205,7 +206,7 @@ export function HomepageClient({
         className="bg-white py-20 md:py-28 lg:py-32 border-b border-[#d6d6d6]"
       >
         <div className="w-full px-6 sm:px-10 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-start">
+          <Reveal className="grid grid-cols-1 lg:grid-cols-12 gap-10 xl:gap-14 items-start">
             {/* Left Column: Title & Description */}
             <div className="lg:col-span-4 xl:col-span-3 space-y-6">
               <span className="text-xs font-bold uppercase tracking-widest text-[#0057b8]">
@@ -219,7 +220,7 @@ export function HomepageClient({
                 {t.featuredCareSection.title}
               </h2>
 
-              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed text-justify">
+              <p className="text-lg md:text-[19px] text-[#424242] leading-relaxed">
                 {t.featuredCareSection.description}
               </p>
 
@@ -251,7 +252,7 @@ export function HomepageClient({
                 ))}
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -273,7 +274,7 @@ export function HomepageClient({
         className="bg-white py-20 md:py-28 border-b border-[#e5e7eb]"
       >
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 2xl:px-24">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+          <Reveal className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {/* Grid Item 1: Header & CTA Block */}
             <div className="flex flex-col justify-between p-2 space-y-6">
               <div className="space-y-4">
@@ -310,9 +311,9 @@ export function HomepageClient({
                 locale === "bn"
                   ? branch.nameBn
                   : branch.id === "branch-chattogram"
-                  ? "DeltaCare in Chattogram"
+                  ? "Evercare in Chattogram"
                   : branch.id === "branch-sylhet"
-                  ? "DeltaCare in Sylhet"
+                  ? "Evercare in Sylhet"
                   : branch.nameEn;
 
               const displayLocation =
@@ -358,7 +359,7 @@ export function HomepageClient({
                 </Link>
               );
             })}
-          </div>
+          </Reveal>
         </div>
       </section>
     </div>

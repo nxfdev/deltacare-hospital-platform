@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assistantMessageSchema } from "@/lib/validation/schemas";
-import { processPatientAssistantQuery } from "@/server/services/assistantService";
+import { processPatientAssistantQuery, AssistantReply } from "@/server/services/assistantService";
+import { askGrok } from "@/server/services/grokClient";
 import {
   buildRateLimitResponse,
   checkRateLimit,
@@ -32,14 +33,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const reply = await processPatientAssistantQuery(parsed.data);
+    const { history, ...queryParams } = parsed.data;
+    const grokAnswer = await askGrok({
+      message: queryParams.message,
+      locale: queryParams.locale,
+      history,
+    });
+
+    let reply: AssistantReply;
+    if (grokAnswer) {
+      const bn = queryParams.locale === "bn";
+      reply = {
+        answer: grokAnswer,
+        disclosure: bn
+          ? "এভারকেয়ার সহায়ক — এটি চিকিৎসা পরামর্শ নয়। জরুরি প্রয়োজনে ১০৬৬৬ নম্বরে কল করুন।"
+          : "Evercare Assistant — not medical advice. In an emergency call 10666.",
+        intentCategory: "DOCTOR_LOOKUP",
+        wasClinicalRefusal: false,
+        wasAbstained: false,
+        citations: [],
+        suggestedActions: [{ label: bn ? "অ্যাপয়েন্টমেন্ট নিন" : "Book an appointment", href: "/appointments" }],
+      };
+    } else {
+      reply = await processPatientAssistantQuery(queryParams);
+    }
     return NextResponse.json({
       ok: true,
       reply,
     });
   } catch {
     return NextResponse.json(
-      { ok: false, error: "DeltaCare Assistant encountered an error." },
+      { ok: false, error: "Evercare Assistant encountered an error." },
       { status: 500 }
     );
   }

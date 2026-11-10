@@ -1,7 +1,7 @@
 import React from "react";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
-import { DeltaCareAssistantWidget } from "@/components/assistant/DeltaCareAssistantWidget";
+import { EvercareAssistantWidget } from "@/components/assistant/EvercareAssistantWidget";
 import { getCurrentSession } from "@/server/auth/session";
 
 export default async function WebsiteLayout({
@@ -26,7 +26,7 @@ export default async function WebsiteLayout({
         {children}
       </main>
       <SiteFooter />
-      <DeltaCareAssistantWidget />
+      <EvercareAssistantWidget />
     </div>
   );
 }

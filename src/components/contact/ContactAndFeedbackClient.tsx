@@ -125,7 +125,7 @@ export function ContactAndFeedbackClient({
       <div className="w-full bg-[#012d61] text-white py-14 md:py-20 border-b border-[#001f44]">
         <div className="mc-container max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 space-y-4">
           <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#93c5fd]">
-            Care at DeltaCare • Patient Communications &amp; Relations
+            Care at Evercare • Patient Communications &amp; Relations
           </p>
           <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
             {locale === "bn"
@@ -292,7 +292,7 @@ export function ContactAndFeedbackClient({
                     className="mt-0.5 accent-[#0057b8]"
                   />
                   <span>
-                    I consent to DeltaCare contacting me regarding this enquiry
+                    I consent to Evercare contacting me regarding this enquiry
                     in accordance with the Privacy Policy.
                   </span>
                 </label>
@@ -329,7 +329,7 @@ export function ContactAndFeedbackClient({
             </div>
 
             <p className="text-xs text-[#686868]">
-              Submissions are strictly private and routed directly to DeltaCare
+              Submissions are strictly private and routed directly to Evercare
               Patient Relations and Department Managers. They are never
               published as public website reviews.
             </p>

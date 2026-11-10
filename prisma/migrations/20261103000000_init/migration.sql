@@ -1,5 +1,5 @@
 -- ============================================================================
--- DeltaCare Hospital Platform — Initial PostgreSQL Migration
+-- Evercare Hospital Platform — Initial PostgreSQL Migration
 -- Generated from prisma/schema.prisma
 -- ============================================================================
 
@@ -30,8 +30,8 @@ CREATE TABLE "HospitalConfiguration" (
     "code" TEXT NOT NULL,
     "nameEn" TEXT NOT NULL,
     "nameBn" TEXT NOT NULL,
-    "taglineEn" TEXT NOT NULL DEFAULT 'Care at DeltaCare',
-    "taglineBn" TEXT NOT NULL DEFAULT 'ডেল্টাকেয়ারে সেবা',
+    "taglineEn" TEXT NOT NULL DEFAULT 'Care at Evercare',
+    "taglineBn" TEXT NOT NULL DEFAULT 'এভারকেয়ারে সেবা',
     "timezone" TEXT NOT NULL DEFAULT 'Asia/Dhaka',
     "defaultLocale" TEXT NOT NULL DEFAULT 'en',
     "emergencyPhone" TEXT NOT NULL,
@@ -239,8 +239,8 @@ CREATE TABLE "DiseaseCondition" (
     "causesBn" TEXT NOT NULL,
     "diagnosisOverviewEn" TEXT NOT NULL,
     "diagnosisOverviewBn" TEXT NOT NULL,
-    "careAtDeltaCareEn" TEXT NOT NULL,
-    "careAtDeltaCareBn" TEXT NOT NULL,
+    "careAtEvercareEn" TEXT NOT NULL,
+    "careAtEvercareBn" TEXT NOT NULL,
     "isFeaturedCareArea" BOOLEAN NOT NULL DEFAULT false,
     "reviewedByEn" TEXT NOT NULL,
     "reviewedByBn" TEXT NOT NULL,

@@ -5,7 +5,7 @@ import { getDbState } from "@/server/db/store";
 import { DoctorChamberSchedule, DoctorScheduleOverride } from "@/types/domain";
 
 // ============================================================================
-// DeltaCare Deterministic Multi-Branch Fixed-Slot Schedule Engine
+// Evercare Deterministic Multi-Branch Fixed-Slot Schedule Engine
 // Timezone: Asia/Dhaka (UTC+6)
 // ============================================================================
 
