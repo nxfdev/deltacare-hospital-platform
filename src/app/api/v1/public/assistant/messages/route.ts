@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { assistantMessageSchema } from "@/lib/validation/schemas";
 import { processPatientAssistantQuery, AssistantReply } from "@/server/services/assistantService";
-import { askGrok } from "@/server/services/grokClient";
+import { askAssistantLlm } from "@/server/services/assistantLlmClient";
 import {
   buildRateLimitResponse,
   checkRateLimit,
@@ -34,17 +34,17 @@ export async function POST(request: NextRequest) {
     }
 
     const { history, ...queryParams } = parsed.data;
-    const grokAnswer = await askGrok({
+    const llmAnswer = await askAssistantLlm({
       message: queryParams.message,
       locale: queryParams.locale,
       history,
     });
 
     let reply: AssistantReply;
-    if (grokAnswer) {
+    if (llmAnswer) {
       const bn = queryParams.locale === "bn";
       reply = {
-        answer: grokAnswer,
+        answer: llmAnswer,
         disclosure: bn
           ? "এভারকেয়ার সহায়ক — এটি চিকিৎসা পরামর্শ নয়। জরুরি প্রয়োজনে ১০৬৬৬ নম্বরে কল করুন।"
           : "Evercare Assistant — not medical advice. In an emergency call 10666.",
