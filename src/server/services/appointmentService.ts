@@ -272,18 +272,35 @@ export async function createAppointmentRequest(
       "PENDING_CONFIRMATION",
       "CONFIRMED",
     ];
+    const normalizedPhone = normalizeBangladeshPhone(input.patientPhone);
     const duplicate = state.appointments.find(
       (a) =>
         a.doctorBranchId === dbAssign.id &&
         a.preferredDate === input.preferredDate &&
         a.preferredTimeSlot === input.preferredTimeSlot &&
-        a.patientPhone === input.patientPhone &&
+        normalizeBangladeshPhone(a.patientPhone) === normalizedPhone &&
         activeStatuses.includes(a.status)
     );
     if (duplicate) {
       return {
         ok: false,
         error: `A request for this slot already exists under reference ${duplicate.reference}.`,
+      };
+    }
+
+    // Prevent public slot hoarding: max 3 active bookings per phone number per day
+    const activeSameDayCount = state.appointments.filter(
+      (a) =>
+        normalizeBangladeshPhone(a.patientPhone) === normalizedPhone &&
+        a.preferredDate === input.preferredDate &&
+        activeStatuses.includes(a.status)
+    ).length;
+
+    if (activeSameDayCount >= 3) {
+      return {
+        ok: false,
+        error:
+          "Maximum of 3 active appointment bookings per phone number per day reached. Please call 10666 for assistance.",
       };
     }
 
@@ -308,7 +325,6 @@ export async function createAppointmentRequest(
     const seq = 1040 + state.appointments.length + 1;
     const reference = `DC-2026-${seq}`;
     const nowIso = new Date().toISOString();
-    const normalizedPhone = normalizeBangladeshPhone(input.patientPhone);
     const branchObj = state.branches.find((b) => b.id === input.branchId);
 
     // FR-APT-10: Never label a request CONFIRMED upon submission; starts as REQUESTED
@@ -380,6 +396,8 @@ export async function createAppointmentRequest(
     return { ok: true, appointment: newAppointment };
   });
 }
+
+export const createPublicAppointment = createAppointmentRequest;
 
 export async function transitionAppointmentStatus(params: {
   appointmentId: string;

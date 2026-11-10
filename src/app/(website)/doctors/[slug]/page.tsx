@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -17,7 +17,7 @@ import {
   getPublishedDoctorBySlug,
   getPublishedDoctors,
 } from "@/server/services/publicQueryService";
-import { AppointmentBookingModule } from "@/components/appointments/AppointmentBookingModule";
+import { PublicThreeStepBookingClient } from "@/components/appointments/PublicThreeStepBookingClient";
 import { getAvailableSlotsForDoctor } from "@/lib/schedule-engine";
 
 export const dynamic = "force-dynamic";
@@ -74,21 +74,33 @@ export default async function DoctorDetailPage({
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#93c5fd]">
             <span>{department?.nameEn} • {department?.nameBn}</span>
           </div>
-          <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
-            {doctor.nameEn}
-          </h1>
-          <p className="text-xl text-[#c5e2f9] font-medium">
-            {doctor.nameBn} — {doctor.designationEn}
-          </p>
-          <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
-            {doctor.qualificationsEn} • {doctor.experienceYears} Years Clinical Experience
-          </p>
-          {doctor.workplaceEn && (
-            <p className="text-sm sm:text-base text-[#93c5fd] font-semibold max-w-3xl">
-              {doctor.workplaceEn}
-              {doctor.workplaceBn ? ` (${doctor.workplaceBn})` : ""}
-            </p>
-          )}
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div className="space-y-3">
+              <h1 className="mc-serif text-3xl sm:text-5xl lg:text-[54px] font-bold text-white tracking-tight leading-tight">
+                {doctor.nameEn}
+              </h1>
+              <p className="text-xl text-[#c5e2f9] font-medium">
+                {doctor.nameBn} — {doctor.designationEn}
+              </p>
+              <p className="text-base sm:text-lg text-[#e8f0f9] max-w-3xl leading-relaxed">
+                {doctor.qualificationsEn} • {doctor.experienceYears} Years Clinical Experience
+              </p>
+              {doctor.workplaceEn && (
+                <p className="text-sm sm:text-base text-[#93c5fd] font-semibold max-w-3xl">
+                  {doctor.workplaceEn}
+                  {doctor.workplaceBn ? ` (${doctor.workplaceBn})` : ""}
+                </p>
+              )}
+            </div>
+
+            <a
+              href="#book-appointment"
+              className="inline-flex min-h-[48px] items-center justify-center gap-2 bg-[#0057b8] hover:bg-[#004494] text-white font-bold px-6 py-3 text-sm uppercase tracking-wider transition-colors shrink-0"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Book Appointment / অ্যাপয়েন্টমেন্ট নিন</span>
+            </a>
+          </div>
         </div>
       </div>
 
@@ -118,13 +130,13 @@ export default async function DoctorDetailPage({
                   <p className="text-xs text-[#6b7280] uppercase font-bold tracking-wider">
                     Consultation Fee / ভিজিট ফি
                   </p>
-                  <p className="text-2xl font-bold text-[#080808] mt-1">
+                  <p className="text-2xl font-bold text-[#080808] mt-1 tabular-nums">
                     ৳{doctor.consultationFeeBdt.toLocaleString()}{" "}
                     <span className="text-sm font-normal text-[#6b7280]">
                       (New Visit / নতুন রোগী)
                     </span>
                   </p>
-                  <p className="text-sm text-[#004181] font-semibold mt-1">
+                  <p className="text-sm text-[#004181] font-semibold mt-1 tabular-nums">
                     Follow-up / রিপোর্ট দেখানো: ৳{doctor.followupFeeBdt.toLocaleString()}
                   </p>
                 </div>
@@ -230,8 +242,8 @@ export default async function DoctorDetailPage({
                         .map((slot) => (
                           <a
                             key={slot.time24}
-                            href="#book-with-doctor"
-                            className="px-3 py-1.5 bg-[#f0f7ff] hover:bg-[#0057b8] text-[#004181] hover:text-white border border-[#93c5fd] text-xs font-bold transition-colors"
+                            href="#book-appointment"
+                            className="px-3 py-1.5 bg-[#f0f7ff] hover:bg-[#0057b8] text-[#004181] hover:text-white border border-[#93c5fd] text-xs font-bold transition-colors tabular-nums"
                           >
                             {slot.labelEn} ({slot.labelBn})
                           </a>
@@ -243,22 +255,31 @@ export default async function DoctorDetailPage({
             </div>
           </div>
 
-          {/* Direct Appointment Booking Section for this Specialist */}
-          <div id="book-with-doctor" className="space-y-6 pt-4">
+          {/* Direct 3-Step Fixed-Slot Appointment Booking Section for this Specialist */}
+          <div id="book-appointment" className="space-y-6 pt-4 scroll-mt-24">
             <div className="pb-4 border-b-2 border-[#080808] flex items-center gap-2">
               <Calendar className="w-5 h-5 text-[#0057b8]" />
               <h2 className="mc-serif text-3xl text-[#080808]">
-                Request an Appointment with {doctor.nameEn}
+                Book Fixed-Slot Appointment with {doctor.nameEn}
               </h2>
             </div>
-            <AppointmentBookingModule
-              departments={departments}
-              doctors={allDoctors}
-              branches={branches}
-              preselectedDoctorId={doctor.id}
-              preselectedDepartmentId={doctor.departmentId}
-              preselectedBranchId={doctor.branches[0]?.branchId}
-            />
+            <Suspense
+              fallback={
+                <div className="p-12 text-center text-slate-500 border border-[#e5e7eb]">
+                  Loading real-time 14-day chamber schedule...
+                </div>
+              }
+            >
+              <PublicThreeStepBookingClient
+                embedded
+                branches={branches}
+                departments={departments}
+                doctors={allDoctors}
+                preselectedDoctorId={doctor.id}
+                preselectedDepartmentId={doctor.departmentId}
+                preselectedBranchId={doctor.branches[0]?.branchId}
+              />
+            </Suspense>
           </div>
         </div>
       </div>

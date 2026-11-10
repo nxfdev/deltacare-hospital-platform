@@ -78,20 +78,29 @@ export function PublicThreeStepBookingClient({
   branches,
   departments,
   doctors,
+  preselectedDoctorId,
+  preselectedDepartmentId,
+  preselectedBranchId,
+  embedded = false,
 }: {
   branches: Branch[];
   departments: Department[];
   doctors: Doctor[];
+  preselectedDoctorId?: string;
+  preselectedDepartmentId?: string;
+  preselectedBranchId?: string;
+  embedded?: boolean;
 }) {
   const searchParams = useSearchParams();
   const dateStrip = useMemo(() => build14DayStrip(), []);
 
-  // Resolve initial selections from URL query (?doctor=slug&branch=slug or ?doctorId=...&branchId=...)
+  // Resolve initial selections from URL query (?doctor=slug&branch=slug or ?doctorId=...&branchId=...), then fallback to preselected props
   const initialDoctor = useMemo(() => {
     const qDoc =
       searchParams.get("doctor") ||
       searchParams.get("doctorId") ||
-      searchParams.get("slug");
+      searchParams.get("slug") ||
+      preselectedDoctorId;
     if (qDoc) {
       const found = doctors.find(
         (d) =>
@@ -102,10 +111,29 @@ export function PublicThreeStepBookingClient({
       if (found) return found;
     }
     return doctors[0];
-  }, [doctors, searchParams]);
+  }, [doctors, preselectedDoctorId, searchParams]);
+
+  const initialDepartmentId = useMemo(() => {
+    const qDept =
+      searchParams.get("department") ||
+      searchParams.get("departmentId") ||
+      preselectedDepartmentId;
+    if (qDept) {
+      const found = departments.find(
+        (d) =>
+          d.slug.toLowerCase() === qDept.toLowerCase() ||
+          d.id.toLowerCase() === qDept.toLowerCase()
+      );
+      if (found) return found.id;
+    }
+    return initialDoctor?.departmentId || "ALL";
+  }, [departments, initialDoctor, preselectedDepartmentId, searchParams]);
 
   const initialBranchId = useMemo(() => {
-    const qBranch = searchParams.get("branch") || searchParams.get("branchId");
+    const qBranch =
+      searchParams.get("branch") ||
+      searchParams.get("branchId") ||
+      preselectedBranchId;
     if (qBranch) {
       const found = branches.find(
         (b) =>
@@ -116,11 +144,11 @@ export function PublicThreeStepBookingClient({
       if (found) return found.id;
     }
     return initialDoctor?.branches[0]?.branchId || branches[0]?.id || "branch-dhanmondi";
-  }, [branches, initialDoctor, searchParams]);
+  }, [branches, initialDoctor, preselectedBranchId, searchParams]);
 
   const [selectedBranchId, setSelectedBranchId] = useState<string>(initialBranchId);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>(
-    initialDoctor?.departmentId || "ALL"
+    initialDepartmentId
   );
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>(
     initialDoctor?.id || doctors[0]?.id || "doc-cardio-1"
@@ -261,42 +289,44 @@ export function PublicThreeStepBookingClient({
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900">
+    <div className={embedded ? "bg-white text-slate-900" : "min-h-screen bg-white text-slate-900"}>
       {/* Full-Bleed Deep Navy Header (#012d61) */}
-      <section className="print:hidden w-full bg-[#012d61] text-white py-12 md:py-16 border-b border-[#0057b8]/30">
-        <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div>
-              <p className="text-xs font-bold uppercase tracking-[0.22em] text-sky-300">
-                Care at DeltaCare · Real-Time Multi-Branch Fixed-Slot Engine
-              </p>
-              <h1 className="mc-serif mt-2 text-3xl sm:text-5xl font-normal tracking-tight text-white">
-                Book a Specialist Consultation
-              </h1>
-              <p className="mt-2 text-base sm:text-lg text-slate-200 max-w-3xl">
-                বিশেষজ্ঞ ডাক্তারের অ্যাপয়েন্টমেন্ট · Select your preferred branch, verified BMDC consultant, and live 15/20-minute fixed chamber slot with instant SMS confirmation.
-              </p>
-            </div>
+      {!embedded && (
+        <section className="print:hidden w-full bg-[#012d61] text-white py-12 md:py-16 border-b border-[#0057b8]/30">
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.22em] text-sky-300">
+                  Care at DeltaCare · Real-Time Multi-Branch Fixed-Slot Engine
+                </p>
+                <h1 className="mc-serif mt-2 text-3xl sm:text-5xl font-normal tracking-tight text-white">
+                  Book a Specialist Consultation
+                </h1>
+                <p className="mt-2 text-base sm:text-lg text-slate-200 max-w-3xl">
+                  বিশেষজ্ঞ ডাক্তারের অ্যাপয়েন্টমেন্ট · Select your preferred branch, verified BMDC consultant, and live 15/20-minute fixed chamber slot with instant SMS confirmation.
+                </p>
+              </div>
 
-            <div className="flex flex-wrap items-center gap-3">
-              <Link
-                href="/appointments/track"
-                className="inline-flex min-h-[44px] items-center gap-2 border border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-2.5 text-sm transition-colors"
-              >
-                Track Existing Booking / Digital Slip →
-              </Link>
-              <Link
-                href="/dashboard/front-desk"
-                className="inline-flex min-h-[44px] items-center gap-2 border border-sky-400/40 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-sky-200 hover:text-white"
-              >
-                Staff / Assistant Desk
-              </Link>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href="/appointments/track"
+                  className="inline-flex min-h-[44px] items-center gap-2 border border-white/30 bg-white/10 hover:bg-white/20 text-white font-semibold px-5 py-2.5 text-sm transition-colors"
+                >
+                  Track Existing Booking / Digital Slip →
+                </Link>
+                <Link
+                  href="/dashboard/front-desk"
+                  className="inline-flex min-h-[44px] items-center gap-2 border border-sky-400/40 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-sky-200 hover:text-white"
+                >
+                  Staff / Assistant Desk
+                </Link>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-10">
+      <div className={embedded ? "py-2" : "mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10 py-10"}>
         {completedSlip ? (
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="print:hidden border-l-4 border-emerald-600 bg-emerald-50 p-5 flex items-start gap-3">
